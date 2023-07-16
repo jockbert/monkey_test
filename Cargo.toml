@@ -1,0 +1,16 @@
+[package]
+name = "monkey_test"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+description = "A property based testing (PBT) tool like QuickCheck, ScalaCheck and other deriviatives thereof, for the Rust programming language."
+keywords = ["testing", "property based testing", "property", "PBT", "quickcheck"]
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+num-traits = "0.2"
+rand = "0.8.5"
+rand_chacha = "0"
