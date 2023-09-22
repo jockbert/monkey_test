@@ -6,7 +6,7 @@ license = "MIT"
 repository = "https://github.com/jockbert/monkey_test"
 
 description = "A property based testing (PBT) tool like QuickCheck, ScalaCheck and other deriviatives thereof, for the Rust programming language."
-keywords = ["testing", "property based testing", "property", "PBT", "quickcheck"]
+keywords = ["testing", "property", "PBT", "quickcheck"]
 
 [badges]
 maintenance = { status = "actively-developed" }
