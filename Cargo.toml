@@ -3,6 +3,7 @@ name = "monkey_test"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+repository = "https://github.com/jockbert/monkey_test"
 
 description = "A property based testing (PBT) tool like QuickCheck, ScalaCheck and other deriviatives thereof, for the Rust programming language."
 keywords = ["testing", "property based testing", "property", "PBT", "quickcheck"]
