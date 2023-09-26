@@ -1,6 +1,10 @@
 #![doc(issue_tracker_base_url = "https://github.com/jockbert/monkey_test/issues/")]
-#![doc(html_logo_url = "/home/jocke/git/monkey-test/target/doc/logo.png")]
-#![doc(html_favicon_url = "/home/jocke/git/monkey-test/target/doc/logo.ico")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/jockbert/monkey_test/main/assets/doc/logo-256.png"
+)]
+#![doc(
+    html_favicon_url = "https://raw.githubusercontent.com/jockbert/monkey_test/main/assets/doc/logo.ico"
+)]
 #![warn(missing_docs)]
 
 //! A [property based testing (*PBT*)](https://en.wikipedia.org/wiki/Software_testing#Property_testing) tool like QuickCheck
