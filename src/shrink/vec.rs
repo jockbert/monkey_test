@@ -4,39 +4,39 @@ use crate::Shrink;
 use std::marker::PhantomData;
 
 /// Default vector shrinker
-pub fn default<T: Clone + 'static>() -> crate::SomeShrink<Vec<T>> {
-    Box::new(VecShrink::<T> {
+pub fn default<E: Clone + 'static>() -> crate::SomeShrink<Vec<E>> {
+    Box::new(VecShrink::<E> {
         phantom: PhantomData,
     })
 }
 
 /// Vector version of shrinker
-pub struct VecShrink<T>
+pub struct VecShrink<E>
 where
-    T: Clone,
+    E: Clone,
 {
-    phantom: PhantomData<T>,
+    phantom: PhantomData<E>,
 }
 
-impl<T> Shrink<Vec<T>> for VecShrink<T>
+impl<E> Shrink<Vec<E>> for VecShrink<E>
 where
-    T: Clone + 'static,
+    E: Clone + 'static,
 {
-    fn candidates(&self, original: Vec<T>) -> Box<dyn Iterator<Item = Vec<T>>> {
-        Box::new(VecIterator::<T> { current: original })
+    fn candidates(&self, original: Vec<E>) -> Box<dyn Iterator<Item = Vec<E>>> {
+        Box::new(VecIterator::<E> { current: original })
     }
 }
 
 /// Vector shrink iterator
-pub struct VecIterator<T> {
-    current: Vec<T>,
+pub struct VecIterator<E> {
+    current: Vec<E>,
 }
 
-impl<T> Iterator for VecIterator<T>
+impl<E> Iterator for VecIterator<E>
 where
-    T: Clone,
+    E: Clone,
 {
-    type Item = Vec<T>;
+    type Item = Vec<E>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.current.is_empty() {

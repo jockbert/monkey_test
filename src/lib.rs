@@ -174,28 +174,28 @@ pub fn monkey_test() -> Monkey {
     }
 }
 
-type SomeIter<A> = Box<dyn Iterator<Item = A>>;
-type SomeShrink<A> = Box<dyn Shrink<A>>;
+type SomeIter<E> = Box<dyn Iterator<Item = E>>;
+type SomeShrink<E> = Box<dyn Shrink<E>>;
 
 /// The generator trait, for producing example values to test in a property.
-pub trait Gen<A>: Clone {
+pub trait Gen<E>: Clone {
     /// Produce a example iterator from the generator, given a randomization
     /// seed.
-    fn iter(&self, seed: u64) -> SomeIter<A>;
+    fn iter(&self, seed: u64) -> SomeIter<E>;
 }
 
 /// The shrinker trait, for shrinking a failed example values into smaller ones.
 /// What is determined as a smaller value can be subjective and is up to author
 /// or tester to determine, but as a rule of thumb a smaller value should be
 /// easier to interpret, when a property is proven wrong.
-pub trait Shrink<A> {
+pub trait Shrink<E> {
     /// Returns a series of smaller examples, given an original example.
-    fn candidates(&self, original: A) -> Box<dyn Iterator<Item = A>>;
+    fn candidates(&self, original: E) -> Box<dyn Iterator<Item = E>>;
 }
 
 /// Result summary from evaluation of a property tested.
 #[derive(Debug, PartialEq)]
-pub enum MonkeyResult<T> {
+pub enum MonkeyResult<E> {
     /// A successful monkey test result.
     MonkeyOk(),
 
@@ -204,17 +204,17 @@ pub enum MonkeyResult<T> {
         /// The minimum example found that disproves the property. In case a shinker
         /// is provided, this is the shrunken failure example, possibly separate
         /// from original failure. In other cases the same as original failure.
-        minimum_failure: T,
+        minimum_failure: E,
 
         /// The original (first found) example that disproves the property.
-        original_failure: T,
+        original_failure: E,
 
         /// Other examples that also disproves the property. In case a shinker
         /// is provided, this vector is populated with non-minimum values found
         /// as part of the shrinking process of the original failure example.
         /// Some found failures may be exlided from list if many failure
         /// examples are found
-        some_other_failures: Vec<T>,
+        some_other_failures: Vec<E>,
 
         /// Successful example count tried before finding a failure.
         success_count: u64,
@@ -236,20 +236,20 @@ pub struct Monkey {
 }
 
 /// Configuration for executing monkey tests, using a single generator.
-pub struct MonkeyWithGen<A, G>
+pub struct MonkeyWithGen<E, G>
 where
-    G: Gen<A>,
+    G: Gen<E>,
 {
     example_count: u32,
     seed: u64,
     gen: G,
-    shrinker: Option<SomeShrink<A>>,
+    shrinker: Option<SomeShrink<E>>,
 }
 
 impl Monkey {
     /// Specify which single generator to use in test.
-    pub fn with_generator<A, G: Gen<A>>(&self, gen: G) -> MonkeyWithGen<A, G> {
-        MonkeyWithGen::<A, G> {
+    pub fn with_generator<E, G: Gen<E>>(&self, gen: G) -> MonkeyWithGen<E, G> {
+        MonkeyWithGen::<E, G> {
             example_count: self.example_count,
             seed: self.seed,
             shrinker: None,
@@ -279,16 +279,16 @@ impl Monkey {
     }
 }
 
-impl<A, G> MonkeyWithGen<A, G>
+impl<E, G> MonkeyWithGen<E, G>
 where
-    A: std::fmt::Debug + Clone,
-    G: Gen<A>,
+    E: std::fmt::Debug + Clone,
+    G: Gen<E>,
 {
     /// Check that the property holds for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or failure.
-    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<A>
+    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<E>
     where
-        P: Fn(A) -> bool,
+        P: Fn(E) -> bool,
     {
         let mut it = self.gen.iter(self.seed);
 
@@ -306,7 +306,7 @@ where
                     Some(s) => self.do_shrink(prop, s.candidates(e.clone())),
                 };
 
-                return MonkeyResult::<A>::MonkeyErr {
+                return MonkeyResult::<E>::MonkeyErr {
                     minimum_failure: shrinked_values.last().cloned().unwrap_or(e.clone()),
                     original_failure: e,
                     some_other_failures: shrinked_values
@@ -321,12 +321,12 @@ where
             }
         }
 
-        MonkeyResult::<A>::MonkeyOk()
+        MonkeyResult::<E>::MonkeyOk()
     }
 
-    fn do_shrink<P>(&self, prop: P, it: Box<dyn Iterator<Item = A>>) -> Vec<A>
+    fn do_shrink<P>(&self, prop: P, it: Box<dyn Iterator<Item = E>>) -> Vec<E>
     where
-        P: Fn(A) -> bool,
+        P: Fn(E) -> bool,
     {
         let mut shrinked_examples = vec![];
 
@@ -343,7 +343,7 @@ where
     /// It panics on failure.
     pub fn assert_true<P>(&self, prop: P)
     where
-        P: Fn(A) -> bool,
+        P: Fn(E) -> bool,
     {
         if let MonkeyResult::MonkeyErr {
             minimum_failure,
@@ -361,8 +361,8 @@ where
     }
 
     /// Add/change which shriker to use if a failing example is found.
-    pub fn with_shrinker(&self, shrink: SomeShrink<A>) -> MonkeyWithGen<A, G> {
-        MonkeyWithGen::<A, G> {
+    pub fn with_shrinker(&self, shrink: SomeShrink<E>) -> MonkeyWithGen<E, G> {
+        MonkeyWithGen::<E, G> {
             shrinker: Some(shrink),
             gen: self.gen.clone(),
             example_count: self.example_count,

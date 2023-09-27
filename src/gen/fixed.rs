@@ -15,32 +15,32 @@
 /// assert_eq!(None, it.next());
 /// assert_eq!(None, it.next());
 /// ```
-pub fn sequence<T>(examples: &[T]) -> SliceGen<T>
+pub fn sequence<E>(examples: &[E]) -> SliceGen<E>
 where
-    T: Clone + std::fmt::Debug,
+    E: Clone + std::fmt::Debug,
 {
     SliceGen::new(examples)
 }
 
 /// Generator from a given set of examples to return.
 #[derive(Clone)]
-pub struct SliceGen<T> {
-    data: Vec<T>,
+pub struct SliceGen<E> {
+    data: Vec<E>,
 }
 
-impl<T> SliceGen<T>
+impl<E> SliceGen<E>
 where
-    T: Clone,
+    E: Clone,
 {
-    fn new(data: &[T]) -> Self {
+    fn new(data: &[E]) -> Self {
         SliceGen {
             data: Vec::from(data),
         }
     }
 }
 
-impl<T: Clone + 'static> crate::Gen<T> for SliceGen<T> {
-    fn iter(&self, _seed: u64) -> crate::SomeIter<T> {
+impl<E: Clone + 'static> crate::Gen<E> for SliceGen<E> {
+    fn iter(&self, _seed: u64) -> crate::SomeIter<E> {
         let x = self.data.clone();
         Box::new(x.into_iter())
     }

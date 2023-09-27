@@ -7,7 +7,7 @@
 
 use monkey_test::*;
 
-fn faulty_reverse<T>(list: Vec<T>) -> Vec<T> {
+fn faulty_reverse<E>(list: Vec<E>) -> Vec<E> {
     // Not reversing the list, just returning it.
     list
 }

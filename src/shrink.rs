@@ -5,30 +5,30 @@ pub mod vec;
 use num_traits::Num;
 
 /// A collection of shrinkers for numeric type T.
-pub struct NumericShrinks<T>
+pub struct NumericShrinks<E>
 where
-    T: Num + Copy,
+    E: Num + Copy,
 {
-    min: T,
-    max: T,
+    min: E,
+    max: E,
 }
 
-impl<T> NumericShrinks<T>
+impl<E> NumericShrinks<E>
 where
-    T: Num + Copy + 'static,
+    E: Num + Copy + 'static,
 {
     /// Shrinks a value to zero.
-    pub fn to_zero(&self) -> crate::SomeShrink<T> {
+    pub fn to_zero(&self) -> crate::SomeShrink<E> {
         Box::new(NumericShrink {})
     }
 
     /// Shrinker not producing any smaller values.
-    pub fn no_shrink(&self) -> crate::SomeShrink<T> {
+    pub fn no_shrink(&self) -> crate::SomeShrink<E> {
         Box::new(NumericShrink {})
     }
 
     /// Shrinks a value to zero.
-    pub fn decrement(&self) -> crate::SomeShrink<T> {
+    pub fn decrement(&self) -> crate::SomeShrink<E> {
         Box::new(NumDecrementShrink {})
     }
 }
@@ -36,36 +36,36 @@ where
 /// Shrinker that decrements a value towards zero.
 pub struct NumDecrementShrink {}
 
-impl<T> super::Shrink<T> for NumDecrementShrink
+impl<E> super::Shrink<E> for NumDecrementShrink
 where
-    T: Num + Copy + 'static,
+    E: Num + Copy + 'static,
 {
-    fn candidates(&self, original: T) -> Box<dyn Iterator<Item = T>> {
+    fn candidates(&self, original: E) -> Box<dyn Iterator<Item = E>> {
         let _next = match original {
-            x if x == T::zero() => None,
-            _ => Some(original.sub(T::one())),
+            x if x == E::zero() => None,
+            _ => Some(original.sub(E::one())),
         };
 
-        Box::new(NumDecrementIterator::<T> { current: original })
+        Box::new(NumDecrementIterator::<E> { current: original })
     }
 }
 
 /// Iterator that decrements a value towards zero.
-pub struct NumDecrementIterator<T> {
-    current: T,
+pub struct NumDecrementIterator<E> {
+    current: E,
 }
 
-impl<T> Iterator for NumDecrementIterator<T>
+impl<E> Iterator for NumDecrementIterator<E>
 where
-    T: Num + Copy,
+    E: Num + Copy,
 {
-    type Item = T;
+    type Item = E;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current == T::zero() {
+        if self.current == E::zero() {
             None
         } else {
-            self.current = self.current.sub(T::one());
+            self.current = self.current.sub(E::one());
             Some(self.current)
         }
     }
@@ -74,31 +74,31 @@ where
 /// A shrinker for numeric type
 pub struct NumericShrink {}
 
-impl<T> super::Shrink<T> for NumericShrink
+impl<E> super::Shrink<E> for NumericShrink
 where
-    T: Num + Copy + 'static,
+    E: Num + Copy + 'static,
 {
-    fn candidates(self: &NumericShrink, _original: T) -> Box<dyn Iterator<Item = T>> {
-        Box::new(NumericShrinkIterator::<T> {
+    fn candidates(self: &NumericShrink, _original: E) -> Box<dyn Iterator<Item = E>> {
+        Box::new(NumericShrinkIterator::<E> {
             start: _original,
-            target: T::zero(),
-            next: Some(T::zero().sub(_original)),
+            target: E::zero(),
+            next: Some(E::zero().sub(_original)),
         })
     }
 }
 
 /// Iterator for shrinking numerical values
-pub struct NumericShrinkIterator<T> {
-    start: T,
-    target: T,
-    next: Option<T>,
+pub struct NumericShrinkIterator<E> {
+    start: E,
+    target: E,
+    next: Option<E>,
 }
 
-impl<T> Iterator for NumericShrinkIterator<T>
+impl<E> Iterator for NumericShrinkIterator<E>
 where
-    T: Num + Copy,
+    E: Num + Copy,
 {
-    type Item = T;
+    type Item = E;
 
     fn next(&mut self) -> Option<Self::Item> {
         let result = self.next;
