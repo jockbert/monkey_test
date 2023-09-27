@@ -150,8 +150,13 @@
 //!   is insufficient.
 //!
 
+mod config;
 pub mod gen;
+mod runner;
 pub mod shrink;
+
+// Re-export details from config-module
+pub use config::*;
 
 /// Main entry point for writing property based tests using the monkey-test
 /// tool.
@@ -167,11 +172,8 @@ pub mod shrink;
 ///     .assert_true(|x: u8| x + 1 > x)
 /// }
 /// ```
-pub fn monkey_test() -> Monkey {
-    Monkey {
-        example_count: 100,
-        seed: 0,
-    }
+pub fn monkey_test() -> Conf {
+    Conf::default()
 }
 
 type SomeIter<E> = Box<dyn Iterator<Item = E>>;
@@ -191,182 +193,4 @@ pub trait Gen<E>: Clone {
 pub trait Shrink<E> {
     /// Returns a series of smaller examples, given an original example.
     fn candidates(&self, original: E) -> Box<dyn Iterator<Item = E>>;
-}
-
-/// Result summary from evaluation of a property tested.
-#[derive(Debug, PartialEq)]
-pub enum MonkeyResult<E> {
-    /// A successful monkey test result.
-    MonkeyOk(),
-
-    /// A failed monkey test result.
-    MonkeyErr {
-        /// The minimum example found that disproves the property. In case a shinker
-        /// is provided, this is the shrunken failure example, possibly separate
-        /// from original failure. In other cases the same as original failure.
-        minimum_failure: E,
-
-        /// The original (first found) example that disproves the property.
-        original_failure: E,
-
-        /// Other examples that also disproves the property. In case a shinker
-        /// is provided, this vector is populated with non-minimum values found
-        /// as part of the shrinking process of the original failure example.
-        /// Some found failures may be exlided from list if many failure
-        /// examples are found
-        some_other_failures: Vec<E>,
-
-        /// Successful example count tried before finding a failure.
-        success_count: u64,
-
-        /// Number of examples used when trying to shrink original failure
-        /// example.
-        shrink_count: u64,
-
-        /// The seed used for generating the examples. Can be useful for
-        /// reproducing the failed test run.
-        seed: u64,
-    },
-}
-
-/// Configuration for executing monkey tests.
-pub struct Monkey {
-    example_count: u32,
-    seed: u64,
-}
-
-/// Configuration for executing monkey tests, using a single generator.
-pub struct MonkeyWithGen<E, G>
-where
-    G: Gen<E>,
-{
-    example_count: u32,
-    seed: u64,
-    gen: G,
-    shrinker: Option<SomeShrink<E>>,
-}
-
-impl Monkey {
-    /// Specify which single generator to use in test.
-    pub fn with_generator<E, G: Gen<E>>(&self, gen: G) -> MonkeyWithGen<E, G> {
-        MonkeyWithGen::<E, G> {
-            example_count: self.example_count,
-            seed: self.seed,
-            shrinker: None,
-            gen,
-        }
-    }
-
-    /// Specify the number of examples to use in test. If not specified, the
-    /// default number of examples are used. If the default number of examples
-    /// are explicitly changed, it is set to 100.
-    pub fn with_example_count(&self, example_count: u32) -> Monkey {
-        Monkey {
-            example_count,
-            seed: self.seed,
-        }
-    }
-
-    /// Specify which seed to use for random values. Specifying the seed is
-    /// useful for reproducing a failing test run. Use this with caution, since
-    /// using a seed hinders new test runs to use other examples than already
-    /// used in earlier test runs.
-    pub fn with_seed(&self, seed: u64) -> Monkey {
-        Monkey {
-            example_count: self.example_count,
-            seed,
-        }
-    }
-}
-
-impl<E, G> MonkeyWithGen<E, G>
-where
-    E: std::fmt::Debug + Clone,
-    G: Gen<E>,
-{
-    /// Check that the property holds for all generated example values.
-    /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or failure.
-    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<E>
-    where
-        P: Fn(E) -> bool,
-    {
-        let mut it = self.gen.iter(self.seed);
-
-        for i in 0..self.example_count {
-            let example = it.next();
-
-            let (e, success) = match example {
-                Some(e) => (e.clone(), prop(e.clone())),
-                None => panic!("To few examples. Only got {i}"),
-            };
-
-            if !success {
-                let shrinked_values = match self.shrinker.as_ref() {
-                    None => vec![],
-                    Some(s) => self.do_shrink(prop, s.candidates(e.clone())),
-                };
-
-                return MonkeyResult::<E>::MonkeyErr {
-                    minimum_failure: shrinked_values.last().cloned().unwrap_or(e.clone()),
-                    original_failure: e,
-                    some_other_failures: shrinked_values
-                        .clone()
-                        .into_iter()
-                        .take((shrinked_values.len().max(1) as u64 - 1) as usize)
-                        .collect(),
-                    success_count: i as u64,
-                    shrink_count: shrinked_values.len() as u64,
-                    seed: self.seed,
-                };
-            }
-        }
-
-        MonkeyResult::<E>::MonkeyOk()
-    }
-
-    fn do_shrink<P>(&self, prop: P, it: Box<dyn Iterator<Item = E>>) -> Vec<E>
-    where
-        P: Fn(E) -> bool,
-    {
-        let mut shrinked_examples = vec![];
-
-        for example in it.take(1000) {
-            if !prop(example.clone()) {
-                shrinked_examples.push(example);
-            }
-        }
-
-        shrinked_examples
-    }
-
-    /// Check that the property holds for all generated example values.
-    /// It panics on failure.
-    pub fn assert_true<P>(&self, prop: P)
-    where
-        P: Fn(E) -> bool,
-    {
-        if let MonkeyResult::MonkeyErr {
-            minimum_failure,
-            seed,
-            ..
-        } = self.check_true(prop)
-        {
-            panic!(
-                "Monkey test property failed!\n\
-                Counterexample: {:?}\n\
-                Reproduction seed: {}\n",
-                minimum_failure, seed
-            )
-        }
-    }
-
-    /// Add/change which shriker to use if a failing example is found.
-    pub fn with_shrinker(&self, shrink: SomeShrink<E>) -> MonkeyWithGen<E, G> {
-        MonkeyWithGen::<E, G> {
-            shrinker: Some(shrink),
-            gen: self.gen.clone(),
-            example_count: self.example_count,
-            seed: self.seed,
-        }
-    }
 }
