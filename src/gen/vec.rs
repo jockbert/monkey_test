@@ -2,36 +2,52 @@
 
 use std::marker::PhantomData;
 
-use crate::Gen;
+use crate::{shrink::vec::VecShrink, Gen, Shrink, SomeIter};
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
 /// Any vector filled with values from given generator
-pub fn any<E: 'static + Clone, GE: Gen<E>>(inner_gen: GE) -> RandVecGen<E, GE> {
-    RandVecGen::<E, GE> {
-        phantom: PhantomData,
+pub fn any<E, SE, GE: Gen<E, SE>>(inner_gen: GE) -> RandVecGen<E, GE, SE>
+where
+    E: Clone + 'static,
+    SE: Shrink<E>,
+{
+    RandVecGen::<E, GE, SE> {
+        element_phantom: PhantomData,
+        shrinker_phantom: PhantomData,
         inner_gen,
     }
 }
 
 /// Generator for random vectors.
 #[derive(Clone)]
-pub struct RandVecGen<E, GE>
+pub struct RandVecGen<E, GE, SE>
 where
     E: 'static + Clone,
-    GE: Gen<E>,
+    SE: Shrink<E>,
+    GE: Gen<E, SE>,
 {
     /// just saying that we care about the type A.
-    phantom: PhantomData<E>,
+    element_phantom: PhantomData<E>,
+    shrinker_phantom: PhantomData<SE>,
     inner_gen: GE,
 }
 
-impl<E: 'static + Clone, GE: Gen<E>> crate::Gen<Vec<E>> for RandVecGen<E, GE> {
-    fn examples(&self, seed: u64) -> crate::SomeIter<Vec<E>> {
+impl<E, SE, GE> Gen<Vec<E>, VecShrink<E>> for RandVecGen<E, GE, SE>
+where
+    E: Clone + 'static,
+    SE: Shrink<E>,
+    GE: Gen<E, SE>,
+{
+    fn examples(&self, seed: u64) -> SomeIter<Vec<E>> {
         Box::new(RandVecIter::<E> {
             rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
             inner_it: self.inner_gen.examples(seed),
         })
+    }
+
+    fn shrinker(&self) -> VecShrink<E> {
+        crate::shrink::vec::default()
     }
 }
 

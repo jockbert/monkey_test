@@ -37,12 +37,16 @@ pub enum MonkeyResult<E> {
 use crate::config::*;
 use crate::*;
 
-pub fn evaluate_property<E, G, S, P>(cgs: &ConfGenAndShrink<E, G, S>, prop: P) -> MonkeyResult<E>
+pub fn evaluate_property<E, G, S, S2, P>(
+    cgs: &ConfGenAndShrink<E, G, S, S2>,
+    prop: P,
+) -> MonkeyResult<E>
 where
     E: std::fmt::Debug + Clone,
-    G: Gen<E>,
-    S: Shrink<E>,
+    G: Gen<E, S>,
     P: Fn(E) -> bool,
+    S: Shrink<E>,
+    S2: Shrink<E>,
 {
     let mut it = cgs.gen.examples(cgs.conf.seed);
 

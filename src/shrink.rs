@@ -7,6 +7,7 @@ use num_traits::Num;
 use crate::{Shrink, SomeIter};
 
 /// Shrinker that does nothing.
+#[derive(Clone)]
 pub struct NoShrink {}
 
 impl<E: 'static> Shrink<E> for NoShrink {
@@ -45,6 +46,7 @@ where
 }
 
 /// Shrinker that decrements a value towards zero.
+#[derive(Clone)]
 pub struct NumDecrementShrink {}
 
 impl<E> Shrink<E> for NumDecrementShrink
@@ -83,6 +85,7 @@ where
 }
 
 /// A shrinker for numeric type
+#[derive(Clone)]
 pub struct NumericShrink {}
 
 impl<E> Shrink<E> for NumericShrink

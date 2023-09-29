@@ -1,6 +1,8 @@
 //! Generators mainly used for internal testing, where you want a
 //! deterministicly generated values.
 
+use crate::shrink::NoShrink;
+
 /// Generates a fixed sequence of examples.
 ///
 /// ```
@@ -39,9 +41,13 @@ where
     }
 }
 
-impl<E: Clone + 'static> crate::Gen<E> for SliceGen<E> {
+impl<E: Clone + 'static> crate::Gen<E, NoShrink> for SliceGen<E> {
     fn examples(&self, _seed: u64) -> crate::SomeIter<E> {
         let x = self.data.clone();
         Box::new(x.into_iter())
+    }
+
+    fn shrinker(&self) -> NoShrink {
+        NoShrink {}
     }
 }

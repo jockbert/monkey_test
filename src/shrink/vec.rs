@@ -11,6 +11,7 @@ pub fn default<E: Clone + 'static>() -> VecShrink<E> {
 }
 
 /// Vector version of shrinker
+#[derive(Clone)]
 pub struct VecShrink<E>
 where
     E: Clone,
