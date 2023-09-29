@@ -4,6 +4,7 @@ pub use crate::runner::MonkeyResult;
 use crate::{shrink::NoShrink, Gen, Shrink};
 
 /// Configuration for executing monkey tests.
+#[derive(Clone)]
 pub struct Conf {
     /// See [Conf::with_seed].
     pub example_count: u32,
@@ -11,37 +12,44 @@ pub struct Conf {
     pub seed: u64,
 }
 
-/// Configuration for executing monkey tests, using a single generator.
-pub struct ConfWithGen<E, G, S>
+/// Configuration for executing monkey tests, including the generator.
+pub struct ConfAndGen<E, G>
+where
+    G: Gen<E>,
+{
+    phantom: PhantomData<E>,
+    /// The configuration to use.
+    pub conf: Conf,
+    /// See [Conf::with_generator].
+    pub gen: G,
+}
+
+/// Configuration for executing monkey tests, including the generator and an
+/// explicit shrinker.
+pub struct ConfGenAndShrink<E, G, S>
 where
     G: Gen<E>,
     S: Shrink<E>,
 {
     phantom: PhantomData<E>,
-    /// See [Conf::with_example_count].
-    pub example_count: u32,
-    /// See [Conf::with_seed].
-    pub seed: u64,
+    /// The configuration to use.
+    pub conf: Conf,
     /// See [Conf::with_generator].
     pub gen: G,
-    /// See [ConfWithGen::with_shrinker].
-    pub shrinker: Option<S>,
-}
-
+    /// See [ConfAndGen::with_shrinker].
+    pub shrinker: S,
 }
 
 impl Conf {
     /// Specify which single generator to use in test.
-    pub fn with_generator<E, G>(&self, gen: G) -> ConfWithGen<E, G, NoShrink>
+    pub fn with_generator<E, G>(&self, gen: G) -> ConfAndGen<E, G>
     where
         E: 'static,
         G: Gen<E>,
     {
-        ConfWithGen::<E, G, NoShrink> {
+        ConfAndGen::<E, G> {
             phantom: PhantomData,
-            example_count: self.example_count,
-            seed: self.seed,
-            shrinker: None,
+            conf: self.clone(),
             gen,
         }
     }
@@ -78,9 +86,46 @@ impl Default for Conf {
     }
 }
 
-impl<E, G, S> ConfWithGen<E, G, S>
+impl<E, G> ConfAndGen<E, G>
 where
-    E: std::fmt::Debug + Clone,
+    E: std::fmt::Debug + Clone + 'static,
+    G: Gen<E>,
+{
+    /// Check that the property holds for all generated example values.
+    /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or failure.
+    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<E>
+    where
+        P: Fn(E) -> bool,
+    {
+        self.with_shrinker(NoShrink {}).check_true(prop)
+    }
+
+    /// Check that the property holds for all generated example values.
+    /// It panics on failure.
+    pub fn assert_true<P>(&self, prop: P)
+    where
+        P: Fn(E) -> bool,
+    {
+        self.with_shrinker(NoShrink {}).assert_true(prop)
+    }
+
+    /// Add/change which shriker to use if a failing example is found.
+    pub fn with_shrinker<S2>(&self, shrink: S2) -> ConfGenAndShrink<E, G, S2>
+    where
+        S2: Shrink<E>,
+    {
+        ConfGenAndShrink::<E, G, S2> {
+            phantom: PhantomData,
+            shrinker: shrink,
+            gen: self.gen.clone(),
+            conf: self.conf.clone(),
+        }
+    }
+}
+
+impl<E, G, S> ConfGenAndShrink<E, G, S>
+where
+    E: std::fmt::Debug + Clone + 'static,
     G: Gen<E>,
     S: Shrink<E>,
 {
@@ -115,16 +160,15 @@ where
     }
 
     /// Add/change which shriker to use if a failing example is found.
-    pub fn with_shrinker<S2>(&self, shrink: S2) -> ConfWithGen<E, G, S2>
+    pub fn with_shrinker<S2>(&self, shrink: S2) -> ConfGenAndShrink<E, G, S2>
     where
         S2: Shrink<E>,
     {
-        ConfWithGen::<E, G, S2> {
+        ConfGenAndShrink::<E, G, S2> {
             phantom: PhantomData,
-            shrinker: Some(shrink),
+            shrinker: shrink,
             gen: self.gen.clone(),
-            example_count: self.example_count,
-            seed: self.seed,
+            conf: self.conf.clone(),
         }
     }
 }
