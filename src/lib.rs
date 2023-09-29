@@ -213,3 +213,8 @@ pub trait Shrink<E>: Clone {
     /// Returns a series of smaller examples, given an original example.
     fn candidates(&self, original: E) -> SomeIter<E>;
 }
+
+// Doctest the readme file
+#[doc = include_str!("../README.md")]
+#[cfg(doctest)]
+pub struct ReadmeDoctests;

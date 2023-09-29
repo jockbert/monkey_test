@@ -19,14 +19,17 @@ change.</mark>
 ## Example
 
 ```rust
-use monkey_test::*;
+#[cfg(test)]
+mod tests {
+    use monkey_test::*;
 
-#[test]
-#[should_panic(expected = "Property failed!\nCounterexample: 15")]
-fn test_that_will_faill() {
-    monkey_test()
-        .with_generator(gen::u8::any())
-        .assert_true(|x: u8| x < 15)
+    #[test]
+    #[should_panic(expected = "Property failed!\nCounterexample: 15")]
+    fn test_that_will_fail() {
+        monkey_test()
+            .with_generator(gen::u8::any())
+            .assert_true(|x: u8| x < 15)
+    }
 }
 ```
 
