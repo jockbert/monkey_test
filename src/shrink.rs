@@ -4,13 +4,13 @@ pub mod vec;
 
 use num_traits::Num;
 
-use crate::Shrink;
+use crate::{Shrink, SomeIter};
 
 /// Shrinker that does nothing.
 pub struct NoShrink {}
 
 impl<E: 'static> Shrink<E> for NoShrink {
-    fn candidates(&self, _: E) -> Box<dyn Iterator<Item = E>> {
+    fn candidates(&self, _: E) -> SomeIter<E> {
         Box::new(std::iter::empty::<E>())
     }
 }
@@ -51,7 +51,7 @@ impl<E> Shrink<E> for NumDecrementShrink
 where
     E: Num + Copy + 'static,
 {
-    fn candidates(&self, original: E) -> Box<dyn Iterator<Item = E>> {
+    fn candidates(&self, original: E) -> SomeIter<E> {
         let _next = match original {
             x if x == E::zero() => None,
             _ => Some(original.sub(E::one())),
@@ -89,7 +89,7 @@ impl<E> Shrink<E> for NumericShrink
 where
     E: Num + Copy + 'static,
 {
-    fn candidates(self: &NumericShrink, _original: E) -> Box<dyn Iterator<Item = E>> {
+    fn candidates(self: &NumericShrink, _original: E) -> SomeIter<E> {
         Box::new(NumericShrinkIterator::<E> {
             start: _original,
             target: E::zero(),

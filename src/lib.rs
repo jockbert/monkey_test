@@ -191,5 +191,5 @@ pub trait Gen<E>: Clone {
 /// easier to interpret, when a property is proven wrong.
 pub trait Shrink<E> {
     /// Returns a series of smaller examples, given an original example.
-    fn candidates(&self, original: E) -> Box<dyn Iterator<Item = E>>;
+    fn candidates(&self, original: E) -> SomeIter<E>;
 }
