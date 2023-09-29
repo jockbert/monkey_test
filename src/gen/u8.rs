@@ -13,7 +13,7 @@ pub fn any() -> RandU8Gen {
 pub struct RandU8Gen {}
 
 impl crate::Gen<u8> for RandU8Gen {
-    fn iter(&self, seed: u64) -> crate::SomeIter<u8> {
+    fn examples(&self, seed: u64) -> crate::SomeIter<u8> {
         Box::new(RandU8Iter {
             rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
         })

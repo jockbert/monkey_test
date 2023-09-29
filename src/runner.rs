@@ -44,7 +44,7 @@ where
     S: Shrink<E>,
     P: Fn(E) -> bool,
 {
-    let mut it = cgs.gen.iter(cgs.conf.seed);
+    let mut it = cgs.gen.examples(cgs.conf.seed);
 
     for i in 0..cgs.conf.example_count {
         let example = it.next();

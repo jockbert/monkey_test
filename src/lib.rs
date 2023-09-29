@@ -182,7 +182,7 @@ type SomeIter<E> = Box<dyn Iterator<Item = E>>;
 pub trait Gen<E>: Clone {
     /// Produce a example iterator from the generator, given a randomization
     /// seed.
-    fn iter(&self, seed: u64) -> SomeIter<E>;
+    fn examples(&self, seed: u64) -> SomeIter<E>;
 }
 
 /// The shrinker trait, for shrinking a failed example values into smaller ones.

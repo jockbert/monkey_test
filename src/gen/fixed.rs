@@ -7,13 +7,13 @@
 /// use crate::monkey_test::Gen;
 ///
 /// let gen = monkey_test::gen::fixed::sequence::<u64>(&[1,20,300]);
-/// let mut it = gen.iter(1337);
-/// assert_eq!(Some(1), it.next());
-/// assert_eq!(Some(20), it.next());
-/// assert_eq!(Some(300), it.next());
-/// assert_eq!(None, it.next());
-/// assert_eq!(None, it.next());
-/// assert_eq!(None, it.next());
+/// let mut ex = gen.examples(1337);
+/// assert_eq!(Some(1), ex.next());
+/// assert_eq!(Some(20), ex.next());
+/// assert_eq!(Some(300), ex.next());
+/// assert_eq!(None, ex.next());
+/// assert_eq!(None, ex.next());
+/// assert_eq!(None, ex.next());
 /// ```
 pub fn sequence<E>(examples: &[E]) -> SliceGen<E>
 where
@@ -40,7 +40,7 @@ where
 }
 
 impl<E: Clone + 'static> crate::Gen<E> for SliceGen<E> {
-    fn iter(&self, _seed: u64) -> crate::SomeIter<E> {
+    fn examples(&self, _seed: u64) -> crate::SomeIter<E> {
         let x = self.data.clone();
         Box::new(x.into_iter())
     }

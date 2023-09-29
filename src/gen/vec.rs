@@ -27,10 +27,10 @@ where
 }
 
 impl<E: 'static + Clone, GE: Gen<E>> crate::Gen<Vec<E>> for RandVecGen<E, GE> {
-    fn iter(&self, seed: u64) -> crate::SomeIter<Vec<E>> {
+    fn examples(&self, seed: u64) -> crate::SomeIter<Vec<E>> {
         Box::new(RandVecIter::<E> {
             rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
-            inner_it: self.inner_gen.iter(seed),
+            inner_it: self.inner_gen.examples(seed),
         })
     }
 }
