@@ -4,6 +4,17 @@ pub mod vec;
 
 use num_traits::Num;
 
+use crate::Shrink;
+
+/// Shrinker that does nothing.
+pub struct NoShrink {}
+
+impl<E: 'static> Shrink<E> for NoShrink {
+    fn candidates(&self, _: E) -> Box<dyn Iterator<Item = E>> {
+        Box::new(std::iter::empty::<E>())
+    }
+}
+
 /// A collection of shrinkers for numeric type T.
 pub struct NumericShrinks<E>
 where
@@ -18,25 +29,25 @@ where
     E: Num + Copy + 'static,
 {
     /// Shrinks a value to zero.
-    pub fn to_zero(&self) -> crate::SomeShrink<E> {
-        Box::new(NumericShrink {})
+    pub fn to_zero(&self) -> NumericShrink {
+        NumericShrink {}
     }
 
     /// Shrinker not producing any smaller values.
-    pub fn no_shrink(&self) -> crate::SomeShrink<E> {
-        Box::new(NumericShrink {})
+    pub fn no_shrink(&self) -> NumericShrink {
+        NumericShrink {}
     }
 
     /// Shrinks a value to zero.
-    pub fn decrement(&self) -> crate::SomeShrink<E> {
-        Box::new(NumDecrementShrink {})
+    pub fn decrement(&self) -> NumDecrementShrink {
+        NumDecrementShrink {}
     }
 }
 
 /// Shrinker that decrements a value towards zero.
 pub struct NumDecrementShrink {}
 
-impl<E> super::Shrink<E> for NumDecrementShrink
+impl<E> Shrink<E> for NumDecrementShrink
 where
     E: Num + Copy + 'static,
 {
@@ -74,7 +85,7 @@ where
 /// A shrinker for numeric type
 pub struct NumericShrink {}
 
-impl<E> super::Shrink<E> for NumericShrink
+impl<E> Shrink<E> for NumericShrink
 where
     E: Num + Copy + 'static,
 {

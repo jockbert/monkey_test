@@ -177,7 +177,6 @@ pub fn monkey_test() -> Conf {
 }
 
 type SomeIter<E> = Box<dyn Iterator<Item = E>>;
-type SomeShrink<E> = Box<dyn Shrink<E>>;
 
 /// The generator trait, for producing example values to test in a property.
 pub trait Gen<E>: Clone {

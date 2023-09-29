@@ -1,5 +1,7 @@
+use std::marker::PhantomData;
+
 pub use crate::runner::MonkeyResult;
-use crate::{Gen, SomeShrink};
+use crate::{shrink::NoShrink, Gen, Shrink};
 
 /// Configuration for executing monkey tests.
 pub struct Conf {
@@ -10,10 +12,12 @@ pub struct Conf {
 }
 
 /// Configuration for executing monkey tests, using a single generator.
-pub struct ConfWithGen<E, G>
+pub struct ConfWithGen<E, G, S>
 where
     G: Gen<E>,
+    S: Shrink<E>,
 {
+    phantom: PhantomData<E>,
     /// See [Conf::with_example_count].
     pub example_count: u32,
     /// See [Conf::with_seed].
@@ -21,13 +25,20 @@ where
     /// See [Conf::with_generator].
     pub gen: G,
     /// See [ConfWithGen::with_shrinker].
-    pub shrinker: Option<SomeShrink<E>>,
+    pub shrinker: Option<S>,
+}
+
 }
 
 impl Conf {
     /// Specify which single generator to use in test.
-    pub fn with_generator<E, G: Gen<E>>(&self, gen: G) -> ConfWithGen<E, G> {
-        ConfWithGen::<E, G> {
+    pub fn with_generator<E, G>(&self, gen: G) -> ConfWithGen<E, G, NoShrink>
+    where
+        E: 'static,
+        G: Gen<E>,
+    {
+        ConfWithGen::<E, G, NoShrink> {
+            phantom: PhantomData,
             example_count: self.example_count,
             seed: self.seed,
             shrinker: None,
@@ -67,10 +78,11 @@ impl Default for Conf {
     }
 }
 
-impl<E, G> ConfWithGen<E, G>
+impl<E, G, S> ConfWithGen<E, G, S>
 where
     E: std::fmt::Debug + Clone,
     G: Gen<E>,
+    S: Shrink<E>,
 {
     /// Check that the property holds for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or failure.
@@ -103,8 +115,12 @@ where
     }
 
     /// Add/change which shriker to use if a failing example is found.
-    pub fn with_shrinker(&self, shrink: SomeShrink<E>) -> ConfWithGen<E, G> {
-        ConfWithGen::<E, G> {
+    pub fn with_shrinker<S2>(&self, shrink: S2) -> ConfWithGen<E, G, S2>
+    where
+        S2: Shrink<E>,
+    {
+        ConfWithGen::<E, G, S2> {
+            phantom: PhantomData,
             shrinker: Some(shrink),
             gen: self.gen.clone(),
             example_count: self.example_count,

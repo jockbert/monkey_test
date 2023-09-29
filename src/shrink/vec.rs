@@ -4,10 +4,10 @@ use crate::Shrink;
 use std::marker::PhantomData;
 
 /// Default vector shrinker
-pub fn default<E: Clone + 'static>() -> crate::SomeShrink<Vec<E>> {
-    Box::new(VecShrink::<E> {
+pub fn default<E: Clone + 'static>() -> VecShrink<E> {
+    VecShrink::<E> {
         phantom: PhantomData,
-    })
+    }
 }
 
 /// Vector version of shrinker

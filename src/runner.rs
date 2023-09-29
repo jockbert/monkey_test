@@ -37,10 +37,11 @@ pub enum MonkeyResult<E> {
 use crate::config::*;
 use crate::*;
 
-pub fn evaluate_property<E, G, P>(conf: &ConfWithGen<E, G>, prop: P) -> MonkeyResult<E>
+pub fn evaluate_property<E, G, S, P>(conf: &ConfWithGen<E, G, S>, prop: P) -> MonkeyResult<E>
 where
     E: std::fmt::Debug + Clone,
     G: Gen<E>,
+    S: Shrink<E>,
     P: Fn(E) -> bool,
 {
     let mut it = conf.gen.iter(conf.seed);
