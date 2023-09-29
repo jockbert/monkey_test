@@ -37,20 +37,16 @@ pub enum MonkeyResult<E> {
 use crate::config::*;
 use crate::*;
 
-pub fn evaluate_property<E, G, S, S2, P>(
-    cgs: &ConfGenAndShrink<E, G, S, S2>,
-    prop: P,
-) -> MonkeyResult<E>
+pub fn evaluate_property<E, G, S, P>(cg: &ConfAndGen<E, G, S>, prop: P) -> MonkeyResult<E>
 where
-    E: std::fmt::Debug + Clone,
+    E: std::fmt::Debug + Clone + 'static,
     G: Gen<E, S>,
     P: Fn(E) -> bool,
     S: Shrink<E>,
-    S2: Shrink<E>,
 {
-    let mut it = cgs.gen.examples(cgs.conf.seed);
+    let mut it = cg.gen.examples(cg.conf.seed);
 
-    for i in 0..cgs.conf.example_count {
+    for i in 0..cg.conf.example_count {
         let example = it.next();
 
         let (e, success) = match example {
@@ -59,7 +55,7 @@ where
         };
 
         if !success {
-            let shrinked_values = do_shrink(prop, cgs.shrinker.candidates(e.clone()));
+            let shrinked_values = do_shrink(prop, cg.gen.shrinker().candidates(e.clone()));
 
             return MonkeyResult::<E>::MonkeyErr {
                 minimum_failure: shrinked_values.last().cloned().unwrap_or(e.clone()),
@@ -71,7 +67,7 @@ where
                     .collect(),
                 success_count: i as u64,
                 shrink_count: shrinked_values.len() as u64,
-                seed: cgs.conf.seed,
+                seed: cg.conf.seed,
             };
         }
     }

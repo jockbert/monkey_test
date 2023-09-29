@@ -157,20 +157,18 @@ pub mod shrink;
 
 // Re-export details from config-module
 pub use config::*;
+use gen::OtherShrinkGen;
 
 /// Main entry point for writing property based tests using the monkey-test
 /// tool.
 ///
 /// # Example
-/// ```rust,cfg_test
+/// ```should_panic
 /// use monkey_test::*;
 ///
-/// /// An unit test writen as a property using the monkey test tool
-/// fn unit_test_using_monkey_test() {
-///   monkey_test()
-///     .with_generator(gen::u8::any())
-///     .assert_true(|x: u8| x + 1 > x)
-/// }
+/// monkey_test()
+///   .with_generator(gen::u8::any())
+///   .assert_true(|x: u8| x < 15)
 /// ```
 pub fn monkey_test() -> Conf {
     Conf::default()
@@ -181,6 +179,7 @@ type SomeIter<E> = Box<dyn Iterator<Item = E>>;
 /// The generator trait, for producing example values to test in a property.
 pub trait Gen<E, S>: Clone
 where
+    E: Clone,
     S: Shrink<E>,
 {
     /// Produce a example iterator from the generator, given a randomization
@@ -196,6 +195,14 @@ where
     /// shrinker, if that makes the implementation easier, but when you will not
     /// get any shrinking functionality applied to failing example.
     fn shrinker(&self) -> S;
+
+    /// Bind another shrinker to generator.
+    fn with_shrinker<S2>(&self, shrink: S2) -> OtherShrinkGen<E, Self, S, S2>
+    where
+        S2: Shrink<E>,
+    {
+        OtherShrinkGen::new(self, shrink)
+    }
 }
 
 /// The shrinker trait, for shrinking a failed example values into smaller ones.

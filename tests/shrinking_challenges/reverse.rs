@@ -18,7 +18,6 @@ fn faulty_reverse<E>(list: Vec<E>) -> Vec<E> {
 fn test_reverse() {
     let result = monkey_test()
         .with_generator(gen::vec::any(gen::u8::any()))
-        .with_shrinker(shrink::vec::default())
         .check_true(|list: Vec<u8>| {
             let mut expected = list.clone();
             expected.reverse();

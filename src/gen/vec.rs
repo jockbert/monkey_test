@@ -2,7 +2,10 @@
 
 use std::marker::PhantomData;
 
-use crate::{shrink::vec::VecShrink, Gen, Shrink, SomeIter};
+use crate::shrink::vec::VecShrink;
+use crate::Gen;
+use crate::Shrink;
+use crate::SomeIter;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
