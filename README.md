@@ -46,10 +46,11 @@ Then try some small example, like the one above.
 
 ## Documentation
 
-The Monkey Test [documentation (docs.rs)](https://docs.rs/monkey_test/)
+The Monkey Test [documentation](./DOCUMENTATION.md)
+(also found on [docs.rs](https://docs.rs/monkey_test/))
 shows how to use the library and tries to be a complete guide to using Monkey
 Test and property based testing in general.
-Additionall usage examples can be found in the source file
+Additional usage examples can be found in the source file
 [tests/basic_usage.rs](tests/basic_usage.rs) and other files in test folder.
 
 ## License
