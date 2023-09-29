@@ -12,7 +12,7 @@ fn can_fail_with_details_when_using_check() {
     let actual_result: MonkeyResult<u8> = monkey_test()
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::u8().decrement())
+        .with_shrinker(shrink::number())
         .check_true(|x: u8| x < 15);
 
     assert_eq!(
@@ -34,7 +34,7 @@ fn can_fail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::u8().decrement())
+        .with_shrinker(shrink::number())
         .assert_true(|x: u8| x < 15);
 }
 
@@ -44,6 +44,6 @@ fn use_all_settings_available() {
         .with_example_count(1_000)
         .with_seed(1234567890)
         .with_generator(gen::u8::any())
-        .with_shrinker(shrink::u8().to_zero())
+        .with_shrinker(shrink::none())
         .assert_true(|x: u8| x as u16 * x as u16 >= x as u16)
 }

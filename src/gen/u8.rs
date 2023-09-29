@@ -3,7 +3,7 @@
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 
-use crate::shrink::NumDecrementShrink;
+use crate::shrink::NumShrink;
 
 /// Any u8 value
 pub fn any() -> RandU8Gen {
@@ -14,15 +14,15 @@ pub fn any() -> RandU8Gen {
 #[derive(Clone)]
 pub struct RandU8Gen {}
 
-impl crate::Gen<u8, NumDecrementShrink> for RandU8Gen {
+impl crate::Gen<u8, NumShrink> for RandU8Gen {
     fn examples(&self, seed: u64) -> crate::SomeIter<u8> {
         Box::new(RandU8Iter {
             rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
         })
     }
 
-    fn shrinker(&self) -> NumDecrementShrink {
-        NumDecrementShrink {}
+    fn shrinker(&self) -> NumShrink {
+        NumShrink {}
     }
 }
 
