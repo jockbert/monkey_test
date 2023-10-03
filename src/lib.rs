@@ -54,12 +54,12 @@ where
     /// get any shrinking functionality applied to failing example.
     fn shrinker(&self) -> S;
 
-    /// Bind another shrinker to generator.
+    /// Bind another shrinker to generator. See [gen::other_shrinker].
     fn with_shrinker<S2>(&self, shrink: S2) -> OtherShrinkGen<E, Self, S, S2>
     where
         S2: Shrink<E>,
     {
-        OtherShrinkGen::new(self, shrink)
+        gen::other_shrinker(self, shrink)
     }
 }
 
