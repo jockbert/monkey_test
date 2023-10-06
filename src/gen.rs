@@ -9,6 +9,7 @@ pub(crate) mod chain;
 pub mod fixed;
 mod other_shrink;
 pub mod u8;
+pub mod usize;
 pub mod vec;
 
 /// Create new generator with other shrinker
