@@ -5,6 +5,7 @@ use crate::Shrink;
 
 pub use other_shrink::OtherShrinkGen;
 
+pub(crate) mod chain;
 pub mod fixed;
 mod other_shrink;
 pub mod u8;

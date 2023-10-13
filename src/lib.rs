@@ -18,6 +18,7 @@ mod testing;
 
 // Re-export details from config-module
 pub use config::*;
+use gen::chain::ChainGen;
 use gen::OtherShrinkGen;
 
 /// Main entry point for writing property based tests using the monkey-test
@@ -63,6 +64,15 @@ where
         S2: Shrink<E>,
     {
         gen::other_shrinker(self, shrink)
+    }
+
+    /// Concatenate together two generators
+    fn chain<G2, S2>(&self, other_gen: &G2) -> ChainGen<E, Self, S, G2, S2>
+    where
+        G2: Gen<E, S2>,
+        S2: Shrink<E>,
+    {
+        ChainGen::new(self, other_gen)
     }
 }
 
