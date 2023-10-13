@@ -13,6 +13,9 @@ pub mod gen;
 mod runner;
 pub mod shrink;
 
+#[cfg(test)]
+mod testing;
+
 // Re-export details from config-module
 pub use config::*;
 use gen::OtherShrinkGen;
