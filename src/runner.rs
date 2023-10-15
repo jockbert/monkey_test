@@ -6,9 +6,10 @@ pub enum MonkeyResult<E> {
 
     /// A failed monkey test result.
     MonkeyErr {
-        /// The minimum example found that disproves the property. In case a shinker
-        /// is provided, this is the shrunken failure example, possibly separate
-        /// from original failure. In other cases the same as original failure.
+        /// The minimum example found that disproves the property. In case a
+        /// shinker is provided, this is the shrunken failure example, possibly
+        /// separate from original failure. In other cases the same as original
+        /// failure.
         minimum_failure: E,
 
         /// The original (first found) example that disproves the property.

@@ -93,7 +93,8 @@ where
     }
 
     /// Check that the property holds for all generated example values.
-    /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or failure.
+    /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
+    /// failure.
     pub fn check_true<P>(&self, prop: P) -> MonkeyResult<E>
     where
         P: Fn(E) -> bool,

@@ -50,7 +50,8 @@ where
     /// seed.
     fn examples(&self, seed: u64) -> SomeIter<E>;
 
-    /// Returns a predefined shrinker, or a empty shrinker if no suitable exists.
+    /// Returns a predefined shrinker, or a empty shrinker if no suitable
+    /// exists.
     ///
     /// This enables distributing a default shrinker with given generator,
     /// reducing the need to explicitly configure a shrinker at place of use.
