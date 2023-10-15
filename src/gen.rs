@@ -28,7 +28,10 @@ pub mod vec;
 /// let gen3 = gen2.with_shrinker(shrink::number());
 /// assert!(gen3.shrinker().candidates(123).next().is_some());
 /// ```
-pub fn other_shrinker<E, G, S, S2>(gen: &G, other_shrink: S2) -> OtherShrinkGen<E, G, S, S2>
+pub fn other_shrinker<E, G, S, S2>(
+    gen: &G,
+    other_shrink: S2,
+) -> OtherShrinkGen<E, G, S, S2>
 where
     E: Clone,
     G: Gen<E, S>,

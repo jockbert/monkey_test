@@ -6,8 +6,10 @@ use crate::{Gen, Shrink};
 
 /// Assert that the first values from generator are the expected fixed
 /// values and that value after that is at least somewhat random.
-pub fn assert_first_fixed_then_random<E, G, S>(generator_to_test: G, expected_fixed_values: &[E])
-where
+pub fn assert_first_fixed_then_random<E, G, S>(
+    generator_to_test: G,
+    expected_fixed_values: &[E],
+) where
     E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
     G: Gen<E, S>,
     S: Shrink<E>,
@@ -19,10 +21,8 @@ where
         let mut it = generator_to_test.examples(seed);
 
         // Make sure that he first values of generators are the fixed ones.
-        expected_fixed_values
-            .iter()
-            .enumerate()
-            .for_each(|(index, expected_fixed_value)| {
+        expected_fixed_values.iter().enumerate().for_each(
+            |(index, expected_fixed_value)| {
                 let actual = it.next().expect("generator should have some");
                 assert_eq!(
                     *expected_fixed_value, actual,
@@ -30,7 +30,8 @@ where
                          the fixed value {expected_fixed_value:?}, \
                          but is {actual:?}."
                 );
-            });
+            },
+        );
 
         // Collect first random value for each generator.
         first_randoms.push(it.next().expect("generator should have some"))
@@ -46,8 +47,11 @@ where
 
 /// Pick large ammount of values from generator and assess if distribution
 /// looks roughly even.
-pub fn assert_even_distr<E, G, S>(generator_to_test: G, expected_min: E, expected_max: E)
-where
+pub fn assert_even_distr<E, G, S>(
+    generator_to_test: G,
+    expected_min: E,
+    expected_max: E,
+) where
     E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
     G: Gen<E, S>,
     S: Shrink<E>,
@@ -58,7 +62,8 @@ where
 
     // Count elements on entire range, or only on the low end of total range
     // if  range is exta large.
-    let occurrences_size: usize = cmp::min(expected_max.sub(expected_min).as_() + 1, 1000usize);
+    let occurrences_size: usize =
+        cmp::min(expected_max.sub(expected_min).as_() + 1, 1000usize);
     let mut occurrences = vec![0usize; occurrences_size];
 
     // Pick so many elements such there should be roughly x instances of

@@ -68,7 +68,10 @@ mod test {
 
     #[test]
     fn empty_generators() {
-        let gen = ChainGen::new(&fixed::sequence::<u8>(&[]), &fixed::sequence::<u8>(&[]));
+        let gen = ChainGen::new(
+            &fixed::sequence::<u8>(&[]),
+            &fixed::sequence::<u8>(&[]),
+        );
         let mut it = gen.examples(1234);
         assert_eq!(None, it.next())
     }

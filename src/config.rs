@@ -123,7 +123,10 @@ where
     }
 
     /// Add/change which shriker to use if a failing example is found.
-    pub fn with_shrinker<S2>(&self, shrink: S2) -> ConfAndGen<E, OtherShrinkGen<E, G, S, S2>, S2>
+    pub fn with_shrinker<S2>(
+        &self,
+        shrink: S2,
+    ) -> ConfAndGen<E, OtherShrinkGen<E, G, S, S2>, S2>
     where
         S2: Shrink<E>,
     {

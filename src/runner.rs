@@ -37,7 +37,10 @@ pub enum MonkeyResult<E> {
 use crate::config::*;
 use crate::*;
 
-pub fn evaluate_property<E, G, S, P>(cg: &ConfAndGen<E, G, S>, prop: P) -> MonkeyResult<E>
+pub fn evaluate_property<E, G, S, P>(
+    cg: &ConfAndGen<E, G, S>,
+    prop: P,
+) -> MonkeyResult<E>
 where
     E: std::fmt::Debug + Clone + 'static,
     G: Gen<E, S>,
@@ -55,10 +58,14 @@ where
         };
 
         if !success {
-            let shrinked_values = do_shrink(prop, cg.gen.shrinker().candidates(e.clone()));
+            let shrinked_values =
+                do_shrink(prop, cg.gen.shrinker().candidates(e.clone()));
 
             return MonkeyResult::<E>::MonkeyErr {
-                minimum_failure: shrinked_values.last().cloned().unwrap_or(e.clone()),
+                minimum_failure: shrinked_values
+                    .last()
+                    .cloned()
+                    .unwrap_or(e.clone()),
                 original_failure: e,
                 some_other_failures: shrinked_values
                     .clone()

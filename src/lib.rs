@@ -1,4 +1,6 @@
-#![doc(issue_tracker_base_url = "https://github.com/jockbert/monkey_test/issues/")]
+#![doc(
+    issue_tracker_base_url = "https://github.com/jockbert/monkey_test/issues/"
+)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/jockbert/monkey_test/main/assets/doc/logo-256.png"
 )]

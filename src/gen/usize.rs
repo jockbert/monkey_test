@@ -13,7 +13,8 @@ use crate::{
 use super::{chain::ChainGen, fixed::SequenceGen};
 
 /// Uniformly distributed range of value
-pub fn any() -> ChainGen<usize, SequenceGen<usize>, NoShrink<usize>, UsizeGen, NumShrink> {
+pub fn any(
+) -> ChainGen<usize, SequenceGen<usize>, NoShrink<usize>, UsizeGen, NumShrink> {
     ranged(..)
 }
 
