@@ -70,6 +70,22 @@ where
     }
 
     /// Concatenate together two generators
+    ///
+    /// ```
+    /// use monkey_test::gen::fixed::sequence;
+    /// use monkey_test::*;
+    ///
+    /// let a= sequence::<u32>(&[1, 2]);
+    /// let b = sequence::<u32>(&[3, 4]);
+    /// let c = a.chain(&b);
+    /// let mut it = c.examples(77);
+    ///
+    /// assert_eq!(Some(1), it.next());
+    /// assert_eq!(Some(2), it.next());
+    /// assert_eq!(Some(3), it.next());
+    /// assert_eq!(Some(4), it.next());
+    /// assert_eq!(None, it.next());
+    /// ```
     fn chain<G2, S2>(&self, other_gen: &G2) -> ChainGen<E, Self, S, G2, S2>
     where
         G2: Gen<E, S2>,
