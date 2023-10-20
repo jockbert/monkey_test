@@ -7,9 +7,8 @@ pub use other_shrink::OtherShrinkGen;
 
 pub(crate) mod chain;
 pub mod fixed;
+mod integers;
 mod other_shrink;
-pub mod u8;
-pub mod usize;
 pub mod vec;
 
 /// Create new generator with other shrinker
@@ -40,3 +39,39 @@ where
 {
     OtherShrinkGen::new(gen, other_shrink)
 }
+
+/// Macro to generate code for all integer type modules
+macro_rules! integer_module {
+    ($name:ident) => {
+        /// Generators for values of module type.
+        pub mod $name {
+            use std::ops::RangeBounds;
+
+            /// Uniformly distributed unbound range of value
+            pub fn any() -> super::integers::IntGen<$name> {
+                ranged(..)
+            }
+
+            /// Uniformly distributed limited range of values
+            pub fn ranged<B>(bounds: B) -> super::integers::IntGen<$name>
+            where
+                B: RangeBounds<$name>,
+            {
+                super::integers::ranged(bounds)
+            }
+        }
+    };
+}
+
+integer_module!(i8);
+integer_module!(i16);
+integer_module!(i32);
+integer_module!(i64);
+integer_module!(i128);
+integer_module!(isize);
+integer_module!(u8);
+integer_module!(u16);
+integer_module!(u32);
+integer_module!(u64);
+integer_module!(u128);
+integer_module!(usize);
