@@ -10,16 +10,13 @@ use rand::Rng;
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 
-use crate::{
-    shrink::{NoShrink, NumShrink},
-    Gen,
-};
+use crate::{shrink::NumShrink, Gen};
 
 use super::OtherShrinkGen;
 use super::{chain::ChainGen, fixed::SequenceGen};
 
 pub(crate) type IntGen<E> =
-    ChainGen<E, OtherShrinkGen<E, SequenceGen<E>, NumShrink>, UxGen<E>>;
+    ChainGen<OtherShrinkGen<SequenceGen<E>, NumShrink>, UxGen<E>>;
 
 /// Uniformly distributed range of values.
 pub fn ranged<E, B>(bounds: B) -> IntGen<E>
@@ -58,10 +55,11 @@ pub struct UxGen<E> {
     max: E,
 }
 
-impl<E> Gen<E> for UxGen<E>
+impl<E> Gen for UxGen<E>
 where
     E: Num + SampleUniform + Copy + Clone + 'static,
 {
+    type Example = E;
     type Shrink = NumShrink;
 
     fn examples(&self, seed: u64) -> crate::SomeIter<E> {

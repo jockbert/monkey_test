@@ -48,7 +48,8 @@ where
     }
 }
 
-impl<E: Clone + 'static> Gen<E> for SequenceGen<E> {
+impl<E: Clone + 'static> Gen for SequenceGen<E> {
+    type Example = E;
     type Shrink = NoShrink<E>;
 
     fn examples(&self, _seed: u64) -> crate::SomeIter<E> {

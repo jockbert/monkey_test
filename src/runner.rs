@@ -38,14 +38,13 @@ pub enum MonkeyResult<E> {
 use crate::config::*;
 use crate::*;
 
-pub fn evaluate_property<E, G, P>(
-    cg: &ConfAndGen<E, G>,
+pub fn evaluate_property<G, P>(
+    cg: &ConfAndGen<G>,
     prop: P,
-) -> MonkeyResult<E>
+) -> MonkeyResult<G::Example>
 where
-    E: std::fmt::Debug + Clone + 'static,
-    G: Gen<E>,
-    P: Fn(E) -> bool,
+    G: Gen,
+    P: Fn(G::Example) -> bool,
 {
     let mut it = cg.gen.examples(cg.conf.seed);
 
@@ -61,7 +60,7 @@ where
             let shrinked_values =
                 do_shrink(prop, cg.gen.shrinker().candidates(e.clone()));
 
-            return MonkeyResult::<E>::MonkeyErr {
+            return MonkeyResult::<G::Example>::MonkeyErr {
                 minimum_failure: shrinked_values
                     .last()
                     .cloned()
@@ -79,12 +78,12 @@ where
         }
     }
 
-    MonkeyResult::<E>::MonkeyOk()
+    MonkeyResult::<G::Example>::MonkeyOk()
 }
 
 fn do_shrink<E, P>(prop: P, it: Box<dyn Iterator<Item = E>>) -> Vec<E>
 where
-    E: std::fmt::Debug + Clone,
+    E: Clone,
     P: Fn(E) -> bool,
 {
     let mut shrinked_examples = vec![];
