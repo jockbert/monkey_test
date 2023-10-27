@@ -41,11 +41,13 @@ pub fn monkey_test() -> Conf {
 type SomeIter<E> = Box<dyn Iterator<Item = E>>;
 
 /// The generator trait, for producing example values to test in a property.
-pub trait Gen<E, S>: Clone
+pub trait Gen<E>: Clone
 where
     E: Clone,
-    S: Shrink<E>,
 {
+    /// With generator associated shrinker.
+    type Shrink: Shrink<E>;
+
     /// Produce a example iterator from the generator, given a randomization
     /// seed.
     fn examples(&self, seed: u64) -> SomeIter<E>;
@@ -59,10 +61,10 @@ where
     /// When implementing a [Gen], you can return a empty [shrink::NoShrink]
     /// shrinker, if that makes the implementation easier, but when you will not
     /// get any shrinking functionality applied to failing example.
-    fn shrinker(&self) -> S;
+    fn shrinker(&self) -> Self::Shrink;
 
     /// Bind another shrinker to generator. See [gen::other_shrinker].
-    fn with_shrinker<S2>(&self, shrink: S2) -> OtherShrinkGen<E, Self, S, S2>
+    fn with_shrinker<S2>(&self, shrink: S2) -> OtherShrinkGen<E, Self, S2>
     where
         S2: Shrink<E>,
     {
@@ -86,10 +88,9 @@ where
     /// assert_eq!(Some(4), it.next());
     /// assert_eq!(None, it.next());
     /// ```
-    fn chain<G2, S2>(&self, other_gen: &G2) -> ChainGen<E, Self, S, G2, S2>
+    fn chain<G2>(&self, other_gen: &G2) -> ChainGen<E, Self, G2>
     where
-        G2: Gen<E, S2>,
-        S2: Shrink<E>,
+        G2: Gen<E>,
     {
         ChainGen::new(self, other_gen)
     }

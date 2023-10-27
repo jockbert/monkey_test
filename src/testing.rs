@@ -6,13 +6,12 @@ use crate::{Gen, Shrink};
 
 /// Assert that the first values from generator are the expected fixed
 /// values and that value after that is at least somewhat random.
-pub fn assert_first_fixed_then_random<E, G, S>(
+pub fn assert_first_fixed_then_random<E, G>(
     generator_to_test: G,
     expected_fixed_values: &[E],
 ) where
     E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
-    G: Gen<E, S>,
-    S: Shrink<E>,
+    G: Gen<E>,
 {
     let trial_count = 10;
     let mut first_randoms: Vec<E> = vec![];
@@ -47,14 +46,13 @@ pub fn assert_first_fixed_then_random<E, G, S>(
 
 /// Pick large ammount of values from generator and assess if distribution
 /// looks roughly even.
-pub fn assert_even_distr<E, G, S>(
+pub fn assert_even_distr<E, G>(
     generator_to_test: G,
     expected_min: E,
     expected_max: E,
 ) where
     E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
-    G: Gen<E, S>,
-    S: Shrink<E>,
+    G: Gen<E>,
 {
     let instances_per_value: usize = 10_000;
     let expected_range_limit: usize = 1_000_000;

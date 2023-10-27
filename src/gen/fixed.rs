@@ -48,13 +48,15 @@ where
     }
 }
 
-impl<E: Clone + 'static> Gen<E, NoShrink<E>> for SequenceGen<E> {
+impl<E: Clone + 'static> Gen<E> for SequenceGen<E> {
+    type Shrink = NoShrink<E>;
+
     fn examples(&self, _seed: u64) -> crate::SomeIter<E> {
         let x = self.data.clone();
         Box::new(x.into_iter())
     }
 
-    fn shrinker(&self) -> NoShrink<E> {
+    fn shrinker(&self) -> Self::Shrink {
         crate::shrink::none()
     }
 }

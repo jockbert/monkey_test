@@ -3,49 +3,46 @@ use std::marker::PhantomData;
 
 /// Generator wrapper that allows binding new shrinker to existing generator.
 #[derive(Clone)]
-pub struct OtherShrinkGen<E, G, S, S2>
+pub struct OtherShrinkGen<E, G, S>
 where
     E: Clone,
-    G: Gen<E, S>,
+    G: Gen<E>,
     S: Shrink<E>,
-    S2: Shrink<E>,
 {
     e_phantom: PhantomData<E>,
-    s_phantom: PhantomData<S>,
     generator: G,
-    shrinker: S2,
+    shrinker: S,
 }
 
-impl<E, G, S, S2> OtherShrinkGen<E, G, S, S2>
+impl<E, G, S> OtherShrinkGen<E, G, S>
 where
     E: Clone,
-    G: Gen<E, S>,
+    G: Gen<E>,
     S: Shrink<E>,
-    S2: Shrink<E>,
 {
     /// Create a new generator with (other) shrinker
-    pub fn new(g: &G, s2: S2) -> OtherShrinkGen<E, G, S, S2> {
-        OtherShrinkGen::<E, G, S, S2> {
+    pub fn new(g: &G, s2: S) -> OtherShrinkGen<E, G, S> {
+        OtherShrinkGen::<E, G, S> {
             e_phantom: PhantomData,
-            s_phantom: PhantomData,
             generator: g.clone(),
             shrinker: s2,
         }
     }
 }
 
-impl<E, G, S, S2> Gen<E, S2> for OtherShrinkGen<E, G, S, S2>
+impl<E, G, S> Gen<E> for OtherShrinkGen<E, G, S>
 where
     E: Clone + 'static,
-    G: Gen<E, S>,
+    G: Gen<E>,
     S: Shrink<E>,
-    S2: Shrink<E>,
 {
+    type Shrink = S;
+
     fn examples(&self, seed: u64) -> SomeIter<E> {
         self.generator.examples(seed)
     }
 
-    fn shrinker(&self) -> S2 {
+    fn shrinker(&self) -> S {
         self.shrinker.clone()
     }
 }

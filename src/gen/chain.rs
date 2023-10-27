@@ -4,49 +4,41 @@ use crate::{Gen, Shrink, SomeIter};
 
 /// Generator wrapper that allows binding new shrinker to existing generator.
 #[derive(Clone)]
-pub struct ChainGen<E, G1, S1, G2, S2>
+pub struct ChainGen<E, G1, G2>
 where
     E: Clone,
-    G1: Gen<E, S1>,
-    S1: Shrink<E>,
-    G2: Gen<E, S2>,
-    S2: Shrink<E>,
+    G1: Gen<E>,
+    G2: Gen<E>,
 {
     e_phantom: PhantomData<E>,
-    s1_phantom: PhantomData<S1>,
-    s2_phantom: PhantomData<S2>,
     generator1: G1,
     generator2: G2,
 }
 
-impl<E, G1, S1, G2, S2> ChainGen<E, G1, S1, G2, S2>
+impl<E, G1, G2> ChainGen<E, G1, G2>
 where
     E: Clone,
-    G1: Gen<E, S1>,
-    S1: Shrink<E>,
-    G2: Gen<E, S2>,
-    S2: Shrink<E>,
+    G1: Gen<E>,
+    G2: Gen<E>,
 {
     /// Create a new generator with (other) shrinker
-    pub fn new(g1: &G1, g2: &G2) -> ChainGen<E, G1, S1, G2, S2> {
-        ChainGen::<E, G1, S1, G2, S2> {
+    pub fn new(g1: &G1, g2: &G2) -> ChainGen<E, G1, G2> {
+        ChainGen::<E, G1, G2> {
             e_phantom: PhantomData,
-            s1_phantom: PhantomData,
-            s2_phantom: PhantomData,
             generator1: g1.clone(),
             generator2: g2.clone(),
         }
     }
 }
 
-impl<E, G1, S1, G2, S2> Gen<E, S1> for ChainGen<E, G1, S1, G2, S2>
+impl<E, G1, G2> Gen<E> for ChainGen<E, G1, G2>
 where
     E: Clone + 'static,
-    G1: Gen<E, S1>,
-    S1: Shrink<E>,
-    G2: Gen<E, S2>,
-    S2: Shrink<E>,
+    G1: Gen<E>,
+    G2: Gen<E>,
 {
+    type Shrink = G1::Shrink;
+
     fn examples(&self, seed: u64) -> SomeIter<E> {
         Box::new(
             self.generator1
@@ -55,7 +47,7 @@ where
         )
     }
 
-    fn shrinker(&self) -> S1 {
+    fn shrinker(&self) -> Self::Shrink {
         self.generator1.shrinker().clone()
     }
 }

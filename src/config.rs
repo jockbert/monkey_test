@@ -15,14 +15,12 @@ pub struct Conf {
 }
 
 /// Configuration for executing monkey tests, including the generator.
-pub struct ConfAndGen<E, G, S>
+pub struct ConfAndGen<E, G>
 where
     E: Clone,
-    S: Shrink<E>,
-    G: Gen<E, S>,
+    G: Gen<E>,
 {
     example_phantom: PhantomData<E>,
-    shrinker_phantom: PhantomData<S>,
     /// The configuration to use.
     pub conf: Conf,
     /// See [Conf::with_generator].
@@ -31,15 +29,13 @@ where
 
 impl Conf {
     /// Specify which single generator to use in test.
-    pub fn with_generator<E, G, S>(&self, gen: G) -> ConfAndGen<E, G, S>
+    pub fn with_generator<E, G>(&self, gen: G) -> ConfAndGen<E, G>
     where
         E: Clone + 'static,
-        S: Shrink<E>,
-        G: Gen<E, S>,
+        G: Gen<E>,
     {
         ConfAndGen {
             example_phantom: PhantomData,
-            shrinker_phantom: PhantomData,
             conf: self.clone(),
             gen,
         }
@@ -77,16 +73,14 @@ impl Default for Conf {
     }
 }
 
-impl<E, G, S> ConfAndGen<E, G, S>
+impl<E, G> ConfAndGen<E, G>
 where
     E: std::fmt::Debug + Clone + 'static,
-    S: Shrink<E>,
-    G: Gen<E, S>,
+    G: Gen<E>,
 {
-    fn new(conf: Conf, gen: G) -> ConfAndGen<E, G, S> {
+    fn new(conf: Conf, gen: G) -> ConfAndGen<E, G> {
         ConfAndGen {
             example_phantom: PhantomData,
-            shrinker_phantom: PhantomData,
             gen,
             conf,
         }
@@ -127,7 +121,7 @@ where
     pub fn with_shrinker<S2>(
         &self,
         shrink: S2,
-    ) -> ConfAndGen<E, OtherShrinkGen<E, G, S, S2>, S2>
+    ) -> ConfAndGen<E, OtherShrinkGen<E, G, S2>>
     where
         S2: Shrink<E>,
     {

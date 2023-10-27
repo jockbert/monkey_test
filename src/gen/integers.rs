@@ -18,13 +18,8 @@ use crate::{
 use super::OtherShrinkGen;
 use super::{chain::ChainGen, fixed::SequenceGen};
 
-pub(crate) type IntGen<E> = ChainGen<
-    E,
-    OtherShrinkGen<E, SequenceGen<E>, NoShrink<E>, NumShrink>,
-    NumShrink,
-    UxGen<E>,
-    NumShrink,
->;
+pub(crate) type IntGen<E> =
+    ChainGen<E, OtherShrinkGen<E, SequenceGen<E>, NumShrink>, UxGen<E>>;
 
 /// Uniformly distributed range of values.
 pub fn ranged<E, B>(bounds: B) -> IntGen<E>
@@ -63,10 +58,12 @@ pub struct UxGen<E> {
     max: E,
 }
 
-impl<E> Gen<E, NumShrink> for UxGen<E>
+impl<E> Gen<E> for UxGen<E>
 where
     E: Num + SampleUniform + Copy + Clone + 'static,
 {
+    type Shrink = NumShrink;
+
     fn examples(&self, seed: u64) -> crate::SomeIter<E> {
         Box::new(UxIter::<E> {
             min: self.min,
@@ -75,7 +72,7 @@ where
         })
     }
 
-    fn shrinker(&self) -> NumShrink {
+    fn shrinker(&self) -> Self::Shrink {
         NumShrink {}
     }
 }
