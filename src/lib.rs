@@ -77,7 +77,7 @@ pub trait Gen: Clone {
     /// use monkey_test::gen::fixed::sequence;
     /// use monkey_test::*;
     ///
-    /// let a= sequence::<u32>(&[1, 2]);
+    /// let a = sequence::<u32>(&[1, 2]);
     /// let b = sequence::<u32>(&[3, 4]);
     /// let c = a.chain(&b);
     /// let mut it = c.examples(77);
