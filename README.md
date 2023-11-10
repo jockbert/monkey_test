@@ -28,7 +28,7 @@ mod tests {
     fn test_that_will_fail() {
         monkey_test()
             .with_generator(gen::u8::any())
-            .assert_true(|x: u8| x < 15)
+            .assert_true(|x| x < 15)
     }
 }
 ```
@@ -44,14 +44,41 @@ monkey_test = "0"
 
 Then try some small example, like the one above.
 
-## Documentation
+## Documentation and how-to guide
 
 The Monkey Test [documentation](./DOCUMENTATION.md)
 (also found on [docs.rs](https://docs.rs/monkey_test/))
-shows how to use the library and tries to be a complete guide to using Monkey
-Test and property based testing in general.
+shows how to use the library and tries to be a complete how-to guide to using
+Monkey Test and property based testing in general.
 Additional usage examples can be found in the source file
 [tests/basic_usage.rs](tests/basic_usage.rs) and other files in test folder.
+
+## Current status and missing parts
+
+Currently, in versions 0.x.y, the library is not ready for production use.
+It is also missing some vital parts, primarly built in generators and shrinkers
+for:
+
+* Floating point numbers `f32` and `f64`.
+* Strings.
+* Commonly used data structures besides `Vec`.
+* Recursive data structures.
+
+## Alternative libraries
+
+There are other alternatives for property based testing in Rust.
+The Monkey Test library exist for mostly subjective reasons, not liking the
+API experience or the heavy use of macros and attributes in other libraries.
+Your milage may vary.
+
+The most mature and widely adopted alternatives are
+[Quickcheck](https://crates.io/crates/quickcheck) and
+[Proptest](https://crates.io/crates/proptest). Currently, if you want to have a
+production grade PBT library, choose one of these two. When in doubt, choose
+Proptest, since it allows for custom generators and shrinkers.
+
+Some other alternatives are [checkito](https://crates.io/crates/checkito) and
+[diceprop](<https://crates.io/crates/diceprop>).
 
 ## License
 
