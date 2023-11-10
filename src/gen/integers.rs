@@ -100,8 +100,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::ranged;
-    use crate::testing::assert_even_distr;
-    use crate::testing::assert_first_fixed_then_random;
+    use crate::testing::numbers::assert_even_distr;
+    use crate::testing::numbers::assert_first_fixed_then_random;
     use crate::*;
 
     /// Generator values should be evenly distributed within range.
