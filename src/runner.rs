@@ -60,17 +60,21 @@ where
             let shrinked_values =
                 do_shrink(prop, cg.gen.shrinker().candidates(e.clone()));
 
+            // All but last shrinked value, up to a max limit
+            let other_count = shrinked_values.len().min(100).max(1) as u64 - 1;
+            let some_other_failures = shrinked_values
+                .clone()
+                .into_iter()
+                .take(other_count as usize)
+                .collect::<Vec<_>>();
+
+            let minimum_failure =
+                shrinked_values.last().cloned().unwrap_or(e.clone());
+
             return MonkeyResult::<G::Example>::MonkeyErr {
-                minimum_failure: shrinked_values
-                    .last()
-                    .cloned()
-                    .unwrap_or(e.clone()),
+                minimum_failure,
                 original_failure: e,
-                some_other_failures: shrinked_values
-                    .clone()
-                    .into_iter()
-                    .take((shrinked_values.len().max(1) as u64 - 1) as usize)
-                    .collect(),
+                some_other_failures,
                 success_count: i as u64,
                 shrink_count: shrinked_values.len() as u64,
                 seed: cg.conf.seed,
