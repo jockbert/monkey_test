@@ -32,7 +32,7 @@ use gen::OtherShrinkGen;
 ///
 /// monkey_test()
 ///   .with_generator(gen::u8::any())
-///   .assert_true(|x: u8| x < 15)
+///   .assert_true(|x| x < 15);
 /// ```
 pub fn monkey_test() -> Conf {
     Conf::default()

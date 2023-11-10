@@ -87,7 +87,7 @@ where
 
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
-    pub fn assert_true<P>(&self, prop: P)
+    pub fn assert_true<P>(&self, prop: P) -> &ConfAndGen<G>
     where
         P: Fn(G::Example) -> bool,
         G::Example: std::fmt::Debug,
@@ -105,6 +105,7 @@ where
                 minimum_failure, seed
             )
         }
+        self
     }
 
     /// Add/change which shriker to use if a failing example is found.

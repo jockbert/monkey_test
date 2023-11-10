@@ -4,7 +4,7 @@ use monkey_test::*;
 fn add_up_to_overflow() {
     monkey_test()
         .with_generator(gen::u8::any())
-        .assert_true(|x: u8| x == 255 || x + 1 > x)
+        .assert_true(|x| x == 255 || x + 1 > x);
 }
 
 #[test]
@@ -13,7 +13,7 @@ fn can_fail_with_details_when_using_check() {
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::number())
-        .check_true(|x: u8| x < 15);
+        .check_true(|x| x < 15);
 
     assert_eq!(
         actual_result,
@@ -35,7 +35,7 @@ fn can_fail_with_panic_when_using_assert() {
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::number())
-        .assert_true(|x: u8| x < 15);
+        .assert_true(|x| x < 15);
 }
 
 #[test]
@@ -45,5 +45,5 @@ fn use_all_settings_available() {
         .with_seed(1234567890)
         .with_generator(gen::u8::any())
         .with_shrinker(shrink::none())
-        .assert_true(|x: u8| x as u16 * x as u16 >= x as u16)
+        .assert_true(|x| x as u16 * x as u16 >= x as u16);
 }
