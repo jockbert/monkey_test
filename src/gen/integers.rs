@@ -27,6 +27,7 @@ where
         + SampleUniform
         + Copy
         + Clone
+        + std::cmp::PartialOrd
         + 'static
         + std::fmt::Debug,
     B: RangeBounds<E>,
@@ -57,7 +58,7 @@ pub struct UxGen<E> {
 
 impl<E> Gen for UxGen<E>
 where
-    E: Num + SampleUniform + Copy + Clone + 'static,
+    E: Num + SampleUniform + Copy + Clone + std::cmp::PartialOrd + 'static,
 {
     type Example = E;
     type Shrink = NumShrink;
