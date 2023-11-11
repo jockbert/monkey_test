@@ -1,3 +1,5 @@
+use crate::Gen;
+
 pub mod distribution;
 pub mod numbers;
 
