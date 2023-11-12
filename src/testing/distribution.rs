@@ -45,7 +45,7 @@ pub fn assert_generator_distribution_similar_to<E>(
 ) where
     E: Clone + Ord + Debug + 'static,
 {
-    let allowed_deviation_percent = 2.0;
+    let allowed_deviation_percent = 1.0;
     let actual = collect_distribution(actual_gen);
 
     let actual_total_count: usize = actual.values().sum();
@@ -55,10 +55,15 @@ pub fn assert_generator_distribution_similar_to<E>(
     for example in actual.keys() {
         if !expected.contains_key(example) {
             let key_count = actual.get(example).expect("Key should exist");
-            let percent = *key_count as f64 * 100.0 / actual_total_count as f64;
+            let percent = format_percent(*key_count, actual_total_count);
+
+            let formatted = format_distribution(&actual);
             panic!(
                 "Unexpected generator example <{example:?}> with \
-                 frequency {percent:0.0}%."
+                 frequency {percent}.\n\
+                 \n\
+                 Got distribution:\n\
+                 {formatted}"
             )
         }
     }
@@ -67,11 +72,15 @@ pub fn assert_generator_distribution_similar_to<E>(
     for example in expected.keys() {
         if !actual.contains_key(example) {
             let key_count = expected.get(example).expect("Key should exist");
-            let percent =
-                *key_count as f64 * 100.0 / expected_total_count as f64;
+            let percent = format_percent(*key_count, expected_total_count);
+
+            let formatted = format_distribution(&actual);
             panic!(
                 "Generator never returned expected example <{example:?}>. \
-                 Expected to have frequency {percent:0.0}%."
+                 Expected to have frequency {percent}.\n\
+                 \n\
+                 Got distribution:\n\
+                 {formatted}"
             )
         }
     }
@@ -84,26 +93,47 @@ pub fn assert_generator_distribution_similar_to<E>(
             expected.get(example).expect("Key should exist");
 
         let actual_percent =
-            *actual_key_count as f64 * 100.0 / actual_total_count as f64;
+            calc_percent(*actual_key_count, actual_total_count);
 
         let expected_percent =
-            *expected_key_count as f64 * 100.0 / expected_total_count as f64;
+            calc_percent(*expected_key_count, expected_total_count);
 
-        if (expected_percent - actual_percent).abs()
-            > (allowed_deviation_percent / 100.0)
+        if (expected_percent - actual_percent).abs() > allowed_deviation_percent
         {
+            let formatted = format_distribution(&actual);
             panic!(
                 "Frequency of example <{example:?}> is expected to be \
-                    {expected_percent:0.0}%, but actually is \
-                    {actual_percent:0.0}%."
+                    {expected_percent:0.1}%, but actually is \
+                    {actual_percent:0.1}%.\n\
+                    \n\
+                    Got distribution:\
+                    {formatted}"
             )
         }
     }
 }
 
+fn calc_percent(this_count: usize, total_count: usize) -> f64 {
+    this_count as f64 * 100.0 / total_count as f64
+}
+
+fn format_percent(this_count: usize, total_count: usize) -> String {
+    let p = calc_percent(this_count, total_count);
+    format! {"{p:0.1}%"}
+}
+
+fn format_distribution<T: Debug>(d: &Distribution<T>) -> String {
+    let total_count = d.values().sum();
+
+    d.iter().fold("{\n".to_string(), |result, (key, count)| {
+        let p = format_percent(*count, total_count);
+        result + &format! {"    {key:?}\t{p}\n"}
+    }) + "}\n"
+}
+
 #[test]
 #[should_panic(
-    expected = "Unexpected generator example <10> with frequency 33%."
+    expected = "Unexpected generator example <10> with frequency 33.3%."
 )]
 fn assert_should_fail_on_unexpected_additional_generator_example() {
     let gen = crate::gen::u8::ranged(10..=12);
@@ -113,10 +143,8 @@ fn assert_should_fail_on_unexpected_additional_generator_example() {
 }
 
 #[test]
-#[should_panic(
-    expected = "Generator never returned expected example <13>. Expected \
-    to have frequency 33%."
-)]
+#[should_panic = "Generator never returned expected example <13>. Expected \
+    to have frequency 33.3%."]
 fn assert_should_fail_on_missing_example_in_generator() {
     let gen = crate::gen::u8::ranged(11..=12);
     let expected = even_distribution_of::<u8>(&[11, 12, 13]);
@@ -125,10 +153,8 @@ fn assert_should_fail_on_missing_example_in_generator() {
 }
 
 #[test]
-#[should_panic(
-    expected = "Frequency of example <11> is expected to be 75%, but \
-    actually is 50%."
-)]
+#[should_panic = "Frequency of example <11> is expected to be 75.0%, but \
+    actually is 50.2%."]
 fn assert_should_fail_on_frequency_missmatch() {
     let gen = crate::gen::u8::ranged(11..=12);
 
