@@ -52,10 +52,12 @@ pub fn assert_even_distr<E>(
 {
     let instances_per_value: usize = 10_000;
     let expected_range_limit: usize = 1_000_000;
+
+    // Allowed deviation in percent from expected frequency.
     let max_error_percent = 15;
 
     // Count elements on entire range, or only on the low end of total range
-    // if  range is exta large.
+    // if range is exta large.
     let occurrences_size: usize =
         cmp::min(expected_max.sub(expected_min).as_() + 1, 1000usize);
     let mut occurrences = vec![0usize; occurrences_size];
