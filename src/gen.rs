@@ -26,17 +26,28 @@ macro_rules! integer_module {
             use crate::BoxGen;
             use std::ops::RangeBounds;
 
-            /// Uniformly distributed unbound range of value
+            /// Roughly uniformly distributed unbound range of values, with
+            /// some overwheight to extremes (min and max).
             pub fn any() -> BoxGen<$name> {
                 ranged(..)
             }
 
-            /// Uniformly distributed limited range of values
+            /// Roughly uniformly distributed range of values, with some
+            /// overwheight to extremes (min and max) of given bounds.
             pub fn ranged<B>(bounds: B) -> BoxGen<$name>
             where
                 B: RangeBounds<$name>,
             {
                 super::integers::ranged(bounds)
+            }
+
+            /// Int generator with completely random distribution. This
+            /// function has a long name, since `ranged` should be preferred.
+            pub fn completely_random<B>(bounds: B) -> BoxGen<$name>
+            where
+                B: RangeBounds<$name>,
+            {
+                super::integers::completely_random(bounds)
             }
         }
     };

@@ -12,7 +12,8 @@ use rand_chacha::ChaCha8Rng;
 use std::ops::Bound;
 use std::ops::RangeBounds;
 
-/// Uniformly distributed range of values.
+/// Roughly uniformly distributed range of values, with some overwheight to
+/// extremes (min and max) of given bounds.
 pub fn ranged<E, B>(bounds: B) -> BoxGen<E>
 where
     E: Num
@@ -26,21 +27,56 @@ where
         + std::fmt::Debug,
     B: RangeBounds<E>,
 {
-    let min: E = match bounds.start_bound() {
+    let min = start(&bounds);
+    let max = end(&bounds);
+    let extremes = crate::gen::pick_evenly(&[min, max]);
+    let randoms = completely_random(bounds);
+
+    crate::gen::mix_with_ratio(&[(96, randoms), (4, extremes)])
+}
+
+/// Int generator with completely random distribution. This function has a long
+/// name, since `ranged` should be preferred.
+pub fn completely_random<E, B>(bounds: B) -> BoxGen<E>
+where
+    E: Num
+        + Min
+        + Max
+        + SampleUniform
+        + Copy
+        + Clone
+        + std::cmp::PartialOrd
+        + 'static,
+    B: RangeBounds<E>,
+{
+    Box::new(UxGen {
+        min: start(&bounds),
+        max: end(&bounds),
+    })
+}
+
+fn start<E, B>(bounds: &B) -> E
+where
+    E: Num + Min + Copy,
+    B: RangeBounds<E>,
+{
+    match bounds.start_bound() {
         Bound::Included(x) => *x,
         Bound::Excluded(x) => *x + E::one(),
         Bound::Unbounded => E::MIN,
-    };
+    }
+}
 
-    let max: E = match bounds.end_bound() {
+fn end<E, B>(bounds: &B) -> E
+where
+    E: Num + Max + Copy,
+    B: RangeBounds<E>,
+{
+    match bounds.end_bound() {
         Bound::Included(x) => *x,
         Bound::Excluded(x) => *x - E::one(),
         Bound::Unbounded => E::MAX,
-    };
-
-    crate::gen::fixed::sequence(&[min, max])
-        .with_shrinker(crate::shrink::number())
-        .chain(Box::new(UxGen { min, max }))
+    }
 }
 
 /// Generator of random usize values.
@@ -91,33 +127,40 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::ranged;
+    use crate::testing::distribution::assert_generator_distribution_similar_to;
+    use crate::testing::distribution::distribution_from_pairs;
     use crate::testing::numbers::assert_even_distr;
-    use crate::testing::numbers::assert_first_fixed_then_random;
 
     /// Generator values should be evenly distributed within range.
     #[test]
-    fn ranged_has_uniform_distribution() {
-        assert_even_distr(ranged(..=100u64), 0, 100);
-        assert_even_distr(ranged(10..=40), 10, 40);
-        assert_even_distr(ranged(5..15), 5, 14);
+    fn random_inclusive_has_uniform_distribution() {
+        assert_even_distr(super::completely_random(..=100u64), 0, 100);
+        assert_even_distr(super::completely_random(5..=5), 5, 5);
+        assert_even_distr(super::completely_random(5..=6), 5, 6);
+        assert_even_distr(super::completely_random(5..=7), 5, 7);
     }
 
-    /// Generator outputs the extreme values first.
+    /// Generator outputs the extreme values a little bit more often.
+    /// It is especially important in large ranges, to explicitly test the
+    /// extreme endpoints and not only random values. Otherwise, with a hundered
+    /// examples tested, the extreme values might never come up.
     #[test]
-    fn starts_width_min_and_max() {
-        assert_first_fixed_then_random(ranged(4..=7), &[4, 7]);
-        assert_first_fixed_then_random(ranged(200..300), &[200, 299]);
-
-        assert_first_fixed_then_random(
-            ranged(..),
-            &[std::i64::MIN, std::i64::MAX],
-        );
+    fn assert_two_percent_higher_frequency_of_min_and_max() {
+        assert_generator_distribution_similar_to(
+            super::ranged(2..=6),
+            distribution_from_pairs(&[
+                (21, 2),
+                (19, 3),
+                (19, 4),
+                (19, 5),
+                (21, 6),
+            ]),
+        )
     }
 
     #[test]
     fn has_shrinker() {
-        let gen = ranged(..10);
+        let gen = super::ranged(..10);
         let shrinker = gen.shrinker();
         let mut it = shrinker.candidates(123);
         assert!(it.next().is_some());

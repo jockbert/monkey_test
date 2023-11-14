@@ -144,7 +144,7 @@ fn format_distribution<T: Debug>(d: &Distribution<T>) -> String {
 
 #[test]
 #[should_panic(
-    expected = "Unexpected generator example <10> with frequency 33.3%."
+    expected = "Unexpected generator example <10> with frequency 33.9%."
 )]
 fn assert_should_fail_on_unexpected_additional_generator_example() {
     let gen = crate::gen::u8::ranged(10..=12);
