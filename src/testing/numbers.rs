@@ -2,45 +2,6 @@ use crate::BoxGen;
 use num::Integer;
 use std::cmp;
 
-/// Assert that the first values from generator are the expected fixed
-/// values and that value after that is at least somewhat random.
-pub fn assert_first_fixed_then_random<E>(
-    generator_to_test: BoxGen<E>,
-    expected_fixed_values: &[E],
-) where
-    E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
-{
-    let trial_count = 10;
-    let mut first_randoms: Vec<E> = vec![];
-
-    for seed in 0..trial_count {
-        let mut it = generator_to_test.examples(seed);
-
-        // Make sure that he first values of generators are the fixed ones.
-        expected_fixed_values.iter().enumerate().for_each(
-            |(index, expected_fixed_value)| {
-                let actual = it.next().expect("generator should have some");
-                assert_eq!(
-                    *expected_fixed_value, actual,
-                    "Generator value index {index} is expected to have \
-                         the fixed value {expected_fixed_value:?}, \
-                         but is {actual:?}."
-                );
-            },
-        );
-
-        // Collect first random value for each generator.
-        first_randoms.push(it.next().expect("generator should have some"))
-    }
-
-    // At least some of the random values should differ.
-    assert!(
-        first_randoms.iter().any(|r| *r != first_randoms[0]),
-        "At least some of the first random value after fixed values \
-            should differ, but after {trial_count} trial got {first_randoms:?}"
-    );
-}
-
 /// Pick large ammount of values from generator and assess if distribution
 /// looks roughly even.
 pub fn assert_even_distr<E>(
