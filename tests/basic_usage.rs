@@ -65,3 +65,15 @@ fn pick_from_alternatives_with_ratio() {
         ]))
         .assert_true(|fruit| fruit.ends_with('e') || fruit.ends_with('a'));
 }
+
+#[test]
+fn mix_from_alternative_generators_with_ratio() {
+    let evens = gen::pick_evenly(&[0, 2, 4, 6, 8]);
+    let odds = gen::pick_evenly(&[1, 3, 5, 7, 9]);
+
+    let mostly_evens = gen::mix_with_ratio(&[(93, evens), (7, odds)]);
+
+    monkey_test()
+        .with_generator(mostly_evens)
+        .assert_true(|number| (0..10).contains(&number));
+}

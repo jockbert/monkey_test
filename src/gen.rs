@@ -3,12 +3,15 @@
 mod chain;
 pub mod fixed;
 mod integers;
+mod mix;
 mod other_shrink;
 mod pick;
 mod sample_target;
 pub mod vec;
 
 pub use chain::chain;
+pub use mix::mix_evenly;
+pub use mix::mix_with_ratio;
 pub use other_shrink::other_shrinker;
 pub use pick::pick_evenly;
 pub use pick::pick_with_ratio;

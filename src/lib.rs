@@ -87,6 +87,12 @@ impl<E: Clone> Clone for BoxShrink<E> {
     }
 }
 
+impl<E> core::fmt::Debug for dyn Gen<E> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(std::any::type_name::<Self>())
+    }
+}
+
 /// The generator trait, for producing example values to test in a property.
 pub trait Gen<E: Clone + 'static>: CloneGen<E> {
     /// Produce a example iterator from the generator, given a randomization
