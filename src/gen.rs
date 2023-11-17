@@ -1,14 +1,19 @@
 //! The `gen` module contains built in generators.
 
-use crate::BoxGen;
-use crate::BoxShrink;
-
 pub(crate) mod chain;
 pub mod fixed;
 mod integers;
 mod other_shrink;
+mod pick;
 mod sample_target;
 pub mod vec;
+
+use crate::BoxGen;
+use crate::BoxShrink;
+pub use pick::pick_evenly;
+pub use pick::pick_with_ratio;
+pub use sample_target::Ratio;
+use sample_target::SampleTarget;
 
 /// Create new generator with other shrinker
 ///

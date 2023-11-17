@@ -47,3 +47,21 @@ fn use_all_settings_available() {
         .with_shrinker(shrink::none())
         .assert_true(|x| x as u16 * x as u16 >= x as u16);
 }
+
+#[test]
+fn pick_from_alternatives_evenly() {
+    monkey_test()
+        .with_generator(gen::pick_evenly(&["Apple", "Orange", "Banana"]))
+        .assert_true(|fruit| fruit.ends_with('e') || fruit.ends_with('a'));
+}
+
+#[test]
+fn pick_from_alternatives_with_ratio() {
+    monkey_test()
+        .with_generator(gen::pick_with_ratio(&[
+            (1, "Apple"),
+            (2, "Orange"),
+            (55, "Banana"),
+        ]))
+        .assert_true(|fruit| fruit.ends_with('e') || fruit.ends_with('a'));
+}
