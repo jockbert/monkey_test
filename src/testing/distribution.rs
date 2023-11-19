@@ -18,6 +18,17 @@ pub fn even_distribution_of<T: Clone + Ord>(ts: &[T]) -> Distribution<T> {
     result
 }
 
+// Create distribution with specified ratio for each of the given examples.
+pub fn distribution_from_pairs<T: Clone + Ord>(
+    t_ratio_pairs: &[(usize, T)],
+) -> Distribution<T> {
+    let mut result = Distribution::<T>::new();
+    for (ratio, t) in t_ratio_pairs {
+        result.insert(t.clone(), *ratio);
+    }
+    result
+}
+
 /// Build a distribution by consuming a lot of values from given genereator.
 fn collect_distribution<E>(gen_to_check: BoxGen<E>) -> Distribution<E>
 where
