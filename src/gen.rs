@@ -7,6 +7,7 @@ pub(crate) mod chain;
 pub mod fixed;
 mod integers;
 mod other_shrink;
+mod sample_target;
 pub mod vec;
 
 /// Create new generator with other shrinker
