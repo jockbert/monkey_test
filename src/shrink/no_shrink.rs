@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::{Shrink, SomeIter};
+use crate::{BoxIter, Shrink};
 
 /// Shrinker that does nothing.
 #[derive(Clone)]
@@ -17,7 +17,7 @@ impl<E> Default for NoShrink<E> {
 }
 
 impl<E: Clone + 'static> Shrink<E> for NoShrink<E> {
-    fn candidates(&self, _: E) -> SomeIter<E> {
+    fn candidates(&self, _: E) -> BoxIter<E> {
         Box::new(std::iter::empty::<E>())
     }
 }

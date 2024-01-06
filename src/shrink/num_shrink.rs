@@ -1,6 +1,6 @@
 use num_traits::Num;
 
-use crate::{Shrink, SomeIter};
+use crate::{BoxIter, Shrink};
 
 /// Shrinker that decrements a value towards zero.
 #[derive(Clone)]
@@ -10,7 +10,7 @@ impl<E> Shrink<E> for NumShrink
 where
     E: Num + Copy + std::cmp::PartialOrd + 'static,
 {
-    fn candidates(&self, original: E) -> SomeIter<E> {
+    fn candidates(&self, original: E) -> BoxIter<E> {
         Box::new(NumShrinkIt::<E> { current: original })
     }
 }

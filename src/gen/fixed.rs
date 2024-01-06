@@ -1,7 +1,7 @@
 //! Generators mainly used for internal testing, where you want a
 //! deterministicly generated values.
 
-use crate::{shrink::NoShrink, Gen};
+use crate::{BoxGen, BoxShrink, Gen};
 
 /// Generates a fixed sequence of examples.
 ///
@@ -24,11 +24,11 @@ use crate::{shrink::NoShrink, Gen};
 /// assert_eq!(Some(300), ex2.next());
 /// assert_eq!(None, ex2.next());
 /// ```
-pub fn sequence<E>(examples: &[E]) -> SequenceGen<E>
+pub fn sequence<E>(examples: &[E]) -> BoxGen<E>
 where
-    E: Clone + std::fmt::Debug,
+    E: Clone + std::fmt::Debug + 'static,
 {
-    SequenceGen::new(examples)
+    Box::new(SequenceGen::new(examples))
 }
 
 /// Generator from a given set of examples to return.
@@ -48,16 +48,13 @@ where
     }
 }
 
-impl<E: Clone + 'static> Gen for SequenceGen<E> {
-    type Example = E;
-    type Shrink = NoShrink<E>;
-
-    fn examples(&self, _seed: u64) -> crate::SomeIter<E> {
+impl<E: Clone + 'static> Gen<E> for SequenceGen<E> {
+    fn examples(&self, _seed: u64) -> crate::BoxIter<E> {
         let x = self.data.clone();
         Box::new(x.into_iter())
     }
 
-    fn shrinker(&self) -> Self::Shrink {
+    fn shrinker(&self) -> BoxShrink<E> {
         crate::shrink::none()
     }
 }

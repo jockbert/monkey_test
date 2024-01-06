@@ -1,7 +1,6 @@
-use crate::gen::OtherShrinkGen;
 pub use crate::runner::MonkeyResult;
-use crate::Gen;
-use crate::Shrink;
+use crate::BoxGen;
+use crate::BoxShrink;
 
 /// Configuration for executing monkey tests.
 #[derive(Clone)]
@@ -13,21 +12,21 @@ pub struct Conf {
 }
 
 /// Configuration for executing monkey tests, including the generator.
-pub struct ConfAndGen<G>
+pub struct ConfAndGen<E>
 where
-    G: Gen,
+    E: Clone,
 {
     /// The configuration to use.
     pub conf: Conf,
     /// See [Conf::with_generator].
-    pub gen: G,
+    pub gen: BoxGen<E>,
 }
 
 impl Conf {
     /// Specify which single generator to use in test.
-    pub fn with_generator<G>(&self, gen: G) -> ConfAndGen<G>
+    pub fn with_generator<E>(&self, gen: BoxGen<E>) -> ConfAndGen<E>
     where
-        G: Gen,
+        E: Clone,
     {
         ConfAndGen {
             conf: self.clone(),
@@ -67,30 +66,30 @@ impl Default for Conf {
     }
 }
 
-impl<G> ConfAndGen<G>
+impl<E> ConfAndGen<E>
 where
-    G: Gen,
+    E: Clone + 'static,
 {
-    fn new(conf: Conf, gen: G) -> ConfAndGen<G> {
+    fn new(conf: Conf, gen: BoxGen<E>) -> ConfAndGen<E> {
         ConfAndGen { gen, conf }
     }
 
     /// Check that the property holds for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
     /// failure.
-    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<G::Example>
+    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<E>
     where
-        P: Fn(G::Example) -> bool,
+        P: Fn(E) -> bool,
     {
         crate::runner::evaluate_property(self, prop)
     }
 
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
-    pub fn assert_true<P>(&self, prop: P) -> &ConfAndGen<G>
+    pub fn assert_true<P>(&self, prop: P) -> &ConfAndGen<E>
     where
-        P: Fn(G::Example) -> bool,
-        G::Example: std::fmt::Debug,
+        P: Fn(E) -> bool,
+        E: std::fmt::Debug,
     {
         if let MonkeyResult::MonkeyErr {
             minimum_failure,
@@ -108,14 +107,8 @@ where
         self
     }
 
-    /// Add/change which shriker to use if a failing example is found.
-    pub fn with_shrinker<S2>(
-        &self,
-        shrink: S2,
-    ) -> ConfAndGen<OtherShrinkGen<G, S2>>
-    where
-        S2: Shrink<G::Example>,
-    {
+    /// Add/change which shriker to use when a failing example is found.
+    pub fn with_shrinker(&self, shrink: BoxShrink<E>) -> ConfAndGen<E> {
         ConfAndGen::new(self.conf.clone(), self.gen.with_shrinker(shrink))
     }
 }

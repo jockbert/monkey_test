@@ -1,6 +1,6 @@
 //! Shrinkers for vectors
 
-use crate::{Shrink, SomeIter};
+use crate::{BoxIter, Shrink};
 use std::marker::PhantomData;
 
 /// Default vector shrinker
@@ -23,7 +23,7 @@ impl<E> Shrink<Vec<E>> for VecShrink<E>
 where
     E: Clone + 'static,
 {
-    fn candidates(&self, original: Vec<E>) -> SomeIter<Vec<E>> {
+    fn candidates(&self, original: Vec<E>) -> BoxIter<Vec<E>> {
         Box::new(VecIterator::<E> { current: original })
     }
 }

@@ -1,4 +1,4 @@
-use crate::Gen;
+use crate::BoxGen;
 use std::fmt::Debug;
 
 /// A collection of examples and their frequencies, a.k.a occurence count.
@@ -19,11 +19,11 @@ pub fn even_distribution_of<T: Clone + Ord>(ts: &[T]) -> Distribution<T> {
 }
 
 /// Build a distribution by consuming a lot of values from given genereator.
-fn collect_distribution<G: Gen>(gen_to_check: G) -> Distribution<G::Example>
+fn collect_distribution<E>(gen_to_check: BoxGen<E>) -> Distribution<E>
 where
-    G::Example: Ord,
+    E: Clone + Ord + 'static,
 {
-    let mut result = Distribution::<G::Example>::new();
+    let mut result = Distribution::<E>::new();
     for example in gen_to_check.examples(1234).take(10_000) {
         let count = result.get(&example).map_or(1, |n| n + 1);
         result.insert(example, count);
@@ -39,12 +39,11 @@ where
 /// distribution, no more and no less. Additionaly, frequencies for the
 /// different examples from the generator should, in percent, be approximately
 /// the same as in the expected distribution.
-pub fn assert_generator_distribution_similar_to<G: Gen>(
-    actual_gen: G,
-    expected: Distribution<G::Example>,
+pub fn assert_generator_distribution_similar_to<E>(
+    actual_gen: BoxGen<E>,
+    expected: Distribution<E>,
 ) where
-    G: Gen,
-    G::Example: Ord + Debug,
+    E: Clone + Ord + Debug + 'static,
 {
     let allowed_deviation_percent = 2.0;
     let actual = collect_distribution(actual_gen);

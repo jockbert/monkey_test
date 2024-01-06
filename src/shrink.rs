@@ -6,13 +6,22 @@ pub mod vec;
 
 pub use no_shrink::NoShrink;
 pub use num_shrink::NumShrink;
+use num_traits::Num;
+
+use crate::BoxShrink;
 
 /// Shrink nothing
-pub fn none<E: 'static>() -> NoShrink<E> {
-    NoShrink::default()
+pub fn none<E>() -> BoxShrink<E>
+where
+    E: Clone + 'static,
+{
+    Box::<NoShrink<E>>::default()
 }
 
 /// Shrink number types to zero.
-pub fn number() -> NumShrink {
-    NumShrink {}
+pub fn number<E>() -> BoxShrink<E>
+where
+    E: Num + Copy + std::cmp::PartialOrd + 'static,
+{
+    Box::new(NumShrink {})
 }

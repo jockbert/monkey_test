@@ -1,40 +1,33 @@
-use crate::{Gen, SomeIter};
+use crate::{BoxGen, BoxIter, BoxShrink, Gen};
 
 /// Generator wrapper that allows binding new shrinker to existing generator.
 #[derive(Clone)]
-pub struct ChainGen<G1, G2>
+pub struct ChainGen<E>
 where
-    G1: Gen,
-    G2: Gen<Example = G1::Example>,
+    E: Clone,
 {
-    generator1: G1,
-    generator2: G2,
+    generator1: BoxGen<E>,
+    generator2: BoxGen<E>,
 }
 
-impl<G1, G2> ChainGen<G1, G2>
+impl<E> ChainGen<E>
 where
-    G1: Gen,
-    G2: Gen<Example = G1::Example>,
+    E: Clone,
 {
     /// Create a new generator with (other) shrinker
-    pub fn new(g1: &G1, g2: &G2) -> ChainGen<G1, G2> {
-        ChainGen::<G1, G2> {
-            generator1: g1.clone(),
-            generator2: g2.clone(),
+    pub fn new(g1: BoxGen<E>, g2: BoxGen<E>) -> ChainGen<E> {
+        ChainGen::<E> {
+            generator1: g1,
+            generator2: g2,
         }
     }
 }
 
-impl<G1, G2> Gen for ChainGen<G1, G2>
+impl<E> Gen<E> for ChainGen<E>
 where
-    G1: Gen,
-    G1::Example: 'static,
-    G2: Gen<Example = G1::Example>,
+    E: Clone + 'static,
 {
-    type Example = G1::Example;
-    type Shrink = G1::Shrink;
-
-    fn examples(&self, seed: u64) -> SomeIter<Self::Example> {
+    fn examples(&self, seed: u64) -> BoxIter<E> {
         Box::new(
             self.generator1
                 .examples(seed)
@@ -42,7 +35,7 @@ where
         )
     }
 
-    fn shrinker(&self) -> Self::Shrink {
+    fn shrinker(&self) -> BoxShrink<E> {
         self.generator1.shrinker().clone()
     }
 }
@@ -56,8 +49,8 @@ mod test {
     #[test]
     fn empty_generators() {
         let gen = ChainGen::new(
-            &fixed::sequence::<u8>(&[]),
-            &fixed::sequence::<u8>(&[]),
+            fixed::sequence::<u8>(&[]),
+            fixed::sequence::<u8>(&[]),
         );
         let mut it = gen.examples(1234);
         assert_eq!(None, it.next())
@@ -66,8 +59,8 @@ mod test {
     #[test]
     fn some_elements_in_each_generator() {
         let gen = ChainGen::new(
-            &fixed::sequence::<u8>(&[1, 2]),
-            &fixed::sequence::<u8>(&[3, 4]),
+            fixed::sequence::<u8>(&[1, 2]),
+            fixed::sequence::<u8>(&[3, 4]),
         );
         let mut it = gen.examples(1234);
         assert_eq!(Some(1u8), it.next());

@@ -1,25 +1,19 @@
 //! Generic generators for integer type values.
 
-use std::ops::Bound;
-use std::ops::RangeBounds;
-
+use crate::BoxGen;
+use crate::BoxShrink;
+use crate::{shrink::NumShrink, Gen};
 use min_max_traits::{Max, Min};
 use num_traits::Num;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
-
-use crate::{shrink::NumShrink, Gen};
-
-use super::OtherShrinkGen;
-use super::{chain::ChainGen, fixed::SequenceGen};
-
-pub(crate) type IntGen<E> =
-    ChainGen<OtherShrinkGen<SequenceGen<E>, NumShrink>, UxGen<E>>;
+use std::ops::Bound;
+use std::ops::RangeBounds;
 
 /// Uniformly distributed range of values.
-pub fn ranged<E, B>(bounds: B) -> IntGen<E>
+pub fn ranged<E, B>(bounds: B) -> BoxGen<E>
 where
     E: Num
         + Min
@@ -46,7 +40,7 @@ where
 
     crate::gen::fixed::sequence(&[min, max])
         .with_shrinker(crate::shrink::number())
-        .chain(&UxGen { min, max })
+        .chain(Box::new(UxGen { min, max }))
 }
 
 /// Generator of random usize values.
@@ -56,14 +50,11 @@ pub struct UxGen<E> {
     max: E,
 }
 
-impl<E> Gen for UxGen<E>
+impl<E> Gen<E> for UxGen<E>
 where
     E: Num + SampleUniform + Copy + Clone + std::cmp::PartialOrd + 'static,
 {
-    type Example = E;
-    type Shrink = NumShrink;
-
-    fn examples(&self, seed: u64) -> crate::SomeIter<E> {
+    fn examples(&self, seed: u64) -> crate::BoxIter<E> {
         Box::new(UxIter::<E> {
             min: self.min,
             max: self.max,
@@ -71,8 +62,8 @@ where
         })
     }
 
-    fn shrinker(&self) -> Self::Shrink {
-        NumShrink {}
+    fn shrinker(&self) -> BoxShrink<E> {
+        Box::new(NumShrink {})
     }
 }
 
@@ -103,7 +94,6 @@ mod tests {
     use super::ranged;
     use crate::testing::numbers::assert_even_distr;
     use crate::testing::numbers::assert_first_fixed_then_random;
-    use crate::*;
 
     /// Generator values should be evenly distributed within range.
     #[test]

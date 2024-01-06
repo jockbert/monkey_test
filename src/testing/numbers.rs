@@ -1,23 +1,17 @@
-use std::cmp;
-use std::ops::Sub;
-
+use crate::BoxGen;
 use num::Integer;
-use num_traits::AsPrimitive;
-
-use crate::Gen;
+use std::cmp;
 
 /// Assert that the first values from generator are the expected fixed
 /// values and that value after that is at least somewhat random.
-pub fn assert_first_fixed_then_random<G>(
-    generator_to_test: G,
-    expected_fixed_values: &[G::Example],
+pub fn assert_first_fixed_then_random<E>(
+    generator_to_test: BoxGen<E>,
+    expected_fixed_values: &[E],
 ) where
-    G: Gen,
-    G::Example:
-        Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
+    E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
 {
     let trial_count = 10;
-    let mut first_randoms: Vec<G::Example> = vec![];
+    let mut first_randoms: Vec<E> = vec![];
 
     for seed in 0..trial_count {
         let mut it = generator_to_test.examples(seed);
@@ -49,14 +43,12 @@ pub fn assert_first_fixed_then_random<G>(
 
 /// Pick large ammount of values from generator and assess if distribution
 /// looks roughly even.
-pub fn assert_even_distr<G>(
-    generator_to_test: G,
-    expected_min: G::Example,
-    expected_max: G::Example,
+pub fn assert_even_distr<E>(
+    generator_to_test: BoxGen<E>,
+    expected_min: E,
+    expected_max: E,
 ) where
-    G: Gen,
-    G::Example:
-        Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
+    E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
 {
     let instances_per_value: usize = 10_000;
     let expected_range_limit: usize = 1_000_000;

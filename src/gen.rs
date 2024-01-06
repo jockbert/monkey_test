@@ -1,9 +1,7 @@
 //! The `gen` module contains built in generators.
 
-use crate::Gen;
-use crate::Shrink;
-
-pub use other_shrink::OtherShrinkGen;
+use crate::BoxGen;
+use crate::BoxShrink;
 
 pub(crate) mod chain;
 pub mod fixed;
@@ -20,19 +18,18 @@ pub mod vec;
 /// assert!(gen.shrinker().candidates(123).next().is_some());
 ///
 /// // let generator have other shrinker
-/// let gen2 = gen::other_shrinker(&gen, shrink::none());
+/// let gen2 = gen::other_shrinker(gen, shrink::none());
 /// assert!(gen2.shrinker().candidates(123).next().is_none());
 ///
 /// // let generator have other shrinker again (alternative way)
 /// let gen3 = gen2.with_shrinker(shrink::number());
 /// assert!(gen3.shrinker().candidates(123).next().is_some());
 /// ```
-pub fn other_shrinker<G, S2>(gen: &G, other_shrink: S2) -> OtherShrinkGen<G, S2>
-where
-    G: Gen,
-    S2: Shrink<G::Example>,
-{
-    OtherShrinkGen::new(gen, other_shrink)
+pub fn other_shrinker<E: Clone + 'static>(
+    gen: BoxGen<E>,
+    other_shrink: BoxShrink<E>,
+) -> BoxGen<E> {
+    other_shrink::OtherShrinkGen::new(gen, other_shrink)
 }
 
 /// Macro to generate code for all integer type modules
@@ -40,15 +37,16 @@ macro_rules! integer_module {
     ($name:ident) => {
         /// Generators for values of module type.
         pub mod $name {
+            use crate::BoxGen;
             use std::ops::RangeBounds;
 
             /// Uniformly distributed unbound range of value
-            pub fn any() -> super::integers::IntGen<$name> {
+            pub fn any() -> BoxGen<$name> {
                 ranged(..)
             }
 
             /// Uniformly distributed limited range of values
-            pub fn ranged<B>(bounds: B) -> super::integers::IntGen<$name>
+            pub fn ranged<B>(bounds: B) -> BoxGen<$name>
             where
                 B: RangeBounds<$name>,
             {

@@ -1,43 +1,28 @@
-use crate::{Gen, Shrink, SomeIter};
+use crate::{BoxGen, BoxIter, BoxShrink, Gen};
 
 /// Generator wrapper that allows binding new shrinker to existing generator.
 #[derive(Clone)]
-pub struct OtherShrinkGen<G, S>
-where
-    G: Gen,
-    S: Shrink<G::Example>,
-{
-    generator: G,
-    shrinker: S,
+pub struct OtherShrinkGen<E> {
+    generator: BoxGen<E>,
+    shrinker: BoxShrink<E>,
 }
 
-impl<G, S> OtherShrinkGen<G, S>
-where
-    G: Gen,
-    S: Shrink<G::Example>,
-{
+impl<E: Clone + 'static> OtherShrinkGen<E> {
     /// Create a new generator with (other) shrinker
-    pub fn new(g: &G, s2: S) -> OtherShrinkGen<G, S> {
-        OtherShrinkGen::<G, S> {
-            generator: g.clone(),
+    pub fn new(g: BoxGen<E>, s2: BoxShrink<E>) -> BoxGen<E> {
+        Box::new(OtherShrinkGen {
+            generator: g,
             shrinker: s2,
-        }
+        })
     }
 }
 
-impl<G, S> Gen for OtherShrinkGen<G, S>
-where
-    G: Gen,
-    S: Shrink<G::Example>,
-{
-    type Example = G::Example;
-    type Shrink = S;
-
-    fn examples(&self, seed: u64) -> SomeIter<Self::Example> {
+impl<E: Clone + 'static> Gen<E> for OtherShrinkGen<E> {
+    fn examples(&self, seed: u64) -> BoxIter<E> {
         self.generator.examples(seed)
     }
 
-    fn shrinker(&self) -> S {
+    fn shrinker(&self) -> BoxShrink<E> {
         self.shrinker.clone()
     }
 }
