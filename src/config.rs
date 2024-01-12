@@ -94,14 +94,16 @@ where
         if let MonkeyResult::MonkeyErr {
             minimum_failure,
             seed,
+            success_count,
             ..
         } = self.check_true(prop)
         {
             panic!(
                 "Monkey test property failed!\n\
                 Counterexample: {:?}\n\
-                Reproduction seed: {}\n",
-                minimum_failure, seed
+                Reproduction seed: {}\n\
+                Success count before failure: {}",
+                minimum_failure, seed, success_count
             )
         }
         self
