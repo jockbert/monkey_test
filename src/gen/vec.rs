@@ -14,7 +14,7 @@ pub fn any<E: Clone + 'static>(element_gen: BoxGen<E>) -> BoxGen<Vec<E>> {
 
 /// Generator for random vectors.
 #[derive(Clone)]
-pub struct RandVecGen<E> {
+struct RandVecGen<E> {
     element_gen: BoxGen<E>,
 }
 
@@ -27,12 +27,12 @@ impl<E: Clone + 'static> Gen<Vec<E>> for RandVecGen<E> {
     }
 
     fn shrinker(&self) -> BoxShrink<Vec<E>> {
-        Box::new(crate::shrink::vec::default())
+        crate::shrink::vec::default()
     }
 }
 
 /// Iterator of random vectors.
-pub struct RandVecIter<E> {
+struct RandVecIter<E> {
     rng: ChaCha8Rng,
     element_it: crate::BoxIter<E>,
 }

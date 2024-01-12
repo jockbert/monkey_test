@@ -33,7 +33,7 @@ where
 
 /// Generator from a given set of examples to return.
 #[derive(Clone)]
-pub struct SequenceGen<E> {
+struct SequenceGen<E> {
     data: Vec<E>,
 }
 

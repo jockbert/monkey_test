@@ -1,18 +1,18 @@
 //! Shrinkers for vectors
 
-use crate::{BoxIter, Shrink};
+use crate::{BoxIter, BoxShrink, Shrink};
 use std::marker::PhantomData;
 
 /// Default vector shrinker
-pub fn default<E: Clone + 'static>() -> VecShrink<E> {
-    VecShrink::<E> {
+pub fn default<E: Clone + 'static>() -> BoxShrink<Vec<E>> {
+    Box::new(VecShrink::<E> {
         phantom: PhantomData,
-    }
+    })
 }
 
 /// Vector version of shrinker
 #[derive(Clone)]
-pub struct VecShrink<E>
+struct VecShrink<E>
 where
     E: Clone,
 {
@@ -29,7 +29,7 @@ where
 }
 
 /// Vector shrink iterator
-pub struct VecIterator<E> {
+struct VecIterator<E> {
     current: Vec<E>,
 }
 

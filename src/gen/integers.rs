@@ -2,7 +2,7 @@
 
 use crate::BoxGen;
 use crate::BoxShrink;
-use crate::{shrink::NumShrink, Gen};
+use crate::Gen;
 use min_max_traits::{Max, Min};
 use num_traits::Num;
 use rand::distributions::uniform::SampleUniform;
@@ -63,7 +63,7 @@ where
     }
 
     fn shrinker(&self) -> BoxShrink<E> {
-        Box::new(NumShrink {})
+        crate::shrink::number()
     }
 }
 

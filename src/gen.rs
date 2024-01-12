@@ -1,6 +1,6 @@
 //! The `gen` module contains built in generators.
 
-pub(crate) mod chain;
+mod chain;
 pub mod fixed;
 mod integers;
 mod other_shrink;
@@ -8,35 +8,12 @@ mod pick;
 mod sample_target;
 pub mod vec;
 
-use crate::BoxGen;
-use crate::BoxShrink;
+pub use chain::chain;
+pub use other_shrink::other_shrinker;
 pub use pick::pick_evenly;
 pub use pick::pick_with_ratio;
 pub use sample_target::Ratio;
 use sample_target::SampleTarget;
-
-/// Create new generator with other shrinker
-///
-/// ```rust
-/// use monkey_test::*;
-///
-/// let gen = gen::u8::any();
-/// assert!(gen.shrinker().candidates(123).next().is_some());
-///
-/// // let generator have other shrinker
-/// let gen2 = gen::other_shrinker(gen, shrink::none());
-/// assert!(gen2.shrinker().candidates(123).next().is_none());
-///
-/// // let generator have other shrinker again (alternative way)
-/// let gen3 = gen2.with_shrinker(shrink::number());
-/// assert!(gen3.shrinker().candidates(123).next().is_some());
-/// ```
-pub fn other_shrinker<E: Clone + 'static>(
-    gen: BoxGen<E>,
-    other_shrink: BoxShrink<E>,
-) -> BoxGen<E> {
-    other_shrink::OtherShrinkGen::new(gen, other_shrink)
-}
 
 /// Macro to generate code for all integer type modules
 macro_rules! integer_module {

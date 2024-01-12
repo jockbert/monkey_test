@@ -1,19 +1,22 @@
+use crate::BoxIter;
+use crate::BoxShrink;
+use crate::Shrink;
 use std::marker::PhantomData;
 
-use crate::{BoxIter, Shrink};
+/// Empty shrinker not producing any smaller examples given original example.
+pub fn none<E>() -> BoxShrink<E>
+where
+    E: Clone + 'static,
+{
+    Box::new(NoShrink {
+        phantom: PhantomData,
+    })
+}
 
 /// Shrinker that does nothing.
 #[derive(Clone)]
-pub struct NoShrink<E> {
+struct NoShrink<E> {
     phantom: PhantomData<E>,
-}
-
-impl<E> Default for NoShrink<E> {
-    fn default() -> Self {
-        NoShrink::<E> {
-            phantom: PhantomData,
-        }
-    }
 }
 
 impl<E: Clone + 'static> Shrink<E> for NoShrink<E> {

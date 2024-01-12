@@ -1,10 +1,19 @@
+use crate::BoxIter;
+use crate::BoxShrink;
+use crate::Shrink;
 use num_traits::Num;
 
-use crate::{BoxIter, Shrink};
+/// Shrink number types towards the value zero.
+pub fn to_zero<E>() -> BoxShrink<E>
+where
+    E: Num + Copy + std::cmp::PartialOrd + 'static,
+{
+    Box::new(NumShrink {})
+}
 
 /// Shrinker that decrements a value towards zero.
 #[derive(Clone)]
-pub struct NumShrink {}
+struct NumShrink {}
 
 impl<E> Shrink<E> for NumShrink
 where
@@ -16,7 +25,7 @@ where
 }
 
 /// Iterator that decrements a value towards zero.
-pub struct NumShrinkIt<E> {
+struct NumShrinkIt<E> {
     current: E,
 }
 
