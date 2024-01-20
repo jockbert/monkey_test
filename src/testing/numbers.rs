@@ -64,7 +64,7 @@ pub fn assert_even_distr<E>(
 
     // Pick so many elements such there should be roughly x instances of
     // each value.
-    let expected_range = (expected_max - expected_min).as_();
+    let expected_range = (expected_max - expected_min).as_() + 1;
     assert!(
         expected_range < expected_range_limit,
         "Expected range {expected_range} is too wide.
