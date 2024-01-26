@@ -127,6 +127,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::testing::assert_generator_can_shrink;
     use crate::testing::distribution::assert_generator_distribution_similar_to;
     use crate::testing::distribution::distribution_from_pairs;
     use crate::testing::numbers::assert_even_distr;
@@ -160,12 +161,6 @@ mod tests {
 
     #[test]
     fn has_shrinker() {
-        let gen = super::ranged(..10);
-        let shrinker = gen.shrinker();
-        let mut it = shrinker.candidates(123);
-        assert!(it.next().is_some());
-        assert!(it.next().is_some());
-        assert!(it.next().is_some());
-        assert!(it.next().is_some());
+        assert_generator_can_shrink(super::ranged(..10), 123);
     }
 }
