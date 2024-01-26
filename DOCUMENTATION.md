@@ -179,6 +179,17 @@ let bytes = monkey_test::gen::u8::any();
 let some_longs = monkey_test::gen::i64::ranged(10..=20);
 ```
 
+### Pick values and mix generators
+
+Create generators that pick among values and mix values from different generators
+
+```rust
+use monkey_test::gen;
+let fruits = gen::pick_evenly(&["banana", "apple", "orange"]);
+let nuts = gen::pick_evenly(&["peanut", "almond", "pecan"]);
+let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
+```
+
 ## Key design principles of the Monkey Test tool
 
 - *configurability and flexibility* - Leave a high degree of configurability
