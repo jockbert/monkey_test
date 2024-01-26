@@ -36,3 +36,19 @@ where
         example_to_shrink
     );
 }
+
+/// Makes sure generator has a shrinker that cannot shrink.
+pub fn assert_generator_cannot_shrink<E>(gen: BoxGen<E>, example_to_shrink: E)
+where
+    E: Clone + PartialEq + Debug + 'static,
+{
+    let shrinker = gen.shrinker();
+    let candidate = shrinker.candidates(example_to_shrink.clone()).next();
+    assert!(
+        candidate.is_none(),
+        "Expecting generator shrinker to not return a candidate, given \
+        example {:?}, but got {:?}.",
+        example_to_shrink,
+        candidate
+    );
+}

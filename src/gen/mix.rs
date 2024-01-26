@@ -25,6 +25,10 @@ where
     E: Clone + 'static + core::fmt::Debug,
 {
     Box::new(MixGen {
+        shrinker: generators
+            .first()
+            .map(|gen| gen.shrinker())
+            .unwrap_or(crate::shrink::none()),
         sample_target: SampleTarget::evenly(generators),
     })
 }
@@ -47,6 +51,10 @@ where
     E: Clone + 'static + core::fmt::Debug,
 {
     Box::new(MixGen {
+        shrinker: ratios_and_gens
+            .first()
+            .map(|pair| pair.1.shrinker())
+            .unwrap_or(crate::shrink::none()),
         sample_target: SampleTarget::with_ratios(ratios_and_gens),
     })
 }
@@ -55,6 +63,7 @@ where
 #[derive(Clone)]
 struct MixGen<E> {
     sample_target: crate::gen::sample_target::SampleTarget<BoxGen<E>>,
+    shrinker: BoxShrink<E>,
 }
 
 impl<E> Gen<E> for MixGen<E>
@@ -86,15 +95,16 @@ where
     }
 
     fn shrinker(&self) -> BoxShrink<E> {
-        crate::shrink::none()
+        self.shrinker.clone()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::testing::distribution::{
-        assert_generator_distribution_similar_to, distribution_from_pairs,
-    };
+    use crate::testing::assert_generator_can_shrink;
+    use crate::testing::assert_generator_cannot_shrink;
+    use crate::testing::distribution::assert_generator_distribution_similar_to;
+    use crate::testing::distribution::distribution_from_pairs;
 
     /// If implementation is wrong, generator is cloned every time and only the
     /// first state or element is returned every time. This test makes sure all
@@ -189,5 +199,21 @@ mod test {
                 (1, '4'),
             ]),
         )
+    }
+
+    #[test]
+    fn mix_should_reuse_shrinker_from_first_generator() {
+        let with_shrinker = super::mix_evenly(&[
+            crate::gen::u8::any().with_shrinker(crate::shrink::number()),
+            crate::gen::u8::any().with_shrinker(crate::shrink::none()),
+        ]);
+
+        let without_shrinker = super::mix_evenly(&[
+            crate::gen::u8::any().with_shrinker(crate::shrink::none()),
+            crate::gen::u8::any().with_shrinker(crate::shrink::number()),
+        ]);
+
+        assert_generator_can_shrink(with_shrinker, 10);
+        assert_generator_cannot_shrink(without_shrinker, 10);
     }
 }
