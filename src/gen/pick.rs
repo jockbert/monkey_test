@@ -66,7 +66,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::testing::distribution::assert_generator_distribution_similar_to;
+    use crate::testing::distribution::assert_generator_has_distribution_within_percent;
     use crate::testing::distribution::distribution_from_pairs;
     use crate::testing::distribution::even_distribution_of;
     use crate::testing::distribution::single_value_distribution;
@@ -88,25 +88,28 @@ mod test {
 
     #[test]
     fn pick_with_ratio_handles_single_option() {
-        assert_generator_distribution_similar_to(
+        assert_generator_has_distribution_within_percent(
             super::pick_with_ratio(&[(255, 'x')]),
             single_value_distribution('x'),
+            1.0,
         );
     }
 
     #[test]
     fn pick_with_ratio_follow_given_ratios() {
-        assert_generator_distribution_similar_to(
+        assert_generator_has_distribution_within_percent(
             super::pick_with_ratio(&[(50, 'b'), (25, 'c'), (25, 'a')]),
             distribution_from_pairs(&[(1, 'a'), (2, 'b'), (1, 'c')]),
+            1.0,
         );
     }
 
     #[test]
     fn pick_evenly_is_evenly_distributed() {
-        assert_generator_distribution_similar_to(
+        assert_generator_has_distribution_within_percent(
             super::pick_evenly(&['b', 'c', 'a']),
             even_distribution_of(&['a', 'b', 'c']),
+            1.0,
         );
     }
 }

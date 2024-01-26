@@ -128,7 +128,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::testing::assert_generator_can_shrink;
-    use crate::testing::distribution::assert_generator_distribution_similar_to;
+    use crate::testing::distribution::assert_generator_has_distribution_within_percent;
     use crate::testing::distribution::distribution_from_pairs;
     use crate::testing::numbers::assert_even_distr;
 
@@ -147,16 +147,17 @@ mod tests {
     /// examples tested, the extreme values might never come up.
     #[test]
     fn assert_two_percent_higher_frequency_of_min_and_max() {
-        assert_generator_distribution_similar_to(
-            super::ranged(2..=6),
-            distribution_from_pairs(&[
-                (21, 2),
-                (19, 3),
-                (19, 4),
-                (19, 5),
-                (21, 6),
-            ]),
-        )
+        let ranged = super::ranged(2..=6);
+
+        let expected = distribution_from_pairs(&[
+            (21, 2),
+            (19, 3),
+            (19, 4),
+            (19, 5),
+            (21, 6),
+        ]);
+
+        assert_generator_has_distribution_within_percent(ranged, expected, 1.0)
     }
 
     #[test]

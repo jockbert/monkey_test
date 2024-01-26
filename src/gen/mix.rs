@@ -103,7 +103,7 @@ where
 mod test {
     use crate::testing::assert_generator_can_shrink;
     use crate::testing::assert_generator_cannot_shrink;
-    use crate::testing::distribution::assert_generator_distribution_similar_to;
+    use crate::testing::distribution::assert_generator_has_distribution_within_percent;
     use crate::testing::distribution::distribution_from_pairs;
 
     /// If implementation is wrong, generator is cloned every time and only the
@@ -166,17 +166,16 @@ mod test {
             (32, crate::gen::pick_evenly(&['1', '2', '3', '4'])),
         ]);
 
-        assert_generator_distribution_similar_to(
-            mixer,
-            distribution_from_pairs(&[
-                (4, 'A'),
-                (4, 'B'),
-                (1, '1'),
-                (1, '2'),
-                (1, '3'),
-                (1, '4'),
-            ]),
-        )
+        let expected = distribution_from_pairs(&[
+            (4, 'A'),
+            (4, 'B'),
+            (1, '1'),
+            (1, '2'),
+            (1, '3'),
+            (1, '4'),
+        ]);
+
+        assert_generator_has_distribution_within_percent(mixer, expected, 1.0)
     }
 
     /// A and B will be 2 times more frequent than 1, 2, 3, and 4, just because
@@ -188,17 +187,16 @@ mod test {
             crate::gen::pick_evenly(&['1', '2', '3', '4']),
         ]);
 
-        assert_generator_distribution_similar_to(
-            mixer,
-            distribution_from_pairs(&[
-                (2, 'A'),
-                (2, 'B'),
-                (1, '1'),
-                (1, '2'),
-                (1, '3'),
-                (1, '4'),
-            ]),
-        )
+        let expected = distribution_from_pairs(&[
+            (2, 'A'),
+            (2, 'B'),
+            (1, '1'),
+            (1, '2'),
+            (1, '3'),
+            (1, '4'),
+        ]);
+
+        assert_generator_has_distribution_within_percent(mixer, expected, 1.0)
     }
 
     #[test]

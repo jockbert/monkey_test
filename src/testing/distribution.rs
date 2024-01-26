@@ -50,13 +50,13 @@ where
 /// distribution, no more and no less. Additionaly, frequencies for the
 /// different examples from the generator should, in percent, be approximately
 /// the same as in the expected distribution.
-pub fn assert_generator_distribution_similar_to<E>(
+pub fn assert_generator_has_distribution_within_percent<E>(
     actual_gen: BoxGen<E>,
     expected: Distribution<E>,
+    max_allowed_deviation_in_percent: f64,
 ) where
     E: Clone + Ord + Debug + 'static,
 {
-    let allowed_deviation_percent = 1.0;
     let actual = collect_distribution(actual_gen);
 
     let actual_total_count: usize = actual.values().sum();
@@ -109,7 +109,8 @@ pub fn assert_generator_distribution_similar_to<E>(
         let expected_percent =
             calc_percent(*expected_key_count, expected_total_count);
 
-        if (expected_percent - actual_percent).abs() > allowed_deviation_percent
+        if (expected_percent - actual_percent).abs()
+            > max_allowed_deviation_in_percent
         {
             let formatted = format_distribution(&actual);
             panic!(
@@ -150,7 +151,7 @@ fn assert_should_fail_on_unexpected_additional_generator_example() {
     let gen = crate::gen::fixed::in_loop(&[10, 11, 12]);
     let expected = even_distribution_of::<u8>(&[11, 12]);
 
-    assert_generator_distribution_similar_to(gen, expected);
+    assert_generator_has_distribution_within_percent(gen, expected, 1.0);
 }
 
 #[test]
@@ -160,7 +161,7 @@ fn assert_should_fail_on_missing_example_in_generator() {
     let gen = crate::gen::fixed::in_loop(&[11, 12]);
     let expected = even_distribution_of::<u8>(&[11, 12, 13]);
 
-    assert_generator_distribution_similar_to(gen, expected);
+    assert_generator_has_distribution_within_percent(gen, expected, 1.0);
 }
 
 #[test]
@@ -174,5 +175,5 @@ fn assert_should_fail_on_frequency_missmatch() {
     expected.insert(11, 3);
     expected.insert(12, 1);
 
-    assert_generator_distribution_similar_to(gen, expected);
+    assert_generator_has_distribution_within_percent(gen, expected, 1.0);
 }
