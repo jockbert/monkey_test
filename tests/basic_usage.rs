@@ -13,7 +13,7 @@ fn can_fail_with_details_when_using_check() {
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::number())
-        .check_true(|x| x < 15);
+        .test_property(|x| x < 15);
 
     assert_eq!(
         actual_result,
