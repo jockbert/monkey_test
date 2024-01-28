@@ -1,6 +1,7 @@
 pub use crate::runner::MonkeyResult;
 use crate::BoxGen;
 use crate::BoxShrink;
+use crate::Property;
 
 /// Configuration for executing monkey tests.
 #[derive(Clone)]
@@ -77,18 +78,14 @@ where
     /// Check that the property holds for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
     /// failure.
-    pub fn check_true<P>(&self, prop: P) -> MonkeyResult<E>
-    where
-        P: Fn(E) -> bool,
-    {
+    pub fn check_true(&self, prop: Property<E>) -> MonkeyResult<E> {
         crate::runner::evaluate_property(self, prop)
     }
 
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
-    pub fn assert_true<P>(&self, prop: P) -> &ConfAndGen<E>
+    pub fn assert_true(&self, prop: Property<E>) -> &ConfAndGen<E>
     where
-        P: Fn(E) -> bool,
         E: std::fmt::Debug,
     {
         if let MonkeyResult::MonkeyErr {

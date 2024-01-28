@@ -45,6 +45,9 @@ pub type BoxShrink<E> = Box<dyn Shrink<E>>;
 /// A boxed generator of example type `E`
 pub type BoxGen<E> = Box<dyn Gen<E>>;
 
+/// A property is something that should hold, for all given examples.
+pub type Property<E> = fn(E) -> bool;
+
 /// Trait that enables cloning a boxed generator.
 #[doc(hidden)]
 pub trait CloneGen<E> {
