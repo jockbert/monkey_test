@@ -38,6 +38,17 @@ fn can_fail_with_panic_when_using_assert() {
         .assert_true(|x| x < 15);
 }
 
+/// Can do the same as above by asserting minimum failing example
+#[test]
+fn can_assert_minimumfail_with_panic_when_using_assert() {
+    monkey_test()
+        .with_seed(123456)
+        .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
+        .with_shrinker(shrink::number())
+        .test_property(|x| x < 15)
+        .assert_minimum_failure(15);
+}
+
 #[test]
 fn use_all_settings_available() {
     monkey_test()

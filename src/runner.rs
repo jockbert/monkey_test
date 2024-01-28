@@ -35,6 +35,35 @@ pub enum MonkeyResult<E> {
     },
 }
 
+impl<E> MonkeyResult<E> {
+    /// Verify that the result is a failure and that the minimum failure equals
+    /// given argument `expected_minimum_failure`.
+    ///
+    /// # Panics
+    ///
+    /// The function panics if there is not a failure result matching
+    /// `expected_minimum_failue`.
+    pub fn assert_minimum_failure(&self, expected_minimum_failure: E) -> &Self
+    where
+        E: Debug + PartialEq,
+    {
+        match self {
+            MonkeyResult::MonkeyOk() => panic!(
+                "Expecting property to fail for some example, but it never failed."),
+            MonkeyResult::MonkeyErr { minimum_failure, .. } => assert!(
+                expected_minimum_failure == *minimum_failure,
+                "Expecting property to fail, which it did, but also \
+                expecting minimum failure to be equal to {:?}, but got {:?}",
+                expected_minimum_failure,
+                minimum_failure,
+            )
+        };
+        self
+    }
+}
+
+use std::fmt::Debug;
+
 use crate::config::*;
 
 pub fn evaluate_property<E, P>(cg: &ConfAndGen<E>, prop: P) -> MonkeyResult<E>
