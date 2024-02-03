@@ -124,6 +124,30 @@ pub trait Gen<E: Clone + 'static>: CloneGen<E> {
     }
 }
 
+/// Non-object-safe trait for providing generator zipping.
+///
+/// The [ZipWithGen::zip] extension method cannot be implemented diectly on
+/// [Gen] object trait, since generic method in respect to other type `E1`, does
+/// not seem to be allowed on trait objects.
+pub trait ZipWithGen<E0>
+where
+    E0: Clone + 'static,
+{
+    /// See [gen::zip].
+    fn zip<E1>(&self, other_gen: BoxGen<E1>) -> BoxGen<(E0, E1)>
+    where
+        E1: Clone + 'static;
+}
+
+impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
+    fn zip<E1>(&self, other_gen: BoxGen<E1>) -> BoxGen<(E0, E1)>
+    where
+        E1: Clone + 'static,
+    {
+        gen::zip(self.clone_box(), other_gen)
+    }
+}
+
 /// The shrinker trait, for shrinking a failed example values into smaller ones.
 /// What is determined as a smaller value can be subjective and is up to author
 /// or tester to determine, but as a rule of thumb a smaller value should be
@@ -134,6 +158,26 @@ where
 {
     /// Returns a series of smaller examples, given an original example.
     fn candidates(&self, original: E) -> BoxIter<E>;
+}
+
+/// Non-object-safe trait for providing shrinker zipping.
+pub trait ZipWithShrink<E0>
+where
+    E0: Clone + 'static,
+{
+    /// See [shrink::zip].
+    fn zip<E1>(&self, other_shrink: BoxShrink<E1>) -> BoxShrink<(E0, E1)>
+    where
+        E1: Clone + 'static;
+}
+
+impl<E0: Clone + 'static> ZipWithShrink<E0> for dyn Shrink<E0> {
+    fn zip<E1>(&self, other_gen: BoxShrink<E1>) -> BoxShrink<(E0, E1)>
+    where
+        E1: Clone + 'static,
+    {
+        shrink::zip(self.clone_box(), other_gen)
+    }
 }
 
 // Doctest the readme file

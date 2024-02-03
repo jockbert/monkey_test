@@ -8,6 +8,7 @@ mod other_shrink;
 mod pick;
 mod sample_target;
 pub mod vec;
+mod zip;
 
 pub use chain::chain;
 pub use mix::mix_evenly;
@@ -17,6 +18,7 @@ pub use pick::pick_evenly;
 pub use pick::pick_with_ratio;
 pub use sample_target::Ratio;
 use sample_target::SampleTarget;
+pub use zip::zip;
 
 /// Macro to generate code for all integer type modules
 macro_rules! integer_module {

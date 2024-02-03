@@ -4,6 +4,7 @@ pub mod distribution;
 pub mod numbers;
 
 use crate::BoxGen;
+use crate::BoxShrink;
 
 /// Makes sure generator is empty
 pub fn assert_generator_is_empty<E>(gen_to_check: BoxGen<E>)
@@ -51,4 +52,48 @@ where
         example_to_shrink,
         candidate
     );
+}
+
+pub fn assert_shrinker_has_at_least_these_candidates<E>(
+    shrinker: BoxShrink<E>,
+    original: E,
+    expected: &[E],
+) where
+    E: Clone + Debug + PartialEq,
+{
+    let mut left_to_expect = expected.to_vec();
+
+    shrinker
+        .candidates(original)
+        .take(1_000)
+        .for_each(|candidate| {
+            left_to_expect
+                .iter()
+                .position(|expected| *expected == candidate)
+                .map(|index| left_to_expect.remove(index));
+        });
+
+    assert!(
+        left_to_expect.is_empty(),
+        "Expecting shrinker to return all expected candidates, but never \
+        got {:?}",
+        left_to_expect
+    )
+}
+
+/// Assert that shrinker has at least three candidates given original example.
+pub fn assert_shrinker_has_some_candidates_given<E>(
+    shrinker: BoxShrink<E>,
+    original: E,
+) where
+    E: Clone + Debug,
+{
+    let length = shrinker.candidates(original.clone()).take(3).count();
+
+    assert_eq!(
+        length, 3,
+        "Expecting shrinker to have at least 3 candidates \
+        given original example {:?}, but only got candidate count {}.",
+        original, length
+    )
 }
