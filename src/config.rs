@@ -39,7 +39,7 @@ impl Conf {
     /// default number of examples are used. If the default number of examples
     /// are explicitly changed, it is set to 100.
     pub fn with_example_count(&self, example_count: u32) -> Conf {
-        Conf {
+        Self {
             example_count,
             seed: self.seed,
         }
@@ -50,7 +50,7 @@ impl Conf {
     /// using a seed hinders new test runs to use other examples than already
     /// used in earlier test runs.
     pub fn with_seed(&self, seed: u64) -> Conf {
-        Conf {
+        Self {
             example_count: self.example_count,
             seed,
         }
@@ -71,10 +71,6 @@ impl<E> ConfAndGen<E>
 where
     E: Clone + 'static,
 {
-    fn new(conf: Conf, gen: BoxGen<E>) -> ConfAndGen<E> {
-        ConfAndGen { gen, conf }
-    }
-
     /// Check that the property holds for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
     /// failure.
@@ -108,6 +104,9 @@ where
 
     /// Add/change which shriker to use when a failing example is found.
     pub fn with_shrinker(&self, shrink: BoxShrink<E>) -> ConfAndGen<E> {
-        ConfAndGen::new(self.conf.clone(), self.gen.with_shrinker(shrink))
+        Self {
+            conf: self.conf.clone(),
+            gen: self.gen.with_shrinker(shrink),
+        }
     }
 }
