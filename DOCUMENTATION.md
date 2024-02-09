@@ -190,6 +190,23 @@ let nuts = gen::pick_evenly(&["peanut", "almond", "pecan"]);
 let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
 ```
 
+### Compose generators and shrinkers for more complex types
+
+Generators and shrinkers for more complex types can be constructed from more
+basic once, using `zip` and `map`. When constructing generators this way, you
+automatically also get a shrinker for the complex type.
+
+```rust
+use monkey_test::*;
+
+#[derive(Clone)]
+struct Point {x: u16, y: u16}
+
+let points: BoxGen<Point> = gen::u16::any()
+   .zip(gen::u16::any())
+   .map(|(x, y)| Point{x, y}, |p| (p.x, p.y));
+```
+
 ## Key design principles of the Monkey Test tool
 
 - *configurability and flexibility* - Leave a high degree of configurability
