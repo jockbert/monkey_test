@@ -148,6 +148,34 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
     }
 }
 
+/// Non-object-safe trait for providing generator mapping.
+pub trait MapWithGen<E0>
+where
+    E0: Clone + 'static,
+{
+    /// See [gen::map].
+    fn map<E1>(
+        &self,
+        map_fn: fn(E0) -> E1,
+        unmap_fn: fn(E1) -> E0,
+    ) -> BoxGen<E1>
+    where
+        E1: Clone + 'static;
+}
+
+impl<E0: Clone + 'static> MapWithGen<E0> for dyn Gen<E0> {
+    fn map<E1>(
+        &self,
+        map_fn: fn(E0) -> E1,
+        unmap_fn: fn(E1) -> E0,
+    ) -> BoxGen<E1>
+    where
+        E1: Clone + 'static,
+    {
+        gen::map(self.clone_box(), map_fn, unmap_fn)
+    }
+}
+
 /// The shrinker trait, for shrinking a failed example values into smaller ones.
 /// What is determined as a smaller value can be subjective and is up to author
 /// or tester to determine, but as a rule of thumb a smaller value should be
@@ -177,6 +205,34 @@ impl<E0: Clone + 'static> ZipWithShrink<E0> for dyn Shrink<E0> {
         E1: Clone + 'static,
     {
         shrink::zip(self.clone_box(), other_gen)
+    }
+}
+
+/// Non-object-safe trait for providing shrinker mapping.
+pub trait MapWithShrink<E0>
+where
+    E0: Clone + 'static,
+{
+    /// See [shrink::map].
+    fn map<E1>(
+        &self,
+        map_fn: fn(E0) -> E1,
+        unmap_fn: fn(E1) -> E0,
+    ) -> BoxShrink<E1>
+    where
+        E1: Clone + 'static;
+}
+
+impl<E0: Clone + 'static> MapWithShrink<E0> for dyn Shrink<E0> {
+    fn map<E1>(
+        &self,
+        map_fn: fn(E0) -> E1,
+        unmap_fn: fn(E1) -> E0,
+    ) -> BoxShrink<E1>
+    where
+        E1: Clone + 'static,
+    {
+        shrink::map(self.clone_box(), map_fn, unmap_fn)
     }
 }
 

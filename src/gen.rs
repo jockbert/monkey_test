@@ -3,6 +3,7 @@
 mod chain;
 pub mod fixed;
 mod integers;
+mod map;
 mod mix;
 mod other_shrink;
 mod pick;
@@ -11,6 +12,7 @@ pub mod vec;
 mod zip;
 
 pub use chain::chain;
+pub use map::map;
 pub use mix::mix_evenly;
 pub use mix::mix_with_ratio;
 pub use other_shrink::other_shrinker;
