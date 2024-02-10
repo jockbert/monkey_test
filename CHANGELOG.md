@@ -1,7 +1,40 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.3.0...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.4.0...main).
+
+## Release 0.4.0 (2024-02-10) [diff](https://github.com/jockbert/monkey_test/compare/v0.3.0...v0.4.0)
+
+Release with focus on functional style generator composition with `zip` and
+`map`.
+
+### New features
+
+* Add possibility to zip genrators together, with `gen::zip`, into generators of
+  tuples.
+* Add possibility to map generators from on type to another, with `gen::map`.
+  Together with zipping, this can be used for creatign generators and shrinkers
+  for more complex types like structs.
+* Explicitly include extremes in integer generators. Change behaviour
+  of integer generators to having 2% extra occurrences of extreme
+  values (minimum and maximum).
+
+  The value of this is that you have a completely random generator of
+  all possible u64-type values, the chance of actualy testing the
+  extreme values (in this case 0 and 2^64-1) is extremely small in the
+  100 examples actually applied to a propery. Testing with the extreme
+  values are important, if you want to find bugs.
+* Add test-generator `gen::fixed::in_loop`.
+* Make sure mix-generators reuse shrinker from first of given generators, so
+  there is at least on shrinker used in mix-generators by default.
+* Add method `MonkeyResult::assert_minimum_failure`, which should be a useful
+  diagnostics and demo tool when evaluating shrinkers, generators and
+  properties. The method asserts that the minimum failure is the expected one.
+
+### Breaking changes
+
+* Rename `ConfAndGen::check_true` to `ConfAndGen::test_property`. This naming
+  should make more sense when adding assert methods to `MonkeyResult`, like `MonkeyResult::assert_minimum_failure`.
 
 ## Release 0.3.0 (2024-01-19) [diff](https://github.com/jockbert/monkey_test/compare/v0.2.0...v0.3.0)
 
