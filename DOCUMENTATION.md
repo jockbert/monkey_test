@@ -169,14 +169,17 @@ then verify some property of the system.
 
 ## Features
 
-### Integer generators and shrinkers
+### Generators and shrinkers for basic types
 
-Generators for all integer types `i8`, `i16`, `i32`, `i64`, `i128`, `isize`,
+Generators for `bool` and for all integer types
+`i8`, `i16`, `i32`, `i64`, `i128`, `isize`,
 `u8`, `u16` `u32`, `u64` , `u128` and `usize`.
 
 ```rust
-let bytes = monkey_test::gen::u8::any();
-let some_longs = monkey_test::gen::i64::ranged(10..=20);
+use monkey_test::*;
+let bytes = gen::u8::any();
+let some_longs = gen::i64::ranged(10..=20);
+let mostly_true = gen::bool::with_ratio(1,20);
 ```
 
 ### Pick values and mix generators
