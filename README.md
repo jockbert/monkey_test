@@ -51,7 +51,8 @@ The Monkey Test [documentation](./DOCUMENTATION.md)
 shows how to use the library and tries to be a complete how-to guide to using
 Monkey Test and property based testing in general.
 Additional usage examples can be found in the source file
-[tests/basic_usage.rs](tests/basic_usage.rs) and other files in test folder.
+[tests/basic_usage.rs](tests/basic_usage.rs) and other files in
+[test folder](tests).
 
 ## Current status and missing parts
 
