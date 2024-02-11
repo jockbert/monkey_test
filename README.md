@@ -46,7 +46,7 @@ Then try some small example, like the one above.
 
 ## Documentation and how-to guide
 
-The Monkey Test [documentation](./DOCUMENTATION.md)
+[The Monkey Test DOCUMENTATION](./DOCUMENTATION.md)
 (also found on [docs.rs](https://docs.rs/monkey_test/))
 shows how to use the library and tries to be a complete how-to guide to using
 Monkey Test and property based testing in general.
