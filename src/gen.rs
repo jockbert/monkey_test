@@ -1,5 +1,6 @@
 //! The `gen` module contains built in generators.
 
+pub mod bool;
 mod chain;
 pub mod fixed;
 mod integers;
