@@ -12,9 +12,9 @@ A [property based testing](https://en.wikipedia.org/wiki/Software_testing#Proper
 [other deriviatives thereof](https://en.wikipedia.org/wiki/QuickCheck), for
 the Rust programming language.
 
-<mark>❗This library is in [pre-alpha] state.
+<mark>☝️ Warning! This library is in [pre-alpha] state.
 Large parts of functionality is missing and API will undergo a lot of
-change.</mark>
+change. For details on recent changes, see the [CHANGELOG](CHANGELOG.md).</mark>
 
 ## Example
 
@@ -56,13 +56,15 @@ Additional usage examples can be found in the source file
 ## Current status and missing parts
 
 Currently, in versions 0.x.y, the library is not ready for production use.
-It is also missing some vital parts, primarly built in generators and shrinkers
-for:
+It is among other things missing some vital parts, primarly built in generators
+and shrinkers for:
 
 * Floating point numbers `f32` and `f64`.
 * Strings.
 * Commonly used data structures besides `Vec`.
 * Recursive data structures.
+
+For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 
 ## Alternative libraries
 
