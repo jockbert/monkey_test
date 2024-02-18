@@ -32,6 +32,6 @@ where
     }
 
     fn shrinker(&self) -> BoxShrink<Vec<E>> {
-        crate::shrink::vec::default()
+        crate::shrink::vec::default(self.element_gen.shrinker())
     }
 }

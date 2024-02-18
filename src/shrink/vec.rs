@@ -1,12 +1,20 @@
 //! Shrinkers for vectors
 
-use crate::{BoxIter, BoxShrink, Shrink};
-use std::marker::PhantomData;
+use crate::BoxIter;
+use crate::BoxShrink;
+use crate::Shrink;
 
 /// Default vector shrinker
-pub fn default<E: Clone + 'static>() -> BoxShrink<Vec<E>> {
+pub fn default<E: Clone + 'static>(
+    element_shrinker: BoxShrink<E>,
+) -> BoxShrink<Vec<E>> {
+    Box::new(VecShrink::<E> { element_shrinker })
+}
+
+/// Default vector shrinker
+pub fn no_element_shrinkning<E: Clone + 'static>() -> BoxShrink<Vec<E>> {
     Box::new(VecShrink::<E> {
-        phantom: PhantomData,
+        element_shrinker: crate::shrink::none(),
     })
 }
 
@@ -16,7 +24,7 @@ struct VecShrink<E>
 where
     E: Clone,
 {
-    phantom: PhantomData<E>,
+    element_shrinker: BoxShrink<E>,
 }
 
 impl<E> Shrink<Vec<E>> for VecShrink<E>
@@ -24,27 +32,221 @@ where
     E: Clone + 'static,
 {
     fn candidates(&self, original: Vec<E>) -> BoxIter<Vec<E>> {
-        Box::new(VecIterator::<E> { current: original })
+        Box::new(
+            eager_size(original.clone())
+                .chain(per_element(original, self.element_shrinker.clone())),
+        )
     }
 }
 
-/// Vector shrink iterator
-struct VecIterator<E> {
-    current: Vec<E>,
+fn eager_size<E>(original: Vec<E>) -> EagerIterator<E> {
+    EagerIterator {
+        len_to_remove: original.len(),
+        original,
+        start_of_remove: 0,
+    }
 }
 
-impl<E> Iterator for VecIterator<E>
+/// Eager vector element removal iterator
+struct EagerIterator<E> {
+    original: Vec<E>,
+    len_to_remove: usize,
+    start_of_remove: usize,
+}
+
+impl<E> EagerIterator<E> {
+    fn half_length_to_remove(&mut self) {
+        self.len_to_remove = match self.len_to_remove {
+            usize::MAX => usize::MAX / 2,
+            1 => 0,
+            _ => (self.len_to_remove + 1) / 2,
+        }
+    }
+
+    fn advance(&mut self) {
+        self.start_of_remove += self.len_to_remove;
+        if self.start_of_remove >= self.original.len() {
+            self.half_length_to_remove();
+            self.start_of_remove = 0;
+        }
+    }
+}
+
+impl<E> Iterator for EagerIterator<E>
 where
     E: Clone,
 {
     type Item = Vec<E>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current.is_empty() {
+        if self.len_to_remove == 0 {
             None
         } else {
-            self.current.remove(self.current.len() - 1);
-            Some(self.current.clone())
+            let start_of_remove = self.start_of_remove;
+            let first = self.original.clone().into_iter().take(start_of_remove);
+
+            let end_of_remove = self.start_of_remove + self.len_to_remove;
+            let rest = self.original.clone().into_iter().skip(end_of_remove);
+
+            let candidate = first.chain(rest).collect::<Vec<_>>();
+
+            self.advance();
+
+            Some(candidate)
+        }
+    }
+}
+
+/// Per element shrink iterator
+fn per_element<E>(
+    original: Vec<E>,
+    elem_shrinker: BoxShrink<E>,
+) -> BoxIter<Vec<E>>
+where
+    E: Clone + 'static,
+{
+    let candidate_vec = original.clone();
+
+    original
+        .clone()
+        .iter()
+        .enumerate()
+        .map(|(index, elem)| {
+            let cv2 = candidate_vec.clone();
+            let idx = index;
+
+            elem_shrinker.candidates(elem.clone()).take(1000).map(
+                move |candidate| {
+                    let mut vec = cv2.clone();
+                    let _ = std::mem::replace(&mut vec[idx], candidate);
+                    vec
+                },
+            )
+        })
+        .fold(Box::new(std::iter::empty::<Vec<E>>()), |acc, it| {
+            let x: BoxIter<Vec<E>> = Box::new(acc.chain(it));
+            x
+        })
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    pub fn eager_removes_all_and_then_iteratively_smaller_parts() {
+        let it = super::eager_size(vec![1, 2, 3, 4, 5, 6, 7, 8]);
+
+        assert_eq! {
+            it.take(1_000).collect::<Vec<_>>(),
+            vec![
+                // everything is removed
+                vec![],
+                // 1st half removed
+                vec![5,6,7,8],
+                // 2nd half removed
+                vec![1,2,3,4],
+                // 1st quarter removed
+                vec![3,4,5,6,7,8],
+                // 2nd quarter removed
+                vec![1,2,5,6,7,8],
+                // 3rd quarter removed
+                vec![1,2,3,4,7,8],
+                // 4th quarter removed
+                vec![1,2,3,4,5,6],
+                // 1st eight removed
+                vec![2,3,4,5,6,7,8],
+                // 2nd eight removed
+                vec![1,3,4,5,6,7,8],
+                // 3rd eight removed
+                vec![1,2,4,5,6,7,8],
+                // 4th eight removed
+                vec![1,2,3,5,6,7,8],
+                // 5th eight removed
+                vec![1,2,3,4,6,7,8],
+                // 6th eight removed
+                vec![1,2,3,4,5,7,8],
+                // 7th eight removed
+                vec![1,2,3,4,5,6,8],
+                // 8th eight removed
+                vec![1,2,3,4,5,6,7]
+            ]
+        }
+    }
+
+    #[test]
+    pub fn eager_can_handle_odd_sizes() {
+        let it = super::eager_size(vec![1, 2, 3, 4, 5]);
+
+        assert_eq! {
+            it.take(1_000).collect::<Vec<_>>(),
+            vec![
+                // everything is removed
+                vec![],
+                // 2nd iteration step 1, 3 elements (=5/2 rounded up) removed
+                vec![4, 5],
+                // 2nd iteration step 2. 2 reamining elements removed
+                vec![1,2,3],
+                // 3rd iteration step 1, 2 eleemnts (=3/2 rounded up) removed
+                vec![3,4,5],
+                // 3rd iteration step 2, 2 elements removed
+                vec![1,2,5],
+                // 3rd iteration step 3, 1 remaining element removed
+                vec![1,2,3,4],
+                // 4th iteration step 1, 1 element (22/2 rounded up) removed
+                vec![2,3,4,5],
+                // 4th iteration step 2
+                vec![1,3,4,5],
+                // 4th iteration step 3
+                vec![1,2,4,5],
+                // 4th iteration step 4
+                vec![1,2,3,5],
+                // 4th iteration step 5
+                vec![1,2,3,4],
+            ]
+        }
+    }
+
+    #[test]
+    pub fn eager_can_handle_size_one() {
+        let it = super::eager_size(vec![1]);
+
+        assert_eq! {
+            it.take(1_000).collect::<Vec<_>>(),
+            vec![
+                // everything is removed
+                vec![],
+            ]
+        }
+    }
+
+    #[test]
+    pub fn eager_can_handle_size_zero() {
+        let it = super::eager_size(Vec::<u8>::new());
+
+        assert_eq! {
+            it.take(1_000).collect::<Vec<_>>(),
+            Vec::<Vec<u8>>::new()
+        }
+    }
+
+    #[test]
+    fn per_element_shrinker_tries_every_element() {
+        let it = super::per_element(
+            vec![1, 2, 3, 4],
+            crate::shrink::fixed::sequence(&[0]),
+        );
+
+        assert_eq! {
+            it.take(1_000).collect::<Vec<_>>(),
+            vec![
+                // shrinking 1st element
+                vec![0,2,3,4],
+                // shrinking 2nd element
+                vec![1,0,3,4],
+                // shrinking 3rd element
+                vec![1,2,0,4],
+                // shrinking 4th element
+                vec![1,2,3,0],
+            ]
         }
     }
 }
