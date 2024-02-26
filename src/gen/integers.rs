@@ -88,7 +88,13 @@ pub struct UxGen<E> {
 
 impl<E> Gen<E> for UxGen<E>
 where
-    E: Num + SampleUniform + Copy + Clone + std::cmp::PartialOrd + 'static,
+    E: Num
+        + SampleUniform
+        + Copy
+        + Clone
+        + std::cmp::PartialOrd
+        + Max
+        + 'static,
 {
     fn examples(&self, seed: u64) -> crate::BoxIter<E> {
         Box::new(UxIter::<E> {

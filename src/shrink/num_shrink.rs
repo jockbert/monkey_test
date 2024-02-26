@@ -1,66 +1,120 @@
 use crate::BoxIter;
 use crate::BoxShrink;
 use crate::Shrink;
+use min_max_traits::Max;
 use num_traits::Num;
 
 /// Shrink number types towards the value zero.
 pub fn to_zero<E>() -> BoxShrink<E>
 where
-    E: Num + Copy + std::cmp::PartialOrd + 'static,
+    E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
 {
     Box::new(NumShrink {})
 }
 
-/// Shrinker that decrements a value towards zero.
 #[derive(Clone)]
 struct NumShrink {}
 
 impl<E> Shrink<E> for NumShrink
 where
-    E: Num + Copy + std::cmp::PartialOrd + 'static,
+    E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
 {
     fn candidates(&self, original: E) -> BoxIter<E> {
-        Box::new(NumShrinkIt::<E> { current: original })
+        Box::new(
+            eager(original)
+                .chain(decrement(original))
+                .chain(as_positive(original)),
+        )
     }
 }
 
-/// Iterator that decrements a value towards zero.
-struct NumShrinkIt<E> {
-    current: E,
-}
-
-impl<E> Iterator for NumShrinkIt<E>
+fn decrement<E>(original: E) -> impl Iterator<Item = E>
 where
     E: Num + Copy + std::cmp::PartialOrd,
 {
-    type Item = E;
+    // Values closes to original are covered by eager iterator
+    let mut last = if original.is_zero() {
+        original
+    } else if original < E::zero() {
+        original.add(E::one())
+    } else {
+        original.sub(E::one())
+    };
 
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.current == E::zero() {
+    std::iter::from_fn(move || {
+        // Candidate zero is already covered by eager iterator.
+        if last.is_one() || last.is_zero() {
             None
-        } else if self.current < E::zero() {
-            self.current = self.current.add(E::one());
-            Some(self.current)
+        } else if last < E::zero() {
+            last = last.add(E::one());
+            Some(last)
         } else {
-            self.current = self.current.sub(E::one());
-            Some(self.current)
+            last = last.sub(E::one());
+            Some(last)
         }
-    }
+    })
+}
+
+fn eager<E>(original: E) -> impl Iterator<Item = E>
+where
+    E: Num + Copy + std::cmp::PartialOrd,
+{
+    let mut decrement = original;
+    let two = E::one().add(E::one());
+
+    std::iter::from_fn(move || {
+        if decrement.is_zero() {
+            None
+        } else {
+            let result = original.sub(decrement);
+            decrement = decrement.div(two);
+            Some(result)
+        }
+    })
+}
+
+fn as_positive<E>(original: E) -> impl Iterator<Item = E>
+where
+    E: Num + Copy + std::cmp::PartialOrd + Max,
+{
+    let mut o = original;
+    std::iter::from_fn(move || {
+        if o < E::zero() && E::zero().sub(E::MAX) <= o {
+            o = E::zero().sub(o);
+            Some(o)
+        } else {
+            None
+        }
+    })
 }
 
 #[cfg(test)]
 mod test {
-    use super::NumShrink;
-    use crate::Shrink;
 
     #[test]
-    fn can_shrink_both_positive_and_negative_numbers() {
-        let shrink = NumShrink {};
+    fn decrement_can_shrink_both_positive_and_negative_numbers() {
+        assert_eq!(super::decrement(0).next(), None);
+        assert_eq!(super::decrement(1).next(), None);
+        assert_eq!(super::decrement(-1).next(), None);
+        assert_eq!(super::decrement(i8::MAX).next(), Some(i8::MAX - 2));
+        assert_eq!(super::decrement(i8::MIN).next(), Some(i8::MIN + 2));
+    }
 
-        assert!(shrink.candidates(0).next().is_none());
-        assert!(shrink.candidates(1).next().is_some());
-        assert!(shrink.candidates(-1).next().is_some());
-        assert!(shrink.candidates(i8::MAX).next().is_some());
-        assert!(shrink.candidates(i8::MIN).next().is_some());
+    #[test]
+    fn eager_tries_iteratively_smaller_decrement_from_original() {
+        assert_eq!(
+            super::eager(16).take(10).collect::<Vec<_>>(),
+            vec![0, 8, 12, 14, 15]
+        );
+
+        assert_eq!(
+            super::eager(-16).take(10).collect::<Vec<_>>(),
+            vec![0, -8, -12, -14, -15]
+        );
+
+        assert_eq!(
+            super::eager(17).take(10).collect::<Vec<_>>(),
+            vec![0, 9, 13, 15, 16]
+        );
     }
 }
