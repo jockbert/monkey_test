@@ -2,6 +2,8 @@ pub use crate::runner::MonkeyResult;
 use crate::BoxGen;
 use crate::BoxShrink;
 use crate::Property;
+use rand::RngCore;
+use rand::SeedableRng;
 
 /// Configuration for executing monkey tests.
 #[derive(Clone)]
@@ -57,12 +59,16 @@ impl Conf {
     }
 }
 
+fn seed_to_use() -> u64 {
+    rand_chacha::ChaCha8Rng::from_entropy().next_u64()
+}
+
 impl Default for Conf {
     /// Create new configuration with default values
     fn default() -> Self {
         Self {
             example_count: 100,
-            seed: 0,
+            seed: seed_to_use(),
         }
     }
 }
