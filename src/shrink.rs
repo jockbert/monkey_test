@@ -1,6 +1,7 @@
 //! The `shrink` module contains built in shrinkers.
 
 mod bool;
+pub mod fixed;
 mod map;
 mod no_shrink;
 mod num_shrink;
