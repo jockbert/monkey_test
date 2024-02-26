@@ -1,3 +1,6 @@
+use crate::BoxShrink;
+use crate::ConfAndGen;
+use std::fmt::Debug;
 
 /// Result summary from evaluation of a property tested.
 #[derive(Debug, PartialEq)]
@@ -63,10 +66,6 @@ impl<E> MonkeyResult<E> {
     }
 }
 
-use std::fmt::Debug;
-
-use crate::config::*;
-
 pub fn evaluate_property<E, P>(cg: &ConfAndGen<E>, prop: P) -> MonkeyResult<E>
 where
     E: Clone + 'static,
@@ -83,8 +82,7 @@ where
         };
 
         if !success {
-            let shrinked_values =
-                do_shrink(prop, cg.gen.shrinker().candidates(e.clone()));
+            let shrinked_values = do_shrink(prop, e.clone(), cg.gen.shrinker());
 
             // All but last shrinked value, up to a max limit
             let other_count = shrinked_values.len().min(100).max(1) as u64 - 1;
@@ -111,16 +109,28 @@ where
     MonkeyResult::<E>::MonkeyOk()
 }
 
-fn do_shrink<E, P>(prop: P, it: Box<dyn Iterator<Item = E>>) -> Vec<E>
+fn do_shrink<E, P>(
+    prop: P,
+    original_failure: E,
+    shrinker: BoxShrink<E>,
+) -> Vec<E>
 where
     E: Clone,
     P: Fn(E) -> bool,
 {
+    let shrink_effort = 10_000;
     let mut shrinked_examples = vec![];
+    let mut candidates = shrinker.candidates(original_failure);
 
-    for example in it.take(10_000) {
-        if !prop(example.clone()) {
-            shrinked_examples.push(example);
+    for _ in 0..shrink_effort {
+        match candidates.next() {
+            Some(candidate) => {
+                if !prop(candidate.clone()) {
+                    shrinked_examples.push(candidate.clone());
+                    candidates = shrinker.candidates(candidate);
+                }
+            }
+            None => return shrinked_examples,
         }
     }
 
