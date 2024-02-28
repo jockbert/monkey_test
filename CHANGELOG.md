@@ -13,7 +13,7 @@ Release with focus on functional style generator composition with `zip` and
 * Add possibility to zip genrators together, with `gen::zip`, into generators of
   tuples.
 * Add possibility to map generators from on type to another, with `gen::map`.
-  Together with zipping, this can be used for creatign generators and shrinkers
+  Together with zipping, this can be used for creating generators and shrinkers
   for more complex types like structs.
 * Explicitly include extremes in integer generators. Change behaviour
   of integer generators to having 2% extra occurrences of extreme
