@@ -34,8 +34,8 @@ pub fn assert_even_distr<E>(
     );
     let total_count = expected_range * instances_per_value;
 
-    // TODO: use better seedö
-    let it = generator_to_test.examples(1337);
+    let seed = crate::seed_to_use();
+    let it = generator_to_test.examples(seed);
     for value in it.take(total_count) {
         // Do a bounds check
         if value < expected_min || value > expected_max {
@@ -63,7 +63,7 @@ pub fn assert_even_distr<E>(
             panic!(
                 "For value {value}, number of occurrences should be \
                     {instances_per_value}, but is {count} which deviates \
-                    more than {max_error_percent}%"
+                    more than {max_error_percent}%. Seed={seed}"
             )
         }
     })
