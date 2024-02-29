@@ -1,3 +1,4 @@
+
 /// Result summary from evaluation of a property tested.
 #[derive(Debug, PartialEq)]
 pub enum MonkeyResult<E> {
@@ -117,7 +118,7 @@ where
 {
     let mut shrinked_examples = vec![];
 
-    for example in it.take(1000) {
+    for example in it.take(10_000) {
         if !prop(example.clone()) {
             shrinked_examples.push(example);
         }
