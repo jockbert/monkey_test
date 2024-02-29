@@ -21,7 +21,7 @@ where
 {
     fn examples(&self, seed: u64) -> BoxIter<Vec<E>> {
         let sizes = crate::gen::sized::default().examples(seed);
-        let seeds = crate::gen::u64::completely_random(..).examples(seed);
+        let seeds = crate::gen::seeds().examples(seed);
         let element_gen = self.element_gen.clone();
 
         let vectors = sizes.zip(seeds).map(move |(size, seed)| {

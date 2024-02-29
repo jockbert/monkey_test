@@ -13,6 +13,7 @@ pub mod sized;
 pub mod vec;
 mod zip;
 
+use crate::BoxGen;
 pub use chain::chain;
 pub use map::map;
 pub use mix::mix_evenly;
@@ -23,6 +24,11 @@ pub use pick::pick_with_ratio;
 pub use sample_target::Ratio;
 use sample_target::SampleTarget;
 pub use zip::zip;
+
+/// Standard way to generate seeds for random source.
+pub fn seeds() -> BoxGen<u64> {
+    crate::gen::u64::completely_random(..)
+}
 
 /// Macro to generate code for all integer type modules
 macro_rules! integer_module {
