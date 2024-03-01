@@ -13,11 +13,11 @@ struct ZipShrink<E0, E1> {
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let alfa1: BoxShrink<u8> = shrink::number::<u8>();
-/// let beta1: BoxShrink<i64> = shrink::number::<i64>();
+/// let alfa1: BoxShrink<u8> = shrink::int::<u8>();
+/// let beta1: BoxShrink<i64> = shrink::int::<i64>();
 ///
-/// let alfa2: BoxShrink<u8> = shrink::number::<u8>();
-/// let beta2: BoxShrink<i64> = shrink::number::<i64>();
+/// let alfa2: BoxShrink<u8> = shrink::int::<u8>();
+/// let beta2: BoxShrink<i64> = shrink::int::<i64>();
 ///
 ///
 /// // Zip two shrinkers to a tuple shrinker.
@@ -67,8 +67,8 @@ where
 
 #[cfg(test)]
 mod test {
+    use crate::shrink::int;
     use crate::shrink::none;
-    use crate::shrink::number;
     use crate::testing::assert_shrinker_has_at_least_these_candidates;
     use crate::BoxShrink;
 
@@ -86,7 +86,7 @@ mod test {
     /// initial behaviour.
     #[test]
     fn returns_permutations_of_inner_candidates() {
-        let shrink: BoxShrink<(u8, u8)> = super::zip(number(), number());
+        let shrink: BoxShrink<(u8, u8)> = super::zip(int(), int());
 
         assert_shrinker_has_at_least_these_candidates(
             shrink,

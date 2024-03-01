@@ -21,19 +21,19 @@ struct MappedShrink<E0, E1> {
 /// use monkey_test::*;
 ///
 /// let number_string_shrinker: BoxShrink<String> = shrink::map(
-///     shrink::number::<i64>(),
+///     shrink::int::<i64>(),
 ///     |i: i64| i.to_string(),
 ///     |s: String| s.parse().unwrap(),
 /// );
 ///
 /// let even_numbers_only_shrinker: BoxShrink<i64> = shrink::map(
-///     shrink::number::<i64>(),
+///     shrink::int::<i64>(),
 ///     |i:i64| i * 2,
 ///     |even: i64| even / 2,
 /// );
 ///
 /// // Shorthand way to do the same thing
-/// let even_numbers_only_shrinker_2: BoxShrink<i64> = shrink::number::<i64>()
+/// let even_numbers_only_shrinker_2: BoxShrink<i64> = shrink::int::<i64>()
 ///     .map(
 ///        |i:i64| i * 2,
 ///        |even: i64| even / 2,
@@ -70,8 +70,8 @@ where
 
 #[cfg(test)]
 mod test {
+    use crate::shrink::int;
     use crate::shrink::none;
-    use crate::shrink::number;
     use crate::testing::assert_shrinker_has_at_least_these_candidates;
     use crate::BoxShrink;
 
@@ -92,7 +92,7 @@ mod test {
     #[test]
     fn returns_some_other_stringified_numbers() {
         let shrink: BoxShrink<String> = super::map(
-            number::<i64>(),
+            int::<i64>(),
             |i| i.to_string(),
             |s: String| s.parse().unwrap(),
         );

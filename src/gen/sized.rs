@@ -70,7 +70,7 @@ impl Gen<usize> for SizeGen {
     }
 
     fn shrinker(&self) -> BoxShrink<usize> {
-        crate::shrink::number()
+        crate::shrink::int()
     }
 }
 

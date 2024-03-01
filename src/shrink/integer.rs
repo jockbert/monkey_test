@@ -4,18 +4,18 @@ use crate::Shrink;
 use min_max_traits::Max;
 use num_traits::Num;
 
-/// Shrink number types towards the value zero.
-pub fn to_zero<E>() -> BoxShrink<E>
+/// Shrink integer types towards the value zero.
+pub fn int_to_zero<E>() -> BoxShrink<E>
 where
     E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
 {
-    Box::new(NumShrink {})
+    Box::new(IntShrink {})
 }
 
 #[derive(Clone)]
-struct NumShrink {}
+struct IntShrink {}
 
-impl<E> Shrink<E> for NumShrink
+impl<E> Shrink<E> for IntShrink
 where
     E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
 {

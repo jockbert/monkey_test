@@ -105,7 +105,7 @@ where
     }
 
     fn shrinker(&self) -> BoxShrink<E> {
-        crate::shrink::number()
+        crate::shrink::int()
     }
 }
 
