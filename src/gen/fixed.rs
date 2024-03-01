@@ -104,3 +104,13 @@ impl<E: Clone + 'static> Iterator for LoopIter<E> {
         self.data.get(index_to_use).cloned()
     }
 }
+
+/// Infinite generator always returning given constant
+pub fn constant<E>(example: E) -> BoxGen<E>
+where
+    E: Clone + 'static,
+{
+    Box::new(LoopGen {
+        data: vec![example],
+    })
+}
