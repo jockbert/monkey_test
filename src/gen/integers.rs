@@ -13,7 +13,8 @@ use std::ops::Bound;
 use std::ops::RangeBounds;
 
 /// Roughly uniformly distributed range of values, with some overwheight to
-/// extremes (min and max) of given bounds.
+/// extremes of given bounds. That is, bounds min and max and additionally the
+/// value zero, if in range of given bounds.
 pub fn ranged<E, B>(bounds: B) -> BoxGen<E>
 where
     E: Num
@@ -29,10 +30,16 @@ where
 {
     let min = start(&bounds);
     let max = end(&bounds);
-    let extremes = crate::gen::pick_evenly(&[min, max]);
+    let mut extreme_values = vec![min, max];
+
+    if min < E::zero() && E::zero() < max {
+        extreme_values.push(E::zero());
+    }
+
+    let extremes = crate::gen::pick_evenly(&extreme_values);
     let randoms = completely_random(bounds);
 
-    crate::gen::mix_with_ratio(&[(96, randoms), (4, extremes)])
+    crate::gen::mix_with_ratio(&[(96, randoms), (6, extremes)])
 }
 
 /// Int generator with completely random distribution. This function has a long
