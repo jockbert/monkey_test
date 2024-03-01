@@ -1,17 +1,68 @@
-//! Shrinkers for vectors
+//! Shrinkers for vectors.
+//!
+//! One design choice of the vector shrinker implementation is to aggressively
+//! try to shrink size before individual elements are shrunk.
+//!
+//! ```rust
+//! use monkey_test::*;
+//!
+//! let failing_example_to_shrink = vec![-1, 2, 3, 4, 5, 6, 7, 8];
+//!
+//! let int_vectors = gen::vec::any(gen::i16::any());
+//!
+//! let smaller_candidates =  int_vectors
+//!     .shrinker()
+//!     .candidates(failing_example_to_shrink)
+//!     .take(20)
+//!     .collect::<Vec<_>>();
+//!
+//! assert_eq!{
+//!     smaller_candidates,
+//!     vec![
+//!         // Vector shrinker tries to aggressively shrink size before
+//!         // individual elements are shrunk.
+//!         vec![                       ],
+//!         vec![             5, 6, 7, 8],
+//!         vec![-1, 2, 3, 4,           ],
+//!         vec![       3, 4, 5, 6, 7, 8],
+//!         vec![-1, 2,       5, 6, 7, 8],
+//!         vec![-1, 2, 3, 4,       7, 8],
+//!         vec![-1, 2, 3, 4, 5, 6,     ],
+//!         vec![    2, 3, 4, 5, 6, 7, 8],
+//!         vec![-1,    3, 4, 5, 6, 7, 8],
+//!         vec![-1, 2,    4, 5, 6, 7, 8],
+//!         vec![-1, 2, 3,    5, 6, 7, 8],
+//!         vec![-1, 2, 3, 4,    6, 7, 8],
+//!         vec![-1, 2, 3, 4, 5,    7, 8],
+//!         vec![-1, 2, 3, 4, 5, 6,    8],
+//!         vec![-1, 2, 3, 4, 5, 6, 7,  ],
+//!         // Shrinking of individul elements starts here.
+//!         //    ↓ First element
+//!         vec![ 0, 2, 3, 4, 5, 6, 7, 8],
+//!         vec![ 1, 2, 3, 4, 5, 6, 7, 8],
+//!         //       ↓ Second element
+//!         vec![-1, 0, 3, 4, 5, 6, 7, 8],
+//!         vec![-1, 1, 3, 4, 5, 6, 7, 8],
+//!         //          ↓ Third element
+//!         vec![-1, 2, 0, 4, 5, 6, 7, 8],
+//!         // And further ...
+//!     ]
+//! };
+//! ```
 
 use crate::BoxIter;
 use crate::BoxShrink;
 use crate::Shrink;
 
-/// Default vector shrinker
+/// Default vector shrinker.
 pub fn default<E: Clone + 'static>(
     element_shrinker: BoxShrink<E>,
 ) -> BoxShrink<Vec<E>> {
     Box::new(VecShrink::<E> { element_shrinker })
 }
 
-/// Default vector shrinker
+/// Shrinker that only tries to reduce the vector size, not trying to shrink
+/// individual elements.
 pub fn no_element_shrinkning<E: Clone + 'static>() -> BoxShrink<Vec<E>> {
     Box::new(VecShrink::<E> {
         element_shrinker: crate::shrink::none(),
