@@ -86,3 +86,13 @@ Some other alternatives are [checkito](https://crates.io/crates/checkito) and
 ## License
 
 Monkey test uses the [MIT license](LICENSE.txt).
+
+## Contributions
+
+This library needs feedback from users to become even better. Feel free to
+[open a Github issue](https://github.com/jockbert/monkey_test/issues/new) or
+[open a Github pull request](https://github.com/jockbert/monkey_test/compare).
+
+All work in Monkey Test is licensed under the terms of the MIT license.
+By submitting a contribution you are agreeing to licence your work under those
+terms.
