@@ -169,6 +169,12 @@ then verify some property of the system.
 
 ## Features
 
+For a complete guide of all features in Monkey Test, refer to the
+[generated API documentation (docs.rs)](https://docs.rs/monkey_test).
+Additional usage examples can be found in
+[code repository test folder (github.com)](https://tests).
+Here below follows a summary.
+
 ### Generators and shrinkers for basic types
 
 Generators for `bool` and for all integer types
@@ -182,12 +188,39 @@ let some_longs = gen::i64::ranged(10..=20);
 let mostly_true = gen::bool::with_ratio(1,20);
 ```
 
-### Pick values and mix generators
-
-Create generators that pick among values and mix values from different generators
+There are some more specialized generators. In module
+`gen::sized` there are generators that return progressively larger and lager
+values, suitable for controlling the size of generated collections. In module
+`gen::fixed` there are generators that do not use randomnes, which can be
+useful some times.
 
 ```rust
-use monkey_test::gen;
+use monkey_test::*;
+let progressively_larger_sizes: BoxGen<usize> = gen::sized::default();
+let always_the_same_value: BoxGen<i32> = gen::fixed::constant(42);
+```
+
+### Generators and shrinkers for collections
+
+There is a generator and a shrinker for vectors.
+
+```rust
+use monkey_test::*;
+let int_vectors: BoxGen<Vec<i16>> = gen::vec::any(gen::i16::any());
+
+monkey_test()
+   .with_generator(int_vectors)
+   .test_property(|vec| vec.iter().all(|&n| n <= 1337) )
+   .assert_minimum_failure(vec![1338]);
+```
+
+### Pick values and mix generators
+
+Create generators that pick among values and mix values from different
+generators
+
+```rust
+use monkey_test::*;
 let fruits = gen::pick_evenly(&["banana", "apple", "orange"]);
 let nuts = gen::pick_evenly(&["peanut", "almond", "pecan"]);
 let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
