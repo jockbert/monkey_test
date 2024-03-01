@@ -9,7 +9,7 @@ A [property based testing](https://en.wikipedia.org/wiki/Software_testing#Proper
 *(PBT)* tool like
 [QuickCheck](https://github.com/nick8325/quickcheck),
 [ScalaCheck](https://scalacheck.org/) and
-[other deriviatives thereof](https://en.wikipedia.org/wiki/QuickCheck), for
+[similar libraries](https://en.wikipedia.org/wiki/QuickCheck), for
 the Rust programming language.
 
 <mark>☝️ Warning! This library is in [pre-alpha] state.

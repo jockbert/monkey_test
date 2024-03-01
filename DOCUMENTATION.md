@@ -4,7 +4,7 @@ Monkey Test is a
 [property based testing (*PBT*)](https://en.wikipedia.org/wiki/poftware_testing#Property_testing)
 tool like QuickCheck
 [(Wikipedia)](https://en.wikipedia.org/wiki/QuickCheck)
-[(github)](https://github.com/nick8325/quickcheck) and other deriviatives thereof.
+[(github)](https://github.com/nick8325/quickcheck) and similar libraries.
 
 ## Property based testing core concepts
 
