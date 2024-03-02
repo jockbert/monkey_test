@@ -1,7 +1,57 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.4.0...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.5.0...main).
+
+## Release 0.5.0 (2024-03-02) [diff](https://github.com/jockbert/monkey_test/compare/v0.4.0...v0.5.0)
+
+Release with focus on improving vector generator and vector shrinker performance.
+
+### New features
+
+* Add generator for bool type. See module `gen::bool`.
+* Add constant value generator. See generator function `gen::fixed::constant`.
+* Add generator for progressive size of collections. See module `gen::sized`.
+  The sized generator is also integrated into and used in the existing vector
+  generator.
+* Add element shrinking in vector shrinker. This was earlier lacking and
+  shrinker only focused on rudimentary trying to reduce the vector size.
+* Add aggressive/eager vector shrinking effort as first step in vector shrinker,
+  in order to increase the overall effectiveness of the vector shrinker.
+* Greatly improve integer shrinking speed.
+  By first trying some candidates exponentially closer to target (zero),
+  the integer shinker has the potential for greatly reduced shrinking
+  effort, compared to old way. In the old way, candidates was tried consecutive
+  in decrementing order from  the original value, shrinking in linear time.
+* Include some overweight to the value zero (0) in integer generators, if zero
+  is included in the range generated. This should increase the possibility to
+  find property bugs related to boundary cases related to the value zero.
+  As before, some overwheight is also given to the extremes (min and max) of
+  the integer range generated.
+
+### Breaking changes
+
+* Rename shrinker `shrink::number()` to `shrinker::int()`, in order to make
+  the shrinker name more specific and distinct. The same applies to module `shrink::num_shrink` which is renamed to `shrink::integer`.
+  This is a preparation step for in the future also adding
+  shrinkers for types `f32` and `f64`, which are also numbers, but are types
+  that will not be supported by the existing integer shrinker, hence the name
+  clarification.
+
+### Bugfixes
+
+* Avoid using same fixed seed (0) when testing properties.
+* Improve shrinking performance, by renewing shrinking candidates when smaller
+  failure is found.
+  
+  Earlier, when smaller failure example was found in shinking phase, the
+  same original shrinker candidates iterator was further used, not
+  taking advantage of the newly found smaller failure.
+
+  Now, a new shrink candidate iterator is taken into use, using the new
+  smaller failure as source. This should vastly improve the
+  shrinking effectiveness, by using the newly found failure as a new smaller
+  and improved (reduced) base case for all future candidates tested.
 
 ## Release 0.4.0 (2024-02-10) [diff](https://github.com/jockbert/monkey_test/compare/v0.3.0...v0.4.0)
 
