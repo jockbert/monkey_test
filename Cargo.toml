@@ -9,7 +9,7 @@ documentation = "https://docs.rs/monkey_test/"
 authors = ["Joakim Akerblom <per.joakim.eriksson@gmail.com>"]
 
 description = "A property based testing (PBT) tool like QuickCheck, ScalaCheck and similar libraries, for the Rust programming language."
-keywords = ["testing", "property", "PBT", "quickcheck", "shrinking"]
+keywords = ["testing", "property", "PBT", "quickcheck", "shrinking", "hypothesis"]
 categories = ["development-tools::testing"]
 
 [badges]
