@@ -1,9 +1,7 @@
 use crate::gen::Ratio;
 use crate::gen::SampleTarget;
 use crate::BoxGen;
-use crate::BoxIter;
 use crate::BoxShrink;
-use crate::Gen;
 use rand::Rng;
 use rand::SeedableRng;
 
@@ -24,13 +22,13 @@ pub fn mix_evenly<E>(generators: &[BoxGen<E>]) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    Box::new(MixGen {
-        shrinker: generators
+    mix_with_sample_target(
+        generators
             .first()
             .map(|gen| gen.shrinker())
             .unwrap_or(crate::shrink::none()),
-        sample_target: SampleTarget::evenly(generators),
-    })
+        SampleTarget::evenly(generators),
+    )
 }
 
 /// Mix values from given generators in given ratios.
@@ -50,36 +48,31 @@ pub fn mix_with_ratio<E>(ratios_and_gens: &[(Ratio, BoxGen<E>)]) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    Box::new(MixGen {
-        shrinker: ratios_and_gens
+    mix_with_sample_target(
+        ratios_and_gens
             .first()
             .map(|pair| pair.1.shrinker())
             .unwrap_or(crate::shrink::none()),
-        sample_target: SampleTarget::with_ratios(ratios_and_gens),
-    })
+        SampleTarget::with_ratios(ratios_and_gens),
+    )
 }
 
-/// Generator for a given set of examples to pick from.
-#[derive(Clone)]
-struct MixGen<E> {
-    sample_target: crate::gen::sample_target::SampleTarget<BoxGen<E>>,
+fn mix_with_sample_target<E>(
     shrinker: BoxShrink<E>,
-}
-
-impl<E> Gen<E> for MixGen<E>
+    sample_target: SampleTarget<BoxGen<E>>,
+) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    fn examples(&self, seed: u64) -> BoxIter<E> {
-        let high = self.sample_target.sample_domain_max();
+    crate::gen::from_fn(move |seed| {
+        let high = sample_target.sample_domain_max();
         let distr = rand::distributions::Uniform::new_inclusive(1usize, high);
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
         let mut sample_iterators =
-            self.sample_target.clone().map(|gen| gen.examples(seed));
+            sample_target.clone().map(|gen| gen.examples(seed));
 
-        let gen_iter = rng
-            .sample_iter(distr)
+        rng.sample_iter(distr)
             .map(move |sample| {
                 sample_iterators
                     .target_from_sample_mut(sample)
@@ -89,14 +82,9 @@ where
             // Some of the internal generators being empty (returning None) is
             // the end criteria for the whole mixing generator.
             .take_while(|opt| opt.is_some())
-            .flatten();
-
-        Box::new(gen_iter)
-    }
-
-    fn shrinker(&self) -> BoxShrink<E> {
-        self.shrinker.clone()
-    }
+            .flatten()
+    })
+    .with_shrinker(shrinker)
 }
 
 #[cfg(test)]

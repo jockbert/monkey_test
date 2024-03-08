@@ -1,18 +1,4 @@
 use crate::BoxGen;
-use crate::BoxIter;
-use crate::BoxShrink;
-use crate::Gen;
-
-/// Generator wrapper that allows binding new shrinker to existing generator.
-#[derive(Clone)]
-pub struct ZipGen<E0, E1>
-where
-    E0: Clone,
-    E1: Clone,
-{
-    generator0: BoxGen<E0>,
-    generator1: BoxGen<E1>,
-}
 
 /// Combine two generators together element wise into generator of tuples.
 ///
@@ -35,30 +21,15 @@ where
     E0: Clone + 'static,
     E1: Clone + 'static,
 {
-    Box::new(ZipGen::<E0, E1> {
-        generator0: g0,
-        generator1: g1,
+    let s0 = g0.shrinker();
+    let s1 = g1.shrinker();
+
+    crate::gen::from_fn(move |seed| {
+        let it1 = g0.clone().examples(seed);
+        let it2 = g1.clone().examples(seed);
+        it1.zip(it2)
     })
-}
-
-impl<E0, E1> Gen<(E0, E1)> for ZipGen<E0, E1>
-where
-    E0: Clone + 'static,
-    E1: Clone + 'static,
-{
-    fn examples(&self, seed: u64) -> BoxIter<(E0, E1)> {
-        let it1 = self.generator0.clone().examples(seed);
-        let it2 = self.generator1.clone().examples(seed);
-
-        Box::new(it1.zip(it2))
-    }
-
-    fn shrinker(&self) -> BoxShrink<(E0, E1)> {
-        crate::shrink::zip(
-            self.generator0.shrinker(),
-            self.generator1.shrinker(),
-        )
-    }
+    .with_shrinker(crate::shrink::zip(s0, s1))
 }
 
 #[cfg(test)]

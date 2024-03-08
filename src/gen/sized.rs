@@ -5,8 +5,6 @@ use std::cmp::min;
 
 use crate::BoxGen;
 use crate::BoxIter;
-use crate::BoxShrink;
-use crate::Gen;
 use rand::distributions::Uniform;
 use rand::Rng;
 use rand::SeedableRng;
@@ -42,36 +40,13 @@ pub fn progressively_increasing(
     percent_increase: usize,
     max_size: usize,
 ) -> BoxGen<usize> {
-    Box::new(SizeGen {
-        start_size,
-        percent_increase,
-        max_size,
-    })
-}
-
-#[derive(Clone)]
-struct SizeGen {
-    start_size: usize,
-    percent_increase: usize,
-    max_size: usize,
-}
-
-impl Gen<usize> for SizeGen {
-    fn examples(&self, seed: u64) -> crate::BoxIter<usize> {
-        let start_size = self.start_size;
-        let max_size = self.max_size;
-        let percent_increase = self.percent_increase;
+    crate::gen::from_fn(move |seed| {
         let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
-        let examples = max_iterator(start_size, percent_increase, max_size)
-            .map(move |max| rng.sample(Uniform::new_inclusive(0usize, max)));
-
-        Box::new(examples)
-    }
-
-    fn shrinker(&self) -> BoxShrink<usize> {
-        crate::shrink::int()
-    }
+        max_iterator(start_size, percent_increase, max_size)
+            .map(move |max| rng.sample(Uniform::new_inclusive(0usize, max)))
+    })
+    .with_shrinker(crate::shrink::int())
 }
 
 fn max_iterator(

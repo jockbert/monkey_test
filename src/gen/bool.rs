@@ -9,9 +9,7 @@ use rand_chacha::ChaCha8Rng;
 
 /// Generator of boolean values where ratio can be scewed according to given
 /// ratios.
-pub fn with_ratio(ratio_false: u32, ratio_true: u32) -> BoxGen<bool>
-where
-{
+pub fn with_ratio(ratio_false: u32, ratio_true: u32) -> BoxGen<bool> {
     Box::new(BoolGen {
         ratio_false,
         ratio_true,
@@ -19,13 +17,8 @@ where
 }
 
 /// Uniformly distributed generator of `true` and `false`.
-pub fn evenly() -> BoxGen<bool>
-where
-{
-    Box::new(BoolGen {
-        ratio_false: 1,
-        ratio_true: 1,
-    })
+pub fn evenly() -> BoxGen<bool> {
+    with_ratio(1, 1)
 }
 
 #[derive(Clone)]

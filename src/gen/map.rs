@@ -1,19 +1,4 @@
 use crate::BoxGen;
-use crate::BoxIter;
-use crate::BoxShrink;
-use crate::Gen;
-
-/// Generator wrapper that allows binding new shrinker to existing generator.
-#[derive(Clone)]
-pub struct MapGen<E0, E1>
-where
-    E0: Clone,
-    E1: Clone,
-{
-    gen0: BoxGen<E0>,
-    map_fn: fn(E0) -> E1,
-    unmap_fn: fn(E1) -> E0,
-}
 
 /// Convert a generator of type E0 to a generator of type E1.
 ///
@@ -54,26 +39,10 @@ where
     E0: Clone + 'static,
     E1: Clone + 'static,
 {
-    Box::new(MapGen::<E0, E1> {
-        gen0,
-        map_fn,
-        unmap_fn,
-    })
-}
+    let shrinker = gen0.shrinker();
 
-impl<E0, E1> Gen<E1> for MapGen<E0, E1>
-where
-    E0: Clone + 'static,
-    E1: Clone + 'static,
-{
-    fn examples(&self, seed: u64) -> BoxIter<E1> {
-        let it = self.gen0.clone().examples(seed).map(self.map_fn);
-        Box::new(it)
-    }
-
-    fn shrinker(&self) -> BoxShrink<E1> {
-        crate::shrink::map(self.gen0.shrinker(), self.map_fn, self.unmap_fn)
-    }
+    crate::gen::from_fn(move |seed| gen0.examples(seed).map(map_fn))
+        .with_shrinker(crate::shrink::map(shrinker, map_fn, unmap_fn))
 }
 
 #[cfg(test)]

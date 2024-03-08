@@ -1,23 +1,20 @@
 use crate::gen::Ratio;
 use crate::gen::SampleTarget;
 use crate::BoxGen;
-use crate::BoxIter;
-use crate::BoxShrink;
-use crate::Gen;
 use rand::Rng;
 use rand::SeedableRng;
 
-/// Pick from given evenly distributed examples.
+/// Pick from given evenly distributed examples. Please note,
+/// the generator has no associated shrinker.
 pub fn pick_evenly<E>(examples: &[E]) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    Box::new(PickGen {
-        sample_target: SampleTarget::evenly(examples),
-    })
+    pick_with_sample_target(SampleTarget::evenly(examples))
 }
 
-/// Pick one of given examples with frequencies by given ratios.
+/// Pick one of given examples with frequencies by given ratios. Please note,
+/// the generator has no associated shrinker.
 ///
 /// Example, where first value is picked 10% (= 1/(1+4+5))
 /// of the time, second value is picked 40% (= 4/(1+4+5)) of the time and
@@ -31,37 +28,23 @@ pub fn pick_with_ratio<E>(ratios_and_examples: &[(Ratio, E)]) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    Box::new(PickGen {
-        sample_target: SampleTarget::with_ratios(ratios_and_examples),
-    })
+    pick_with_sample_target(SampleTarget::with_ratios(ratios_and_examples))
 }
 
-/// Generator for a given set of examples to pick from.
-#[derive(Clone)]
-pub struct PickGen<E> {
-    sample_target: crate::gen::sample_target::SampleTarget<E>,
-}
-
-impl<E> Gen<E> for PickGen<E>
+fn pick_with_sample_target<E>(sample_target: SampleTarget<E>) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    fn examples(&self, seed: u64) -> BoxIter<E> {
-        let high = self.sample_target.sample_domain_max();
+    crate::gen::from_fn(move |seed| {
+        let high = sample_target.sample_domain_max();
         let distr = rand::distributions::Uniform::new_inclusive(1usize, high);
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
-        let sample_target = self.sample_target.clone();
+        let sample_target = sample_target.clone();
 
-        let iter = rng.sample_iter(distr).flat_map(move |sample| {
+        rng.sample_iter(distr).flat_map(move |sample| {
             sample_target.target_from_sample(sample).cloned()
-        });
-
-        Box::new(iter)
-    }
-
-    fn shrinker(&self) -> BoxShrink<E> {
-        crate::shrink::none()
-    }
+        })
+    })
 }
 
 #[cfg(test)]

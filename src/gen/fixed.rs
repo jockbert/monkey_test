@@ -1,7 +1,7 @@
 //! Generators mainly used for internal testing, where you want a
 //! deterministicly generated values.
 
-use crate::{BoxGen, BoxIter, BoxShrink, Gen};
+use crate::BoxGen;
 
 /// Generates a fixed sequence of examples and then ends, having no more values.
 ///
@@ -26,26 +26,13 @@ pub fn sequence<E>(examples: &[E]) -> BoxGen<E>
 where
     E: Clone + std::fmt::Debug + 'static,
 {
-    Box::new(SequenceGen {
-        data: examples.to_vec(),
-    })
+    let example_vec = examples.to_vec();
+    crate::gen::from_fn(move |_seed| example_vec.clone().into_iter())
 }
 
-/// Generator from a given set of examples to return.
-#[derive(Clone)]
-struct SequenceGen<E> {
-    data: Vec<E>,
-}
-
-impl<E: Clone + 'static> Gen<E> for SequenceGen<E> {
-    fn examples(&self, _seed: u64) -> BoxIter<E> {
-        let x = self.data.clone();
-        Box::new(x.into_iter())
-    }
-
-    fn shrinker(&self) -> BoxShrink<E> {
-        crate::shrink::none()
-    }
+/// Infinite generator always returning given constant
+pub fn constant<E: Clone + 'static>(example: E) -> BoxGen<E> {
+    crate::gen::from_fn(move |_seed| std::iter::repeat(example.clone()))
 }
 
 /// Generates a fixed loop of examples. This generator is convenient when you,
@@ -66,26 +53,11 @@ pub fn in_loop<E>(examples: &[E]) -> BoxGen<E>
 where
     E: Clone + 'static,
 {
-    Box::new(LoopGen {
-        data: examples.to_vec(),
+    let examples_vec = examples.to_vec().clone();
+    crate::gen::from_fn(move |_seed| {
+        let x = examples_vec.clone();
+        LoopIter { data: x, index: 0 }
     })
-}
-
-/// Generator from a given set of examples to return in loop.
-#[derive(Clone)]
-struct LoopGen<E> {
-    data: Vec<E>,
-}
-
-impl<E: Clone + 'static> Gen<E> for LoopGen<E> {
-    fn examples(&self, _seed: u64) -> BoxIter<E> {
-        let x = self.data.clone();
-        Box::new(LoopIter { data: x, index: 0 })
-    }
-
-    fn shrinker(&self) -> BoxShrink<E> {
-        crate::shrink::none()
-    }
 }
 
 /// Generator from a given set of examples to return in loop.
@@ -103,14 +75,4 @@ impl<E: Clone + 'static> Iterator for LoopIter<E> {
         self.index = (self.index + 1) % self.data.len();
         self.data.get(index_to_use).cloned()
     }
-}
-
-/// Infinite generator always returning given constant
-pub fn constant<E>(example: E) -> BoxGen<E>
-where
-    E: Clone + 'static,
-{
-    Box::new(LoopGen {
-        data: vec![example],
-    })
 }

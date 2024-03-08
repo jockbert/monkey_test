@@ -1,14 +1,11 @@
 //! Generic generators for integer type values.
 
 use crate::BoxGen;
-use crate::BoxShrink;
-use crate::Gen;
 use min_max_traits::{Max, Min};
 use num_traits::Num;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
-use rand_chacha::ChaCha8Rng;
 use std::ops::Bound;
 use std::ops::RangeBounds;
 
@@ -56,10 +53,14 @@ where
         + 'static,
     B: RangeBounds<E>,
 {
-    Box::new(UxGen {
-        min: start(&bounds),
-        max: end(&bounds),
+    let min = start(&bounds);
+    let max = end(&bounds);
+
+    crate::gen::from_fn(move |seed| {
+        let distr = rand::distributions::Uniform::new_inclusive(min, max);
+        rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
+    .with_shrinker(crate::shrink::int())
 }
 
 fn start<E, B>(bounds: &B) -> E
@@ -83,58 +84,6 @@ where
         Bound::Included(x) => *x,
         Bound::Excluded(x) => *x - E::one(),
         Bound::Unbounded => E::MAX,
-    }
-}
-
-/// Generator of random usize values.
-#[derive(Clone)]
-pub struct UxGen<E> {
-    min: E,
-    max: E,
-}
-
-impl<E> Gen<E> for UxGen<E>
-where
-    E: Num
-        + SampleUniform
-        + Copy
-        + Clone
-        + std::cmp::PartialOrd
-        + Max
-        + 'static,
-{
-    fn examples(&self, seed: u64) -> crate::BoxIter<E> {
-        Box::new(UxIter::<E> {
-            min: self.min,
-            max: self.max,
-            rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
-        })
-    }
-
-    fn shrinker(&self) -> BoxShrink<E> {
-        crate::shrink::int()
-    }
-}
-
-/// Iterator of random integer values.
-pub struct UxIter<E> {
-    min: E,
-    max: E,
-    rng: ChaCha8Rng,
-}
-
-impl<E> Iterator for UxIter<E>
-where
-    E: Clone + SampleUniform,
-{
-    type Item = E;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let distr = rand::distributions::Uniform::new_inclusive(
-            self.min.clone(),
-            self.max.clone(),
-        );
-        Some(self.rng.sample(distr))
     }
 }
 

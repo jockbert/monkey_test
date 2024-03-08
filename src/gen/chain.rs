@@ -1,4 +1,4 @@
-use crate::{BoxGen, BoxIter, BoxShrink, Gen};
+use crate::BoxGen;
 
 /// Concatenate together two generators.
 ///
@@ -24,58 +24,21 @@ pub fn chain<E>(first_gen: BoxGen<E>, second_gen: BoxGen<E>) -> BoxGen<E>
 where
     E: Clone + 'static,
 {
-    Box::new(ChainGen::new(first_gen, second_gen))
-}
+    let shrinker = first_gen.shrinker();
 
-/// Generator wrapper that allows binding new shrinker to existing generator.
-#[derive(Clone)]
-struct ChainGen<E>
-where
-    E: Clone,
-{
-    generator1: BoxGen<E>,
-    generator2: BoxGen<E>,
-}
-
-impl<E> ChainGen<E>
-where
-    E: Clone,
-{
-    /// Create a new generator with (other) shrinker
-    pub fn new(g1: BoxGen<E>, g2: BoxGen<E>) -> ChainGen<E> {
-        ChainGen::<E> {
-            generator1: g1,
-            generator2: g2,
-        }
-    }
-}
-
-impl<E> Gen<E> for ChainGen<E>
-where
-    E: Clone + 'static,
-{
-    fn examples(&self, seed: u64) -> BoxIter<E> {
-        Box::new(
-            self.generator1
-                .examples(seed)
-                .chain(self.generator2.examples(seed)),
-        )
-    }
-
-    fn shrinker(&self) -> BoxShrink<E> {
-        self.generator1.shrinker().clone()
-    }
+    crate::gen::from_fn(move |seed| {
+        first_gen.examples(seed).chain(second_gen.examples(seed))
+    })
+    .with_shrinker(shrinker)
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{gen::fixed, Gen};
-
-    use super::ChainGen;
+    use crate::gen::fixed;
 
     #[test]
     fn empty_generators() {
-        let gen = ChainGen::new(
+        let gen = super::chain(
             fixed::sequence::<u8>(&[]),
             fixed::sequence::<u8>(&[]),
         );
@@ -85,7 +48,7 @@ mod test {
 
     #[test]
     fn some_elements_in_each_generator() {
-        let gen = ChainGen::new(
+        let gen = super::chain(
             fixed::sequence::<u8>(&[1, 2]),
             fixed::sequence::<u8>(&[3, 4]),
         );
