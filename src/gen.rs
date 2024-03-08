@@ -3,6 +3,7 @@
 pub mod bool;
 mod chain;
 pub mod fixed;
+mod from_fn;
 mod integers;
 mod map;
 mod mix;
@@ -15,6 +16,8 @@ mod zip;
 
 use crate::BoxGen;
 pub use chain::chain;
+pub use from_fn::from_fn;
+pub use from_fn::from_fn_boxed;
 pub use map::map;
 pub use mix::mix_evenly;
 pub use mix::mix_with_ratio;
