@@ -173,7 +173,7 @@ For a complete guide of all features in Monkey Test, refer to the
 [generated API documentation (docs.rs)](https://docs.rs/monkey_test).
 Additional usage examples can be found in
 [code repository test folder (github.com)](https://tests).
-Here below follows a summary.
+A summary is given below.
 
 ### Generators and shrinkers for basic types
 
