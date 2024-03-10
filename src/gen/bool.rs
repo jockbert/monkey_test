@@ -1,60 +1,17 @@
 //! Generators for boolean type.
 
 use crate::BoxGen;
-use crate::BoxShrink;
-use crate::Gen;
-use rand::Rng;
-use rand::SeedableRng;
-use rand_chacha::ChaCha8Rng;
 
 /// Generator of boolean values where ratio can be scewed according to given
 /// ratios.
-pub fn with_ratio(ratio_false: u32, ratio_true: u32) -> BoxGen<bool> {
-    Box::new(BoolGen {
-        ratio_false,
-        ratio_true,
-    })
+pub fn with_ratio(ratio_false: u8, ratio_true: u8) -> BoxGen<bool> {
+    crate::gen::pick_with_ratio(&[(ratio_false, false), (ratio_true, true)])
+        .with_shrinker(crate::shrink::bool())
 }
 
 /// Uniformly distributed generator of `true` and `false`.
 pub fn evenly() -> BoxGen<bool> {
     with_ratio(1, 1)
-}
-
-#[derive(Clone)]
-struct BoolGen {
-    ratio_false: u32,
-    ratio_true: u32,
-}
-
-impl Gen<bool> for BoolGen {
-    fn examples(&self, seed: u64) -> crate::BoxIter<bool> {
-        Box::new(BoolIter {
-            rng: rand_chacha::ChaCha8Rng::seed_from_u64(seed),
-            ratio_true: self.ratio_true,
-            ratio_false: self.ratio_false,
-        })
-    }
-
-    fn shrinker(&self) -> BoxShrink<bool> {
-        crate::shrink::bool()
-    }
-}
-
-struct BoolIter {
-    ratio_false: u32,
-    ratio_true: u32,
-    rng: ChaCha8Rng,
-}
-
-impl Iterator for BoolIter {
-    type Item = bool;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let numerator = self.ratio_true;
-        let denominator = self.ratio_false + self.ratio_true;
-        Some(self.rng.gen_ratio(numerator, denominator))
-    }
 }
 
 #[cfg(test)]
