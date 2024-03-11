@@ -52,42 +52,21 @@
 
 use crate::BoxIter;
 use crate::BoxShrink;
-use crate::Shrink;
 
 /// Default vector shrinker.
 pub fn default<E: Clone + 'static>(
     element_shrinker: BoxShrink<E>,
 ) -> BoxShrink<Vec<E>> {
-    Box::new(VecShrink::<E> { element_shrinker })
+    crate::shrink::from_fn(move |original: Vec<E>| {
+        eager_size(original.clone())
+            .chain(per_element(original, element_shrinker.clone()))
+    })
 }
 
 /// Shrinker that only tries to reduce the vector size, not trying to shrink
 /// individual elements.
 pub fn no_element_shrinkning<E: Clone + 'static>() -> BoxShrink<Vec<E>> {
-    Box::new(VecShrink::<E> {
-        element_shrinker: crate::shrink::none(),
-    })
-}
-
-/// Vector version of shrinker
-#[derive(Clone)]
-struct VecShrink<E>
-where
-    E: Clone,
-{
-    element_shrinker: BoxShrink<E>,
-}
-
-impl<E> Shrink<Vec<E>> for VecShrink<E>
-where
-    E: Clone + 'static,
-{
-    fn candidates(&self, original: Vec<E>) -> BoxIter<Vec<E>> {
-        Box::new(
-            eager_size(original.clone())
-                .chain(per_element(original, self.element_shrinker.clone())),
-        )
-    }
+    crate::shrink::from_fn(move |original: Vec<E>| eager_size(original))
 }
 
 fn eager_size<E>(original: Vec<E>) -> EagerIterator<E> {

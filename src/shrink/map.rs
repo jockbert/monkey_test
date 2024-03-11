@@ -1,13 +1,4 @@
-use crate::BoxIter;
 use crate::BoxShrink;
-use crate::Shrink;
-
-#[derive(Clone)]
-struct MappedShrink<E0, E1> {
-    shrink0: BoxShrink<E0>,
-    map_fn: fn(E0) -> E1,
-    unmap_fn: fn(E1) -> E0,
-}
 
 /// Convert a shrinker of type E0 to a shrinker of type E1.
 ///
@@ -48,24 +39,11 @@ where
     E0: Clone + 'static,
     E1: Clone + 'static,
 {
-    Box::new(MappedShrink {
-        shrink0,
-        map_fn,
-        unmap_fn,
-    })
-}
-
-impl<E0, E1> Shrink<E1> for MappedShrink<E0, E1>
-where
-    E0: Clone + 'static,
-    E1: Clone + 'static,
-{
-    fn candidates(&self, original: E1) -> BoxIter<E1> {
+    crate::shrink::from_fn(move |original: E1| {
         let o1 = original.clone();
-        let o0 = (self.unmap_fn)(o1);
-
-        Box::new(self.shrink0.candidates(o0).map(self.map_fn))
-    }
+        let o0 = (unmap_fn)(o1);
+        shrink0.candidates(o0).map(map_fn)
+    })
 }
 
 #[cfg(test)]

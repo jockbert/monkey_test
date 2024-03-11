@@ -1,12 +1,4 @@
-use crate::BoxIter;
 use crate::BoxShrink;
-use crate::Shrink;
-
-#[derive(Clone)]
-struct ZipShrink<E0, E1> {
-    shrink0: BoxShrink<E0>,
-    shrink1: BoxShrink<E1>,
-}
 
 /// Combine two shrinkers together element wise into shrinker of tuples.
 ///
@@ -34,35 +26,24 @@ where
     E0: Clone + 'static,
     E1: Clone + 'static,
 {
-    Box::new(ZipShrink { shrink0, shrink1 })
-}
-
-impl<E0, E1> Shrink<(E0, E1)> for ZipShrink<E0, E1>
-where
-    E0: Clone + 'static,
-    E1: Clone + 'static,
-{
-    fn candidates(&self, original: (E0, E1)) -> BoxIter<(E0, E1)> {
+    crate::shrink::from_fn(move |original: (E0, E1)| {
         let o0 = original.0.clone();
         let o1 = original.1.clone();
 
-        let it_left = self
-            .shrink0
+        let it_left = shrink0
             .candidates(original.0.clone())
             .map(move |item0| (item0, o1.clone()));
 
-        let it_right = self
-            .shrink1
+        let it_right = shrink1
             .candidates(original.1.clone())
             .map(move |item1| (o0.clone(), item1));
 
-        let it_both = self
-            .shrink0
+        let it_both = shrink0
             .candidates(original.0.clone())
-            .zip(self.shrink1.candidates(original.1.clone()));
+            .zip(shrink1.candidates(original.1.clone()));
 
-        Box::new(it_left.chain(it_right).chain(it_both))
-    }
+        it_left.chain(it_right).chain(it_both)
+    })
 }
 
 #[cfg(test)]

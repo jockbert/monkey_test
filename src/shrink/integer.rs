@@ -1,6 +1,4 @@
-use crate::BoxIter;
 use crate::BoxShrink;
-use crate::Shrink;
 use min_max_traits::Max;
 use num_traits::Num;
 
@@ -9,23 +7,11 @@ pub fn int_to_zero<E>() -> BoxShrink<E>
 where
     E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
 {
-    Box::new(IntShrink {})
-}
-
-#[derive(Clone)]
-struct IntShrink {}
-
-impl<E> Shrink<E> for IntShrink
-where
-    E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
-{
-    fn candidates(&self, original: E) -> BoxIter<E> {
-        Box::new(
-            eager(original)
-                .chain(decrement(original))
-                .chain(as_positive(original)),
-        )
-    }
+    crate::shrink::from_fn(move |original| {
+        eager(original)
+            .chain(decrement(original))
+            .chain(as_positive(original))
+    })
 }
 
 fn decrement<E>(original: E) -> impl Iterator<Item = E>
