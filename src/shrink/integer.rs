@@ -1,11 +1,11 @@
 use crate::BoxShrink;
-use min_max_traits::Max;
+use num_traits::Bounded;
 use num_traits::Num;
 
 /// Shrink integer types towards the value zero.
 pub fn int_to_zero<E>() -> BoxShrink<E>
 where
-    E: Num + Copy + std::cmp::PartialOrd + Max + 'static,
+    E: Num + Copy + std::cmp::PartialOrd + Bounded + 'static,
 {
     crate::shrink::from_fn(move |original| {
         eager(original)
@@ -61,11 +61,11 @@ where
 
 fn as_positive<E>(original: E) -> impl Iterator<Item = E>
 where
-    E: Num + Copy + std::cmp::PartialOrd + Max,
+    E: Num + Copy + std::cmp::PartialOrd + Bounded,
 {
     let mut o = original;
     std::iter::from_fn(move || {
-        if o < E::zero() && E::zero().sub(E::MAX) <= o {
+        if o < E::zero() && E::zero().sub(E::max_value()) <= o {
             o = E::zero().sub(o);
             Some(o)
         } else {

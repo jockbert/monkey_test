@@ -16,7 +16,6 @@ categories = ["development-tools::testing"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-min_max_traits = "0.1"
 num-traits = "0.2"
 rand = "0.8.5"
 rand_chacha = "0"

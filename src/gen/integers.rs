@@ -1,7 +1,7 @@
 //! Generic generators for integer type values.
 
 use crate::BoxGen;
-use min_max_traits::{Max, Min};
+use num_traits::Bounded;
 use num_traits::Num;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
@@ -15,8 +15,7 @@ use std::ops::RangeBounds;
 pub fn ranged<E, B>(bounds: B) -> BoxGen<E>
 where
     E: Num
-        + Min
-        + Max
+        + Bounded
         + SampleUniform
         + Copy
         + Clone
@@ -44,8 +43,7 @@ where
 pub fn completely_random<E, B>(bounds: B) -> BoxGen<E>
 where
     E: Num
-        + Min
-        + Max
+        + Bounded
         + SampleUniform
         + Copy
         + Clone
@@ -65,25 +63,25 @@ where
 
 fn start<E, B>(bounds: &B) -> E
 where
-    E: Num + Min + Copy,
+    E: Num + Bounded + Copy,
     B: RangeBounds<E>,
 {
     match bounds.start_bound() {
         Bound::Included(x) => *x,
         Bound::Excluded(x) => *x + E::one(),
-        Bound::Unbounded => E::MIN,
+        Bound::Unbounded => E::min_value(),
     }
 }
 
 fn end<E, B>(bounds: &B) -> E
 where
-    E: Num + Max + Copy,
+    E: Num + Bounded + Copy,
     B: RangeBounds<E>,
 {
     match bounds.end_bound() {
         Bound::Included(x) => *x,
         Bound::Excluded(x) => *x - E::one(),
-        Bound::Unbounded => E::MAX,
+        Bound::Unbounded => E::max_value(),
     }
 }
 
