@@ -1,5 +1,6 @@
 use crate::BoxGen;
-use num::Integer;
+use num_traits::FromPrimitive;
+use num_traits::PrimInt;
 use std::cmp;
 
 /// Pick large ammount of values from generator and assess if distribution
@@ -9,23 +10,20 @@ pub fn assert_even_distr<E>(
     expected_min: E,
     expected_max: E,
 ) where
-    E: Integer + Clone + num::cast::AsPrimitive<usize> + std::fmt::Debug,
+    E: PrimInt + FromPrimitive + std::fmt::Debug + 'static,
 {
-    let instances_per_value: usize = 10_000;
-    let expected_range_limit: usize = 1_000_000;
-
     // Allowed deviation in percent from expected frequency.
     let max_error_percent = 15;
+    let instances_per_value: usize = 10_000;
+    let expected_range_limit: usize = 1_000_000;
+    let max_occurrence_size: usize = 1000;
 
-    // Count elements on entire range, or only on the low end of total range
-    // if range is exta large.
-    let occurrences_size: usize =
-        cmp::min(expected_max.sub(expected_min).as_() + 1, 1000usize);
-    let mut occurrences = vec![0usize; occurrences_size];
+    let expected_range = (expected_max - expected_min + E::one())
+        .to_usize()
+        .unwrap_or(usize::max_value());
 
     // Pick so many elements such there should be roughly x instances of
     // each value.
-    let expected_range = (expected_max - expected_min).as_() + 1;
     assert!(
         expected_range < expected_range_limit,
         "Expected range {expected_range} is too wide.
@@ -33,6 +31,11 @@ pub fn assert_even_distr<E>(
             Choose a smaller range < {expected_range_limit} to test."
     );
     let total_count = expected_range * instances_per_value;
+
+    // Count elements on entire range, or only on the low end of total range
+    // if range is exta large.
+    let occurrences_size: usize = cmp::min(expected_range, max_occurrence_size);
+    let mut occurrences = vec![0usize; occurrences_size];
 
     let seed = crate::seed_to_use();
     let it = generator_to_test.examples(seed);
@@ -46,7 +49,10 @@ pub fn assert_even_distr<E>(
         }
 
         // Increment count if applicable.
-        let index: usize = (value - expected_min).as_();
+        let index: usize = (value - expected_min).to_usize().expect(
+            "difference between expected minimum and and generator value \
+            should be less than usize max.",
+        );
         if index < occurrences_size {
             occurrences[index] += 1;
         }
@@ -59,9 +65,11 @@ pub fn assert_even_distr<E>(
         if count > &(instances_per_value + max_error_count)
             || count < &(instances_per_value - max_error_count)
         {
-            let value = index + expected_min.as_();
+            let value: E = E::from_usize(index)
+                .expect("index to fit inside the generic type E tested")
+                + expected_min;
             panic!(
-                "For value {value}, number of occurrences should be \
+                "For value {value:?}, number of occurrences should be \
                     {instances_per_value}, but is {count} which deviates \
                     more than {max_error_percent}%. Seed={seed}"
             )
