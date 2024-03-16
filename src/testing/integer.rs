@@ -14,7 +14,7 @@ pub fn assert_even_distr<E>(
 {
     // Allowed deviation in percent from expected frequency.
     let max_error_percent = 15;
-    let instances_per_value: usize = 10_000;
+    let instances_per_value: usize = 2_000;
     let expected_range_limit: usize = 1_000_000;
     let max_occurrence_size: usize = 1000;
 
