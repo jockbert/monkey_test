@@ -1,8 +1,7 @@
 //! Generic generators for integer type values.
 
 use crate::BoxGen;
-use num_traits::Bounded;
-use num_traits::Num;
+use num_traits::PrimInt;
 use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
@@ -14,14 +13,7 @@ use std::ops::RangeBounds;
 /// value zero, if in range of given bounds.
 pub fn ranged<E, B>(bounds: B) -> BoxGen<E>
 where
-    E: Num
-        + Bounded
-        + SampleUniform
-        + Copy
-        + Clone
-        + std::cmp::PartialOrd
-        + 'static
-        + std::fmt::Debug,
+    E: PrimInt + SampleUniform + 'static + std::fmt::Debug,
     B: RangeBounds<E>,
 {
     let min = start(&bounds);
@@ -42,13 +34,7 @@ where
 /// name, since `ranged` should be preferred.
 pub fn completely_random<E, B>(bounds: B) -> BoxGen<E>
 where
-    E: Num
-        + Bounded
-        + SampleUniform
-        + Copy
-        + Clone
-        + std::cmp::PartialOrd
-        + 'static,
+    E: PrimInt + SampleUniform + 'static,
     B: RangeBounds<E>,
 {
     let min = start(&bounds);
@@ -63,7 +49,7 @@ where
 
 fn start<E, B>(bounds: &B) -> E
 where
-    E: Num + Bounded + Copy,
+    E: PrimInt,
     B: RangeBounds<E>,
 {
     match bounds.start_bound() {
@@ -75,7 +61,7 @@ where
 
 fn end<E, B>(bounds: &B) -> E
 where
-    E: Num + Bounded + Copy,
+    E: PrimInt,
     B: RangeBounds<E>,
 {
     match bounds.end_bound() {
