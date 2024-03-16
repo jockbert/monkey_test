@@ -4,7 +4,7 @@ pub mod bool;
 mod chain;
 pub mod fixed;
 mod from_fn;
-mod integers;
+mod integer;
 mod map;
 mod mix;
 mod other_shrink;
@@ -53,7 +53,7 @@ macro_rules! integer_module {
             where
                 B: RangeBounds<$name>,
             {
-                super::integers::ranged(bounds)
+                super::integer::ranged(bounds)
             }
 
             /// Int generator with completely random distribution. This
@@ -62,7 +62,7 @@ macro_rules! integer_module {
             where
                 B: RangeBounds<$name>,
             {
-                super::integers::completely_random(bounds)
+                super::integer::completely_random(bounds)
             }
         }
     };
