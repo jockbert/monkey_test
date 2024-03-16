@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 pub mod distribution;
-pub mod numbers;
+pub mod integer;
 
 use crate::BoxGen;
 use crate::BoxShrink;

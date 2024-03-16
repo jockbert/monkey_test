@@ -90,7 +90,7 @@ mod tests {
     use crate::testing::assert_generator_can_shrink;
     use crate::testing::distribution::assert_generator_has_distribution_within_percent;
     use crate::testing::distribution::distribution_from_pairs;
-    use crate::testing::numbers::assert_even_distr;
+    use crate::testing::integer::assert_even_distr;
 
     /// Generator values should be evenly distributed within range.
     #[test]
