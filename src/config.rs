@@ -87,6 +87,7 @@ where
 
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
+    #[track_caller]
     pub fn assert_true(&self, prop: Property<E>) -> &ConfAndGen<E>
     where
         E: std::fmt::Debug,
