@@ -60,7 +60,6 @@ Currently, in versions 0.x.y, the library is not ready for production use.
 It is among other things missing some vital parts, primarly built in generators
 and shrinkers for:
 
-* Floating point numbers `f32` and `f64`.
 * Strings.
 * Commonly used data structures besides `Vec`.
 * Recursive data structures.

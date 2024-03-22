@@ -57,9 +57,9 @@ assert_eq!(9_f64.sqrt(), 3_f64);
 assert_eq!(16_f64.sqrt(), 4_f64);
 
 monkey_test()
-    .with_generator(gen::u64::ranged(2..))
-    .assert_true(|n| (n as f64).sqrt() > 1.0)
-    .assert_true(|n| (n as f64).sqrt() < n as f64);
+    .with_generator(gen::f64::ranged(2.0..))
+    .assert_true(|n| n.sqrt() > 1.0)
+    .assert_true(|n| n.sqrt() < n);
 ```
 
 In short, combining general property based tests with some specific
@@ -177,7 +177,7 @@ A summary is given below.
 
 ### Generators and shrinkers for basic types
 
-Generators for `bool` and for all integer types
+Generators for `bool`, `f32`, `f64` and for all integer types
 `i8`, `i16`, `i32`, `i64`, `i128`, `isize`,
 `u8`, `u16` `u32`, `u64` , `u128` and `usize`.
 
