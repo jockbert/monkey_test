@@ -2,6 +2,7 @@
 
 mod bool;
 pub mod fixed;
+mod float;
 mod from_fn;
 mod integer;
 mod map;
@@ -11,6 +12,7 @@ mod zip;
 
 pub use bool::bool;
 pub use bool::bool_to_true;
+pub use float::float;
 pub use from_fn::from_fn;
 pub use from_fn::from_fn_boxed;
 pub use integer::int_to_zero as int;

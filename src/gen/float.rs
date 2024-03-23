@@ -156,7 +156,7 @@ where
         |i| from_twos_complement_bits(i),
         |f| to_twos_complement_bits(f),
     )
-    .with_shrinker(crate::shrink::none())
+    .with_shrinker(crate::shrink::float())
 }
 
 fn check_bounds_are_finite<F>(start: F, end: F)
@@ -240,6 +240,7 @@ mod test {
     use super::to_twos_complement_bits;
     use crate::gen;
     use crate::monkey_test;
+    use crate::testing::assert_generator_can_shrink;
     use crate::BoxGen;
     use std::ops::RangeBounds;
 
@@ -416,6 +417,11 @@ mod test {
     #[should_panic]
     fn let_completely_random_panic_on_pos_inf() {
         gen::f32::completely_random(10.0..=f32::INFINITY);
+    }
+
+    #[test]
+    fn should_have_shrinker() {
+        assert_generator_can_shrink(gen::f64::any(), std::f64::consts::PI)
     }
 
     fn assert_all_values_are_in_range<B>(gen: BoxGen<f32>, range: B)
