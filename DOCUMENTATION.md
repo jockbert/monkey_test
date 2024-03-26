@@ -243,6 +243,63 @@ let points: BoxGen<Point> = gen::u16::any()
    .map(|(x, y)| Point{x, y}, |p| (p.x, p.y));
 ```
 
+### Create your own generators and shrinkers from scratch
+
+For implemementing a generator on your own, you only need to implement the
+[Gen] trait.
+
+```rust
+use monkey_test::*;
+// Use the randomization source of your choosing
+use rand::Rng;
+use rand::SeedableRng;
+
+#[derive(Clone)]
+struct DiceGen {
+   /// Die side count
+   side_count: u32,
+}
+
+impl Gen<u32> for DiceGen {
+    fn examples(&self, seed: u64) -> BoxIter<u32> {
+        let distr =
+            rand::distributions::Uniform::new_inclusive(1, self.side_count);
+        let iter =
+            rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr);
+        Box::new(iter)
+    }
+
+    fn shrinker(&self) -> BoxShrink<u32> {
+        shrink::int()
+        // Use shrink::none() for not providing any shrinking.
+    }
+}
+
+fn dice_trow_generator_from_struct(side_count: u32) -> BoxGen<u32> {
+    Box::new(DiceGen { side_count })
+}
+```
+
+Some boilerplate code can be eliminated and the same functionality can be
+achieved by using [gen::from_fn] instead of implementing the [Gen] trait.
+
+```rust
+use monkey_test::*;
+use rand::Rng;
+use rand::SeedableRng;
+
+fn dice_trow_generator_from_fn(side_count: u32) -> BoxGen<u32> {
+    gen::from_fn(move |seed| {
+        let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
+        rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
+    })
+    .with_shrinker(shrink::int())
+}
+```
+
+Similarly, a shrinker can be implemented by either implementing the [Shrink]
+trait directly, or just make use of [shrink::from_fn].
+
 ## Key design principles of the Monkey Test tool
 
 - *configurability and flexibility* - Leave a high degree of configurability
