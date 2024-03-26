@@ -1,6 +1,4 @@
 
-[pre-alpha]: https://en.wikipedia.org/wiki/Software_release_life_cycle#Pre-alpha
-
 # Monkey Test
 
 ![monkey test logo](assets/monkeytest-banner.png)
@@ -12,9 +10,9 @@ A [property based testing](https://en.wikipedia.org/wiki/Software_testing#Proper
 [similar libraries](https://en.wikipedia.org/wiki/QuickCheck), for
 the Rust programming language.
 
-<mark>☝️ Warning! This library is in [pre-alpha] state.
-Large parts of functionality is missing and API will undergo a lot of
-change. For details on recent changes, see the [CHANGELOG](CHANGELOG.md).</mark>
+<mark>☝️ Note! This library is in active development.
+Parts of functionality is missing and API can undergo changes.
+For details on recent changes, see the [CHANGELOG](CHANGELOG.md).</mark>
 
 ## Example
 
@@ -56,13 +54,22 @@ Additional usage examples can be found in the source file
 
 ## Current status and missing parts
 
-Currently, in versions 0.x.y, the library is not ready for production use.
-It is among other things missing some vital parts, primarly built in generators
+Currently, in versions 0.x.y, the library is in active development.
+It is currently missing some parts, primarly built in generators
 and shrinkers for:
 
 * Strings.
 * Commonly used data structures besides `Vec`.
 * Recursive data structures.
+
+Other known limitations:
+
+* For now, integer and float generators do not limit them self to shrink to
+  values within given generator range, but will by default shrink toward zero.
+  For instance, let say that we create generator
+  `monkey_test::gen::i64::ranged(10..100)`, the associated shrinker will not
+  only try candidates withing the given range `10..100`, but can also try other
+  values like -10 and will ultimately try to shrink toward zero.
 
 For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 
