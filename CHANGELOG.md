@@ -1,7 +1,41 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.5.0...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.6.0...main).
+
+## Release 0.6.0 (2024-03-28) [diff](https://github.com/jockbert/monkey_test/compare/v0.5.0...v0.6.0)
+
+Release with focus on adding float generators and float shrinkers.
+
+### New features
+
+* Enable generators created from closure. See function `gen::from_fn`.
+* Enable shrinkers created from closure. See function `shrink::from_fn`.
+* The annotation `#[track_caller]` is added to function
+  `monkey_test().assert_true()`, in order to a better location indication in
+  panics emitted on property failure.
+* Add generators for float values. See modules `gen::f32` and `gen::f64`.
+* Add shrinkers for float values. See function `shrink::float`.
+
+### Breaking changes
+
+* Arguments given to `monkey_test::gen::bool::with_ratio` are changed from
+  type u32 to u8. The change can of course create compile problems but will in
+  practice likely have low impact, for two reasons. Firstly,
+  the random generator seem to not be fine grained enough
+  that the loss of precision matters in practice. Secondly, having
+  ratios smaller than 1/256, will likely have a small impact on
+  tested properties only using 100 examples by default.
+
+* Integer generators ar enow using the more restrictive type constraint
+  `num_traits::PrimInt`.
+
+### Other changes
+
+* Need for dependency `min_max_traits` is eliminated.
+* Need for test dependency `num` is eliminated.
+
+### Bugfixes
 
 ## Release 0.5.0 (2024-03-02) [diff](https://github.com/jockbert/monkey_test/compare/v0.4.0...v0.5.0)
 

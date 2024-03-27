@@ -1,6 +1,6 @@
 [package]
 name = "monkey_test"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 license = "MIT"
 homepage = "https://github.com/jockbert/monkey_test"
@@ -9,7 +9,7 @@ documentation = "https://docs.rs/monkey_test/"
 authors = ["Joakim Akerblom <per.joakim.eriksson@gmail.com>"]
 
 description = "A property based testing (PBT) tool like QuickCheck, ScalaCheck and similar libraries, for the Rust programming language."
-keywords = ["testing", "property", "PBT", "quickcheck", "shrinking", "hypothesis"]
+keywords = ["testing", "property", "quickcheck", "shrinking", "hypothesis"]
 categories = ["development-tools::testing"]
 
 [badges]
