@@ -36,6 +36,9 @@ pub enum MonkeyResult<E> {
         /// The seed used for generating the examples. Can be useful for
         /// reproducing the failed test run.
         seed: u64,
+
+        /// Optional title of the failed property.
+        title: Option<String>,
     },
 }
 
@@ -102,6 +105,7 @@ where
                 success_count: i as u64,
                 shrink_count: shrinked_values.len() as u64,
                 seed: cg.conf.seed,
+                title: cg.title.clone(),
             };
         }
     }

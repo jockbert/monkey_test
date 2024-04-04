@@ -35,9 +35,11 @@ manually choosing examples to test.
 use monkey_test::*;
 
 monkey_test()
-    .with_generator(gen::u64::ranged(2..))
-    .assert_true(|n| (n as f64).sqrt() > 1.0)
-    .assert_true(|n| (n as f64).sqrt() < n as f64);
+    .with_generator(gen::f64::ranged(2.0..))
+    .title("Lower bound")
+    .assert_true(|n| n.sqrt() > 1.0)
+    .title("Upper bound")
+    .assert_true(|n| n.sqrt() < n);
 ```
 
 So, what is the point of having the loose boundaries in the `sqrt`-properties
@@ -51,14 +53,16 @@ fail spectacularly, like returning a negative value or panicing.
 // Combining unit tests with more general properties
 use monkey_test::*;
 
-assert_eq!(1_f64.sqrt(), 1_f64);
-assert_eq!(4_f64.sqrt(), 2_f64);
-assert_eq!(9_f64.sqrt(), 3_f64);
-assert_eq!(16_f64.sqrt(), 4_f64);
+assert_eq!(1_f64.sqrt(), 1.0);
+assert_eq!(4_f64.sqrt(), 2.0);
+assert_eq!(9_f64.sqrt(), 3.0);
+assert_eq!(16_f64.sqrt(), 4.0);
 
 monkey_test()
     .with_generator(gen::f64::ranged(2.0..))
+    .title("Lower bound")
     .assert_true(|n| n.sqrt() > 1.0)
+    .title("Upper bound")
     .assert_true(|n| n.sqrt() < n);
 ```
 

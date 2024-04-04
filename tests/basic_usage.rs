@@ -13,6 +13,7 @@ fn can_fail_with_details_when_using_check() {
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int())
+        .title("Less than thirteen")
         .test_property(|x| x < 13);
 
     assert_eq!(
@@ -23,7 +24,8 @@ fn can_fail_with_details_when_using_check() {
             some_other_failures: vec!(15, 14),
             success_count: 4,
             shrink_count: 3,
-            seed: 123456
+            seed: 123456,
+            title: Some("Less than thirteen".into()),
         }
     );
 }

@@ -15,6 +15,7 @@ pub struct Conf {
 }
 
 /// Configuration for executing monkey tests, including the generator.
+#[derive(Clone)]
 pub struct ConfAndGen<E>
 where
     E: Clone,
@@ -23,6 +24,8 @@ where
     pub conf: Conf,
     /// See [Conf::with_generator].
     pub gen: BoxGen<E>,
+    /// See [ConfAndGen::title].
+    pub title: Option<String>,
 }
 
 impl Conf {
@@ -34,6 +37,7 @@ impl Conf {
         ConfAndGen {
             conf: self.clone(),
             gen,
+            title: None,
         }
     }
 
@@ -96,15 +100,21 @@ where
             minimum_failure,
             seed,
             success_count,
+            title,
             ..
         } = self.test_property(prop)
         {
+            let first_line = match title {
+                Some(t) => format!("Monkey test property \"{t}\" failed!"),
+                None => "Monkey test property failed!".to_string(),
+            };
+
             panic!(
-                "Monkey test property failed!\n\
-                Counterexample: {:?}\n\
-                Reproduction seed: {}\n\
-                Success count before failure: {}",
-                minimum_failure, seed, success_count
+                "{first_line}\n\
+                Counterexample: {minimum_failure:?}\n\
+                \n\
+                Reproduction seed: {seed}\n\
+                Success count before failure: {success_count}\n",
             )
         }
         self
@@ -113,8 +123,18 @@ where
     /// Add/change which shriker to use when a failing example is found.
     pub fn with_shrinker(&self, shrink: BoxShrink<E>) -> ConfAndGen<E> {
         Self {
-            conf: self.conf.clone(),
             gen: self.gen.with_shrinker(shrink),
+            ..self.clone()
+        }
+    }
+
+    /// Add or change title of all following asserts. The title is used for
+    /// naming the failed property assert. The title is used on all following
+    /// properties, until other title is set.
+    pub fn title(&self, title: &str) -> ConfAndGen<E> {
+        Self {
+            title: Some(title.to_string()),
+            ..self.clone()
         }
     }
 }
