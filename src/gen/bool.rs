@@ -9,8 +9,15 @@ pub fn with_ratio(ratio_false: u8, ratio_true: u8) -> BoxGen<bool> {
         .with_shrinker(crate::shrink::bool())
 }
 
-/// Uniformly distributed generator of `true` and `false`.
+/// Uniformly distributed generator of `true` and `false`. Please use [any]
+/// instead.
+#[deprecated = "Use any() insted, conforming to monkey_test general naming scheme."]
 pub fn evenly() -> BoxGen<bool> {
+    with_ratio(1, 1)
+}
+
+/// Uniformly distributed generator of `true` and `false`.
+pub fn any() -> BoxGen<bool> {
     with_ratio(1, 1)
 }
 
@@ -22,7 +29,7 @@ mod tests {
 
     #[test]
     fn any_has_uniform_distribution() {
-        let bools = super::evenly();
+        let bools = super::any();
 
         let expected = even_distribution_of(&[false, true]);
 
@@ -40,7 +47,7 @@ mod tests {
 
     #[test]
     fn has_shrinker_that_shrinks_to_false() {
-        let shrinker = super::evenly().shrinker();
+        let shrinker = super::any().shrinker();
 
         let mut candidates_of_true = shrinker.candidates(true);
         assert_eq!(candidates_of_true.next(), Some(false));

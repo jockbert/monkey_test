@@ -153,7 +153,7 @@ mod test {
     fn roundtrip_test_f32() {
         crate::monkey_test()
             .with_generator(
-                f32_exp().zip(f32_frac()).zip(crate::gen::bool::evenly()),
+                f32_exp().zip(f32_frac()).zip(crate::gen::bool::any()),
             )
             .assert_true(|((e, f), s)| {
                 compose_f32(s, e, f).is_sign_negative() == s
@@ -166,7 +166,7 @@ mod test {
     fn roundtrip_test_f64() {
         crate::monkey_test()
             .with_generator(
-                f64_exp().zip(f64_frac()).zip(crate::gen::bool::evenly()),
+                f64_exp().zip(f64_frac()).zip(crate::gen::bool::any()),
             )
             .assert_true(|((e, f), s)| {
                 compose_f64(s, e, f).is_sign_negative() == s
