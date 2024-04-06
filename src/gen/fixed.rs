@@ -8,19 +8,8 @@ use crate::BoxGen;
 /// ```
 /// let gen = monkey_test::gen::fixed::sequence(&[1, 20, 300]);
 ///
-/// let mut ex1 = gen.examples(1337);
-/// assert_eq!(Some(1), ex1.next());
-/// assert_eq!(Some(20), ex1.next());
-/// assert_eq!(Some(300), ex1.next());
-/// assert_eq!(None, ex1.next());
-/// assert_eq!(None, ex1.next());
-/// assert_eq!(None, ex1.next());
-///
-/// let mut ex2 = gen.examples(42);
-/// assert_eq!(Some(1), ex2.next());
-/// assert_eq!(Some(20), ex2.next());
-/// assert_eq!(Some(300), ex2.next());
-/// assert_eq!(None, ex2.next());
+/// assert_eq!(gen.examples(1337).collect::<Vec<_>>(), vec![1, 20, 300]);
+/// assert_eq!(gen.examples(42).collect::<Vec<_>>(), vec![1, 20, 300]);
 /// ```
 pub fn sequence<E>(examples: &[E]) -> BoxGen<E>
 where

@@ -75,6 +75,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use crate::testing::assert_iter_eq;
 
     #[test]
     fn decrement_can_shrink_both_positive_and_negative_numbers() {
@@ -87,19 +88,8 @@ mod test {
 
     #[test]
     fn eager_tries_iteratively_smaller_decrement_from_original() {
-        assert_eq!(
-            super::eager(16).take(10).collect::<Vec<_>>(),
-            vec![0, 8, 12, 14, 15]
-        );
-
-        assert_eq!(
-            super::eager(-16).take(10).collect::<Vec<_>>(),
-            vec![0, -8, -12, -14, -15]
-        );
-
-        assert_eq!(
-            super::eager(17).take(10).collect::<Vec<_>>(),
-            vec![0, 9, 13, 15, 16]
-        );
+        assert_iter_eq(super::eager(16), vec![0, 8, 12, 14, 15]);
+        assert_iter_eq(super::eager(-16), vec![0, -8, -12, -14, -15]);
+        assert_iter_eq(super::eager(17), vec![0, 9, 13, 15, 16]);
     }
 }

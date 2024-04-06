@@ -91,6 +91,7 @@ where
 mod test {
     use crate::testing::assert_generator_can_shrink;
     use crate::testing::assert_generator_cannot_shrink;
+    use crate::testing::assert_iter_eq;
     use crate::testing::distribution::assert_generator_has_distribution_within_percent;
     use crate::testing::distribution::distribution_from_pairs;
 
@@ -106,14 +107,7 @@ mod test {
             crate::gen::fixed::sequence(&[1, 2, 3, 4, 5, 6]),
         )]);
 
-        let mut iter = mixer.examples(1337);
-        assert!(iter.next() == Some(1));
-        assert!(iter.next() == Some(2));
-        assert!(iter.next() == Some(3));
-        assert!(iter.next() == Some(4));
-        assert!(iter.next() == Some(5));
-        assert!(iter.next() == Some(6));
-        assert!(iter.next().is_none());
+        assert_iter_eq(mixer.examples(1337), vec![1, 2, 3, 4, 5, 6]);
     }
 
     #[test]
@@ -123,21 +117,9 @@ mod test {
             crate::gen::fixed::sequence(&['a', 'b', 'c']),
         )]);
 
-        let mut iter = mixer.examples(1337);
-        assert!(iter.next() == Some('a'));
-        assert!(iter.next() == Some('b'));
-        assert!(iter.next() == Some('c'));
-        assert!(iter.next().is_none());
-        assert!(iter.next().is_none());
-        assert!(iter.next().is_none());
+        assert_iter_eq(mixer.examples(1337), vec!['a', 'b', 'c']);
 
-        iter = mixer.examples(1337);
-        assert!(iter.next() == Some('a'));
-        assert!(iter.next() == Some('b'));
-        assert!(iter.next() == Some('c'));
-        assert!(iter.next().is_none());
-        assert!(iter.next().is_none());
-        assert!(iter.next().is_none());
+        assert_iter_eq(mixer.examples(1337), vec!['a', 'b', 'c']);
 
         assert!(mixer.examples(1337).next() == Some('a'));
         assert!(mixer.examples(1337).next() == Some('a'));

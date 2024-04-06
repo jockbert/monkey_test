@@ -14,11 +14,7 @@ use crate::BoxGen;
 /// let c = a.chain(b);
 /// let mut it = c.examples(77);
 ///
-/// assert_eq!(Some(1), it.next());
-/// assert_eq!(Some(2), it.next());
-/// assert_eq!(Some(3), it.next());
-/// assert_eq!(Some(4), it.next());
-/// assert_eq!(None, it.next());
+/// assert_eq!(it.collect::<Vec<_>>(), vec![1, 2, 3, 4]);
 /// ```
 pub fn chain<E>(first_gen: BoxGen<E>, second_gen: BoxGen<E>) -> BoxGen<E>
 where
@@ -34,7 +30,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::gen::fixed;
+    use crate::{gen::fixed, testing::assert_iter_eq};
 
     #[test]
     fn empty_generators() {
@@ -42,8 +38,8 @@ mod test {
             fixed::sequence::<u8>(&[]),
             fixed::sequence::<u8>(&[]),
         );
-        let mut it = gen.examples(1234);
-        assert_eq!(None, it.next())
+
+        assert_iter_eq(gen.examples(1234), vec![]);
     }
 
     #[test]
@@ -52,11 +48,7 @@ mod test {
             fixed::sequence::<u8>(&[1, 2]),
             fixed::sequence::<u8>(&[3, 4]),
         );
-        let mut it = gen.examples(1234);
-        assert_eq!(Some(1u8), it.next());
-        assert_eq!(Some(2u8), it.next());
-        assert_eq!(Some(3u8), it.next());
-        assert_eq!(Some(4u8), it.next());
-        assert_eq!(None, it.next());
+
+        assert_iter_eq(gen.examples(1234), vec![1, 2, 3, 4]);
     }
 }

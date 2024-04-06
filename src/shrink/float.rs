@@ -64,16 +64,15 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::*;
+    use crate::gen;
+    use crate::monkey_test;
+    use crate::testing::assert_iter_eq;
 
     #[test]
     fn should_be_able_to_shrink_from_nan() {
-        assert_eq!(
-            super::float()
-                .candidates(f32::NAN)
-                .take(4)
-                .collect::<Vec<_>>(),
-            vec![f32::NEG_INFINITY, f32::INFINITY, -0.0, 0.0]
+        assert_iter_eq(
+            super::float().candidates(f32::NAN).take(4),
+            vec![f32::NEG_INFINITY, f32::INFINITY, -0.0, 0.0],
         )
     }
 

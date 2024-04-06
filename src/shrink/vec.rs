@@ -161,122 +161,114 @@ where
 
 #[cfg(test)]
 mod test {
+    use crate::testing::assert_iter_eq;
+
     #[test]
     pub fn eager_removes_all_and_then_iteratively_smaller_parts() {
-        let it = super::eager_size(vec![1, 2, 3, 4, 5, 6, 7, 8]);
-
-        assert_eq! {
-            it.take(1_000).collect::<Vec<_>>(),
+        assert_iter_eq(
+            super::eager_size(vec![1, 2, 3, 4, 5, 6, 7, 8]),
             vec![
                 // everything is removed
                 vec![],
                 // 1st half removed
-                vec![5,6,7,8],
+                vec![5, 6, 7, 8],
                 // 2nd half removed
-                vec![1,2,3,4],
+                vec![1, 2, 3, 4],
                 // 1st quarter removed
-                vec![3,4,5,6,7,8],
+                vec![3, 4, 5, 6, 7, 8],
                 // 2nd quarter removed
-                vec![1,2,5,6,7,8],
+                vec![1, 2, 5, 6, 7, 8],
                 // 3rd quarter removed
-                vec![1,2,3,4,7,8],
+                vec![1, 2, 3, 4, 7, 8],
                 // 4th quarter removed
-                vec![1,2,3,4,5,6],
+                vec![1, 2, 3, 4, 5, 6],
                 // 1st eight removed
-                vec![2,3,4,5,6,7,8],
+                vec![2, 3, 4, 5, 6, 7, 8],
                 // 2nd eight removed
-                vec![1,3,4,5,6,7,8],
+                vec![1, 3, 4, 5, 6, 7, 8],
                 // 3rd eight removed
-                vec![1,2,4,5,6,7,8],
+                vec![1, 2, 4, 5, 6, 7, 8],
                 // 4th eight removed
-                vec![1,2,3,5,6,7,8],
+                vec![1, 2, 3, 5, 6, 7, 8],
                 // 5th eight removed
-                vec![1,2,3,4,6,7,8],
+                vec![1, 2, 3, 4, 6, 7, 8],
                 // 6th eight removed
-                vec![1,2,3,4,5,7,8],
+                vec![1, 2, 3, 4, 5, 7, 8],
                 // 7th eight removed
-                vec![1,2,3,4,5,6,8],
+                vec![1, 2, 3, 4, 5, 6, 8],
                 // 8th eight removed
-                vec![1,2,3,4,5,6,7]
-            ]
-        }
+                vec![1, 2, 3, 4, 5, 6, 7],
+            ],
+        )
     }
 
     #[test]
     pub fn eager_can_handle_odd_sizes() {
-        let it = super::eager_size(vec![1, 2, 3, 4, 5]);
-
-        assert_eq! {
-            it.take(1_000).collect::<Vec<_>>(),
+        assert_iter_eq(
+            super::eager_size(vec![1, 2, 3, 4, 5]),
             vec![
                 // everything is removed
                 vec![],
                 // 2nd iteration step 1, 3 elements (=5/2 rounded up) removed
                 vec![4, 5],
                 // 2nd iteration step 2. 2 reamining elements removed
-                vec![1,2,3],
+                vec![1, 2, 3],
                 // 3rd iteration step 1, 2 eleemnts (=3/2 rounded up) removed
-                vec![3,4,5],
+                vec![3, 4, 5],
                 // 3rd iteration step 2, 2 elements removed
-                vec![1,2,5],
+                vec![1, 2, 5],
                 // 3rd iteration step 3, 1 remaining element removed
-                vec![1,2,3,4],
+                vec![1, 2, 3, 4],
                 // 4th iteration step 1, 1 element (22/2 rounded up) removed
-                vec![2,3,4,5],
+                vec![2, 3, 4, 5],
                 // 4th iteration step 2
-                vec![1,3,4,5],
+                vec![1, 3, 4, 5],
                 // 4th iteration step 3
-                vec![1,2,4,5],
+                vec![1, 2, 4, 5],
                 // 4th iteration step 4
-                vec![1,2,3,5],
+                vec![1, 2, 3, 5],
                 // 4th iteration step 5
-                vec![1,2,3,4],
-            ]
-        }
+                vec![1, 2, 3, 4],
+            ],
+        )
     }
 
     #[test]
     pub fn eager_can_handle_size_one() {
-        let it = super::eager_size(vec![1]);
-
-        assert_eq! {
-            it.take(1_000).collect::<Vec<_>>(),
+        assert_iter_eq(
+            super::eager_size(vec![1]),
             vec![
                 // everything is removed
                 vec![],
-            ]
-        }
+            ],
+        )
     }
 
     #[test]
     pub fn eager_can_handle_size_zero() {
-        let it = super::eager_size(Vec::<u8>::new());
-
-        assert_eq! {
-            it.take(1_000).collect::<Vec<_>>(),
-            Vec::<Vec<u8>>::new()
-        }
+        assert_iter_eq(
+            super::eager_size(Vec::<u8>::new()),
+            Vec::<Vec<u8>>::new(),
+        )
     }
 
     #[test]
     fn per_element_shrinker_tries_every_element() {
-        let it = super::per_element(
-            vec![1, 2, 3, 4],
-            crate::shrink::fixed::sequence(&[0]),
-        );
-
-        assert_eq! {
-            it.take(1_000).collect::<Vec<_>>(),
+        assert_iter_eq(
+            super::per_element(
+                vec![1, 2, 3, 4],
+                crate::shrink::fixed::sequence(&[0]),
+            ),
             vec![
                 // shrinking 1st element
-                vec![0,2,3,4],
+                vec![0, 2, 3, 4],
                 // shrinking 2nd element
-                vec![1,0,3,4],
+                vec![1, 0, 3, 4],
                 // shrinking 3rd element
-                vec![1,2,0,4],
+                vec![1, 2, 0, 4],
                 // shrinking 4th element
-                vec![1,2,3,0],
-            ]
-        }
+                vec![1, 2, 3, 0],
+            ],
+        )
     }
 }

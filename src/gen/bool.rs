@@ -23,6 +23,7 @@ pub fn any() -> BoxGen<bool> {
 
 #[cfg(test)]
 mod tests {
+    use crate::testing::assert_iter_eq;
     use crate::testing::distribution::assert_generator_has_distribution_within_percent;
     use crate::testing::distribution::distribution_from_pairs;
     use crate::testing::distribution::even_distribution_of;
@@ -49,11 +50,8 @@ mod tests {
     fn has_shrinker_that_shrinks_to_false() {
         let shrinker = super::any().shrinker();
 
-        let mut candidates_of_true = shrinker.candidates(true);
-        assert_eq!(candidates_of_true.next(), Some(false));
-        assert_eq!(candidates_of_true.next(), None);
+        assert_iter_eq(shrinker.candidates(true), vec![false]);
 
-        let mut candidates_of_false = shrinker.candidates(false);
-        assert_eq!(candidates_of_false.next(), None);
+        assert_iter_eq(shrinker.candidates(false), vec![]);
     }
 }

@@ -14,6 +14,27 @@ where
     assert_eq!(gen_to_check.examples(1234).count(), 0);
 }
 
+/// Compares two iterators and makes sur elements are equal
+pub fn assert_iter_eq<A, E>(actual: A, expected: E)
+where
+    A: IntoIterator,
+    E: IntoIterator,
+    A::Item: Debug + PartialEq<E::Item>,
+    E::Item: Debug,
+{
+    let safety_termination = 10_000;
+    assert_eq!(
+        actual
+            .into_iter()
+            .take(safety_termination)
+            .collect::<Vec<_>>(),
+        expected
+            .into_iter()
+            .take(safety_termination)
+            .collect::<Vec<_>>(),
+    )
+}
+
 /// Makes sure generator has a shrinker that can give a shrinked example, which
 /// is not the same as the original example.
 pub fn assert_generator_can_shrink<E>(gen: BoxGen<E>, example_to_shrink: E)

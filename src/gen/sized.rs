@@ -67,25 +67,25 @@ fn max_iterator(
 mod test {
     use assert_approx_eq::assert_approx_eq;
 
+    use crate::testing::assert_iter_eq;
+
     #[test]
     pub fn max_iterator_should_clamp_at_max_size() {
         let max_size = 7;
         let extra_large = 7_000;
-        let it = super::max_iterator(extra_large, extra_large, max_size);
 
-        assert_eq!(
-            it.take(6).collect::<Vec<_>>(),
-            vec![max_size, max_size, max_size, max_size, max_size, max_size]
+        assert_iter_eq(
+            super::max_iterator(extra_large, extra_large, max_size).take(6),
+            vec![max_size, max_size, max_size, max_size, max_size, max_size],
         );
     }
 
     #[test]
     pub fn max_iterator_should_grow_with_at_least_one() {
         let percent_increase = 10;
-        let it = super::max_iterator(3, percent_increase, 1337);
 
-        assert_eq!(
-            it.take(30).collect::<Vec<_>>(),
+        assert_iter_eq(
+            super::max_iterator(3, percent_increase, 1337).take(30),
             vec![
                 // always increasing with at least 1, more than 10%
                 3, 4, 5, 6, 7, 8, 9, 10,
@@ -98,19 +98,18 @@ mod test {
                 // 10% being truncated down to increment of 4
                 46, 50,
                 // 10% of 50 is a increase of 5 exactly ......fighting rust_fmt
-                55
-            ]
+                55,
+            ],
         );
     }
 
     #[test]
     pub fn max_iterator_should_normally_grow_with_percent_increase() {
         let percent_increase = 100;
-        let it = super::max_iterator(16, percent_increase, 1337);
 
-        assert_eq!(
-            it.take(10).collect::<Vec<_>>(),
-            vec![16, 32, 64, 128, 256, 512, 1024, 1337, 1337, 1337]
+        assert_iter_eq(
+            super::max_iterator(16, percent_increase, 1337).take(10),
+            vec![16, 32, 64, 128, 256, 512, 1024, 1337, 1337, 1337],
         );
     }
 
