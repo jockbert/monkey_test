@@ -67,3 +67,46 @@ fn map_and_automatic_shrinking_of_rectangle() {
             height: 50,
         });
 }
+
+#[derive(Clone, Debug, PartialEq)]
+struct Color {
+    red: u8,
+    green: u8,
+    blue: u8,
+    alpha: u8,
+}
+
+/// Composing together 4 generaetors using `zip_4` to a generator of Color
+/// structs.
+fn any_color() -> BoxGen<Color> {
+    gen::u8::any()
+        .zip_4(gen::u8::any(), gen::u8::any(), gen::u8::any())
+        .map(
+            |(red, green, blue, alpha)| Color {
+                red,
+                green,
+                blue,
+                alpha,
+            },
+            |color| (color.red, color.green, color.blue, color.alpha),
+        )
+}
+
+fn blue_should_not_dominate_green(c: Color) -> bool {
+    c.green >= c.blue
+}
+
+#[test]
+fn map_and_automatic_shrinking_of_color() {
+    monkey_test()
+        .with_generator(any_color())
+        .test_property(blue_should_not_dominate_green)
+        // The minimum test case Color{red:0, green:0, blue:1, alpha:0} would
+        // be hard to find directly without a proper shrinker.
+        .assert_minimum_failure(Color {
+            red: 0,
+            green: 0,
+            blue: 1,
+            alpha: 0,
+        });
+}
