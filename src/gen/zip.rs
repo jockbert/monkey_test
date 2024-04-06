@@ -25,8 +25,9 @@ where
     let s1 = g1.shrinker();
 
     crate::gen::from_fn(move |seed| {
-        let it1 = g0.clone().examples(seed);
-        let it2 = g1.clone().examples(seed);
+        let mut seeds = crate::gen::seeds().examples(seed);
+        let it1 = g0.clone().examples(seeds.next().expect("should have seed"));
+        let it2 = g1.clone().examples(seeds.next().expect("should have seed"));
         it1.zip(it2)
     })
     .with_shrinker(crate::shrink::zip(s0, s1))
@@ -92,5 +93,14 @@ mod test {
             super::zip(crate::gen::u8::any(), crate::gen::u8::any()).shrinker();
 
         assert_shrinker_has_some_candidates_given(shrinker, (4, 0))
+    }
+
+    /// Make sure tuple do not just contain twin values, like (31, 31), in case
+    /// same generator type is use for both parts of tuple.
+    #[test]
+    fn use_different_seeds_for_the_different_parts_of_tuple() {
+        let same_gen = crate::gen::u8::any();
+        let tuples = super::zip(same_gen.clone(), same_gen);
+        assert! {tuples.examples(1234).take(100).any(|(a,b)| a!= b)}
     }
 }
