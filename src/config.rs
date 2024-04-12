@@ -111,7 +111,7 @@ where
 
             panic!(
                 "{first_line}\n\
-                Counterexample: {minimum_failure:?}\n\
+                Failure: {minimum_failure:?}\n\
                 \n\
                 Reproduction seed: {seed}\n\
                 Success count before failure: {success_count}\n",

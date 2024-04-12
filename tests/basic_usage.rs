@@ -31,7 +31,7 @@ fn can_fail_with_details_when_using_check() {
 }
 
 #[test]
-#[should_panic(expected = "Monkey test property failed!\nCounterexample: 15")]
+#[should_panic(expected = "Monkey test property failed!\nFailure: 15")]
 fn can_fail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)

@@ -22,11 +22,11 @@ mod tests {
     use monkey_test::*;
 
     #[test]
-    #[should_panic(expected = "Property failed!\nCounterexample: 15")]
+    #[should_panic(expected = "Property failed!\nFailure: 15")]
     fn test_that_will_fail() {
         monkey_test()
             .with_generator(gen::u8::any())
-            .assert_true(|x| x < 15)
+            .assert_true(|x| x < 15);
     }
 }
 ```
