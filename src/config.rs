@@ -4,6 +4,7 @@ use crate::BoxShrink;
 use crate::Property;
 use rand::RngCore;
 use rand::SeedableRng;
+use std::sync::mpsc;
 
 /// Configuration for executing monkey tests.
 #[derive(Clone)]
@@ -102,29 +103,20 @@ where
     where
         E: std::fmt::Debug,
     {
-        if let MonkeyResult::MonkeyErr {
-            minimum_failure,
-            seed,
-            success_count,
-            title,
-            reason,
-            ..
-        } = self.test_property(prop)
-        {
-            let first_line = match title {
-                Some(t) => format!("Monkey test property \"{t}\" failed!"),
-                None => "Monkey test property failed!".to_string(),
-            };
+        panic_on_err(self.test_property(prop));
+        self
+    }
 
-            panic!(
-                "{first_line}\n\
-                Failure: {minimum_failure:?}\n\
-                Reason: {reason}\n\
-                \n\
-                Reproduction seed: {seed}\n\
-                Success count before failure: {success_count}\n",
-            )
-        }
+    /// Check that the property do not panic for any generated example values.
+    /// It panics on failure.
+    #[track_caller]
+    pub fn assert_no_panic(&self, prop: fn(E) -> ()) -> &ConfAndGen<E>
+    where
+        E: std::fmt::Debug + std::panic::UnwindSafe,
+    {
+        panic_on_err(crate::runner::evaluate_property(self, |example| {
+            test_no_panic(prop, example)
+        }));
         self
     }
 
@@ -145,4 +137,64 @@ where
             ..self.clone()
         }
     }
+}
+
+fn panic_on_err<E>(result: MonkeyResult<E>)
+where
+    E: std::fmt::Debug,
+{
+    if let MonkeyResult::MonkeyErr {
+        minimum_failure,
+        seed,
+        success_count,
+        title,
+        reason,
+        ..
+    } = result
+    {
+        let first_line = match title {
+            Some(t) => format!("Monkey test property \"{t}\" failed!"),
+            None => "Monkey test property failed!".into(),
+        };
+
+        panic!(
+            "{first_line}\n\
+            Failure: {minimum_failure:?}\n\
+            Reason: {reason}\n\
+            \n\
+            Reproduction seed: {seed}\n\
+            Success count before failure: {success_count}\n",
+        )
+    }
+}
+
+fn test_no_panic<E>(prop: fn(E), example: E) -> Result<(), String>
+where
+    E: std::fmt::Debug + std::panic::UnwindSafe + Clone + 'static,
+{
+    let original_panic_hook = std::panic::take_hook();
+    let (tx, rx) = mpsc::channel();
+
+    // Set temporary panic hook catching original panic loaction and
+    // muting stacktrace printouts to stdout. If not muted, there can be a panic
+    // stacktrace for each failing example while shrinking a failure.
+    std::panic::set_hook(Box::new(move |info| {
+        if let Some(loc) = info.location() {
+            let location_text =
+                format! {"in file '{}' at line {}", loc.file(), loc.line()};
+            tx.send(location_text).unwrap();
+        }
+    }));
+
+    // Do a test with a single example
+    let maybe_panic = std::panic::catch_unwind(|| prop(example));
+
+    // Restore old original panic hook
+    std::panic::set_hook(original_panic_hook);
+
+    maybe_panic.map_err(|panic| {
+        let message = panic_message::get_panic_message(&panic).unwrap_or("<?>");
+        let location = rx.try_recv().unwrap_or("at unknown location".into());
+        format! {"Expecting no panic, but got panic {message:?} {location}." }
+    })
 }

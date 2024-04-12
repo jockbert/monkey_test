@@ -88,6 +88,16 @@ As an inspiration, here follow some common classes of properties to test.
 Just shoot examples at code under test and make sure there are no errors and
 no panics.
 
+```rust,should_panic
+// Testing that there are no panics, but will panic on division by zero.
+use monkey_test::*;
+
+monkey_test()
+   .with_example_count(1000)
+   .with_generator(gen::u32::any())
+   .assert_no_panic(|n| { let _ = 1/n; });
+```
+
 ### Simplification
 
 ### Symmetry

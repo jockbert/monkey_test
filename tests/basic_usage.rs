@@ -53,6 +53,19 @@ fn can_assert_minimumfail_with_panic_when_using_assert() {
 }
 
 #[test]
+#[should_panic(
+    expected = "Reason: Expecting no panic, but got panic \"attempt to divide by zero\""
+)]
+fn can_assert_that_there_is_no_panic_thrown() {
+    monkey_test()
+        .with_example_count(1_000)
+        .with_generator(gen::u32::any())
+        .assert_no_panic(|n| {
+            let _ = 1 / (n / u32::MAX);
+        });
+}
+
+#[test]
 fn use_all_settings_available() {
     monkey_test()
         .with_example_count(1_000)
