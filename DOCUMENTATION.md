@@ -98,6 +98,15 @@ monkey_test()
    .assert_no_panic(|n| { let _ = 1/n; });
 ```
 
+```rust,should_panic
+// Testing that there are no Err, but will fail on -1 and lower values.
+use monkey_test::*;
+
+monkey_test()
+   .with_generator(gen::i8::any())
+   .assert_true(|n| u8::try_from(n).is_ok() );
+```
+
 ### Simplification
 
 ### Symmetry
