@@ -32,13 +32,13 @@ fn can_fail_with_details_when_using_check() {
 }
 
 #[test]
-#[should_panic(expected = "Monkey test property failed!\nFailure: 15")]
+#[should_panic(expected = "Monkey test property failed!\nFailure: 13")]
 fn can_fail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int())
-        .assert_true(|x| x < 15);
+        .assert_true(|x| x < 13);
 }
 
 /// Can do the same as above by asserting minimum failing example
