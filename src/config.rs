@@ -4,6 +4,7 @@ use crate::BoxShrink;
 use crate::Property;
 use rand::RngCore;
 use rand::SeedableRng;
+use std::fmt::Write;
 use std::sync::mpsc;
 
 /// Configuration for executing monkey tests.
@@ -156,6 +157,8 @@ where
         success_count,
         title,
         reason,
+        some_other_failures,
+        original_failure,
         ..
     } = result
     {
@@ -164,13 +167,22 @@ where
             None => "Monkey test property failed!".into(),
         };
 
+        let other_failures_text: String = some_other_failures.iter().fold(
+            String::new(),
+            |mut output, failure| {
+                let _ = write!(output, "\n\t{failure:?}");
+                output
+            },
+        );
+
         panic!(
             "{first_line}\n\
             Failure: {minimum_failure:?}\n\
             Reason: {reason}\n\
             \n\
             Reproduction seed: {seed}\n\
-            Success count before failure: {success_count}\n",
+            Success count before failure: {success_count}\n\
+            Other failures:\n\t{original_failure:?}{other_failures_text}\n",
         )
     }
 }
