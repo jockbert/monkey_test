@@ -83,10 +83,10 @@ impl<E> ConfAndGen<E>
 where
     E: Clone + 'static,
 {
-    /// Check that the property holds for all generated example values.
+    /// Check that the property returns true for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
     /// failure.
-    pub fn test_property(&self, prop: Property<E>) -> MonkeyResult<E> {
+    pub fn test_true(&self, prop: Property<E>) -> MonkeyResult<E> {
         crate::runner::evaluate_property(self, |example: E| {
             if prop(example) {
                 Ok(())
@@ -96,6 +96,13 @@ where
         })
     }
 
+    /// This function is deprecated, due to name change, aligning names of
+    /// different asserts and tests. Use [ConfAndGen::test_true] instead.
+    #[deprecated = "Use ConfAndGen.test_true instead"]
+    pub fn test_property(&self, prop: Property<E>) -> MonkeyResult<E> {
+        self.test_true(prop)
+    }
+
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
     #[track_caller]
@@ -103,7 +110,7 @@ where
     where
         E: std::fmt::Debug,
     {
-        panic_on_err(self.test_property(prop));
+        panic_on_err(self.test_true(prop));
         self
     }
 

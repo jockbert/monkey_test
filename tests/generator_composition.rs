@@ -26,7 +26,7 @@ fn rectangle_tuples() -> BoxGen<(u16, u16)> {
 fn zip_and_automatic_shrinking_of_rectangle() {
     monkey_test()
         .with_generator(rectangle_tuples())
-        .test_property(not_too_wide_tuple)
+        .test_true(not_too_wide_tuple)
         // The minimum test case (51, 50) would be hard to
         // find directly without a proper shrinker.
         .assert_minimum_failure((51, 50));
@@ -59,7 +59,7 @@ fn not_too_wide_struct(r: Rectangle) -> bool {
 fn map_and_automatic_shrinking_of_rectangle() {
     monkey_test()
         .with_generator(rectangle_structs())
-        .test_property(not_too_wide_struct)
+        .test_true(not_too_wide_struct)
         // The minimum test case Rectangle{height:51, width:50} would be hard
         // to find directly without a proper shrinker.
         .assert_minimum_failure(Rectangle {
@@ -100,7 +100,7 @@ fn blue_should_not_dominate_green(c: Color) -> bool {
 fn map_and_automatic_shrinking_of_color() {
     monkey_test()
         .with_generator(any_color())
-        .test_property(blue_should_not_dominate_green)
+        .test_true(blue_should_not_dominate_green)
         // The minimum test case Color{red:0, green:0, blue:1, alpha:0} would
         // be hard to find directly without a proper shrinker.
         .assert_minimum_failure(Color {

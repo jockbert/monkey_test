@@ -14,7 +14,7 @@ fn can_fail_with_details_when_using_check() {
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int())
         .title("Less than thirteen")
-        .test_property(|x| x < 13);
+        .test_true(|x| x < 13);
 
     assert_eq!(
         actual_result,
@@ -48,7 +48,7 @@ fn can_assert_minimumfail_with_panic_when_using_assert() {
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int())
-        .test_property(|x| x < 15)
+        .test_true(|x| x < 15)
         .assert_minimum_failure(15);
 }
 

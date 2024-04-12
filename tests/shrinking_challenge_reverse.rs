@@ -22,7 +22,7 @@ fn faulty_reverse<E>(list: Vec<E>) -> Vec<E> {
 fn test_reverse() {
     let result = monkey_test()
         .with_generator(gen::vec::any(gen::i16::any()))
-        .test_property(|list| {
+        .test_true(|list| {
             let mut expected = list.clone();
             expected.reverse();
 

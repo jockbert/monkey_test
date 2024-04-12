@@ -224,7 +224,7 @@ let int_vectors: BoxGen<Vec<i16>> = gen::vec::any(gen::i16::any());
 
 monkey_test()
    .with_generator(int_vectors)
-   .test_property(|vec| vec.iter().all(|&n| n <= 1337) )
+   .test_true(|vec| vec.iter().all(|&n| n <= 1337) )
    .assert_minimum_failure(vec![1338]);
 ```
 
