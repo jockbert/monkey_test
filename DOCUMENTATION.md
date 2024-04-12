@@ -109,6 +109,20 @@ monkey_test()
 
 ### Simplification
 
+Since the examples used are random, i.e. unknown, it can be hard to be specific
+about what result to expect. However, using the "loose boundaries" principle,
+you can usually at least specify some simplified generic property to verify.
+
+```rust
+// We can at least specify that all results from `abs()` should be positive, if
+// not being i8 minimum value which does not have a positive counterpart.
+use monkey_test::*;
+
+monkey_test()
+   .with_generator(gen::i8::any())
+   .assert_true(|n| n == i8::MIN || n.abs() >= 0 );
+```
+
 ### Symmetry
 
 Apply a function and its inverse and make sure you get back the same initial
