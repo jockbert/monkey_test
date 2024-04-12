@@ -1,7 +1,65 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.6.0...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.1...main).
+
+## Release 0.7.1 (2024-04-13) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.0...v0.7.1)
+
+Minor release only updating documentation and adding missing release details in
+this changelog.
+
+## Release 0.7.0 (2024-04-13) [diff](https://github.com/jockbert/monkey_test/compare/v0.6.0...v0.7.0)
+
+This release focuses on adding alternative monkey test assert variants and more
+informative panic messages when a property fails.
+
+### New features
+
+* Add possibility to add property title. Having this extra text label can be
+  handy when having several small properties in the same unit test.
+
+* Add `zip_n` for up to 6 parts, as an extension to all generators.
+
+* Add failure reason text to `MonkeyResult::MonkeyErr`. This opens up for other
+  types of property failure modes than just being true or false, like equality
+  or panicing failure modes.
+
+* Add `assert_no_panic`. It adds the possibility to verify that a property do
+  not panic.
+
+* Add `assert_eq`. It adds the possibility to compare two values against
+  each other. In contrast to `assert_true`, `assert_eq`
+  gives feedback on what the expected and actual values
+  are for a failed property.
+
+* Add `assert_ne`. Method `assert_ne` is added for symmetry compared to `assert_eq`.
+
+* Include other failures found while shrinking in property panic message.
+  Can be useful to see other failures too, and not only the minimal
+  one, in property failure message.
+
+### Breaking changes
+
+* Adding public struct field `MonkeyResult::MonkeyErr.reason`.
+* Adding public struct field `MonkeyResult::MonkeyErr.title`.
+* Adding public struct field `ConfAndGen.title`.
+
+### Other changes
+
+* Preparing name change by deprecating `gen::bool::evenly()` and adding
+  `gen::bool::any()` as a replacement.
+
+* Preparing name change by deprecating `test_property` and adding `test_true`
+  as a replacement.
+
+### Bugfixes
+
+* Use different seeds for the different parts of generated tuple in `gen::zip`.
+  Earlier, same seed was used for the different parts of tuple
+  generator (`zip`). This lead to tuples where both parts/items
+  of tuple got the same value, if same generator type happended to be used
+  for both tuple parts/items, only generating symmetric tuples
+  like `(42, 42)` and `(1337, 1337)`.
 
 ## Release 0.6.0 (2024-03-28) [diff](https://github.com/jockbert/monkey_test/compare/v0.5.0...v0.6.0)
 
@@ -34,8 +92,6 @@ Release with focus on adding float generators and float shrinkers.
 
 * Need for dependency `min_max_traits` is eliminated.
 * Need for test dependency `num` is eliminated.
-
-### Bugfixes
 
 ## Release 0.5.0 (2024-03-02) [diff](https://github.com/jockbert/monkey_test/compare/v0.4.0...v0.5.0)
 
