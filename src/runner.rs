@@ -22,7 +22,7 @@ pub enum MonkeyResult<E> {
         /// Other examples that also disproves the property. In case a shinker
         /// is provided, this vector is populated with non-minimum values found
         /// as part of the shrinking process of the original failure example.
-        /// Some found failures may be exlided from list if many failure
+        /// Some found failures may be exluded from list if many failure
         /// examples are found
         some_other_failures: Vec<E>,
 
