@@ -154,6 +154,32 @@ where
         self
     }
 
+    /// Check that the two from example derived values, expected and actual,
+    /// do not equals each other.
+    #[track_caller]
+    pub fn assert_ne<D>(
+        &self,
+        expected: fn(E) -> D,
+        actual: fn(E) -> D,
+    ) -> &ConfAndGen<E>
+    where
+        E: std::fmt::Debug,
+        D: std::fmt::Debug + PartialEq,
+    {
+        panic_on_err(crate::runner::evaluate_property(self, |example| {
+            let a = actual(example.clone());
+            let e = expected(example);
+            if a != e {
+                Ok(())
+            } else {
+                Err(format!(
+                    "Actual value should not equal expected {e:?}, but got {a:?}."
+                ))
+            }
+        }));
+        self
+    }
+
     /// Add/change which shriker to use when a failing example is found.
     pub fn with_shrinker(&self, shrink: BoxShrink<E>) -> ConfAndGen<E> {
         Self {

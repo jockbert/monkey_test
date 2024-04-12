@@ -76,6 +76,17 @@ fn can_assert_eq() {
 }
 
 #[test]
+#[should_panic(
+    expected = "Reason: Actual value should not equal expected 1, but got 1."
+)]
+fn can_assert_ne() {
+    monkey_test()
+        .with_example_count(1_000)
+        .with_generator(gen::u32::ranged(0..10_000))
+        .assert_ne(|n| (n + 1) / 2, |n| (n + 2) / 2);
+}
+
+#[test]
 fn use_all_settings_available() {
     monkey_test()
         .with_example_count(1_000)
