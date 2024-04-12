@@ -26,6 +26,7 @@ fn can_fail_with_details_when_using_check() {
             shrink_count: 3,
             seed: 123456,
             title: Some("Less than thirteen".into()),
+            reason: "Expecting 'true' but got 'false'.".into(),
         }
     );
 }

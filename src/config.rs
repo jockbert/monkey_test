@@ -86,7 +86,13 @@ where
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
     /// failure.
     pub fn test_property(&self, prop: Property<E>) -> MonkeyResult<E> {
-        crate::runner::evaluate_property(self, prop)
+        crate::runner::evaluate_property(self, |example: E| {
+            if prop(example) {
+                Ok(())
+            } else {
+                Err("Expecting 'true' but got 'false'.".into())
+            }
+        })
     }
 
     /// Check that the property holds for all generated example values.
@@ -101,6 +107,7 @@ where
             seed,
             success_count,
             title,
+            reason,
             ..
         } = self.test_property(prop)
         {
@@ -112,6 +119,7 @@ where
             panic!(
                 "{first_line}\n\
                 Failure: {minimum_failure:?}\n\
+                Reason: {reason}\n\
                 \n\
                 Reproduction seed: {seed}\n\
                 Success count before failure: {success_count}\n",

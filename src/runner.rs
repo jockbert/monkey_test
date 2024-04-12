@@ -39,6 +39,11 @@ pub enum MonkeyResult<E> {
 
         /// Optional title of the failed property.
         title: Option<String>,
+
+        /// Reason for the failed propert. This reason is from the
+        /// [minimum failure](self::MonkeyResult#variant.MonkeyErr.field.minimum_failure)
+        /// example. Other failures can have other reasons not shown here.
+        reason: String,
     },
 }
 
@@ -72,40 +77,45 @@ impl<E> MonkeyResult<E> {
 pub fn evaluate_property<E, P>(cg: &ConfAndGen<E>, prop: P) -> MonkeyResult<E>
 where
     E: Clone + 'static,
-    P: Fn(E) -> bool,
+    P: Fn(E) -> Result<(), String>,
 {
     let mut it = cg.gen.examples(cg.conf.seed);
 
     for i in 0..cg.conf.example_count {
         let example = it.next();
 
-        let (e, success) = match example {
+        let (first_example, maybe_first_reason) = match example {
             Some(e) => (e.clone(), prop(e.clone())),
             None => panic!("To few examples. Only got {i}"),
         };
 
-        if !success {
-            let shrinked_values = do_shrink(prop, e.clone(), cg.gen.shrinker());
+        if let Err(first_reason) = maybe_first_reason {
+            let shrinked_values =
+                do_shrink(prop, first_example.clone(), cg.gen.shrinker());
 
             // All but last shrinked value, up to a max limit
             let other_count = shrinked_values.len().min(100).max(1) as u64 - 1;
             let some_other_failures = shrinked_values
                 .clone()
                 .into_iter()
+                .map(|(example, _)| example)
                 .take(other_count as usize)
                 .collect::<Vec<_>>();
 
-            let minimum_failure =
-                shrinked_values.last().cloned().unwrap_or(e.clone());
+            let (minimum_failure, minimum_reason) = shrinked_values
+                .last()
+                .cloned()
+                .unwrap_or((first_example.clone(), first_reason));
 
             return MonkeyResult::<E>::MonkeyErr {
                 minimum_failure,
-                original_failure: e,
+                original_failure: first_example,
                 some_other_failures,
                 success_count: i as u64,
                 shrink_count: shrinked_values.len() as u64,
                 seed: cg.conf.seed,
                 title: cg.title.clone(),
+                reason: minimum_reason,
             };
         }
     }
@@ -117,10 +127,10 @@ fn do_shrink<E, P>(
     prop: P,
     original_failure: E,
     shrinker: BoxShrink<E>,
-) -> Vec<E>
+) -> Vec<(E, String)>
 where
     E: Clone,
-    P: Fn(E) -> bool,
+    P: Fn(E) -> Result<(), String>,
 {
     let shrink_effort = 10_000;
     let mut shrinked_examples = vec![];
@@ -129,8 +139,9 @@ where
     for _ in 0..shrink_effort {
         match candidates.next() {
             Some(candidate) => {
-                if !prop(candidate.clone()) {
-                    shrinked_examples.push(candidate.clone());
+                let maybe_failure_reason = prop(candidate.clone());
+                if let Err(reason) = maybe_failure_reason {
+                    shrinked_examples.push((candidate.clone(), reason));
                     candidates = shrinker.candidates(candidate);
                 }
             }
