@@ -66,6 +66,16 @@ fn can_assert_that_there_is_no_panic_thrown() {
 }
 
 #[test]
+#[should_panic(
+    expected = "Reason: Actual value should equal expected 1, but got 0."
+)]
+fn can_assert_eq() {
+    monkey_test()
+        .with_generator(gen::u32::any())
+        .assert_eq(|n| n, |n| n / 2 * 2);
+}
+
+#[test]
 fn use_all_settings_available() {
     monkey_test()
         .with_example_count(1_000)

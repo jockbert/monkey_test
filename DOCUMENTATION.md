@@ -115,11 +115,7 @@ use monkey_test::*;
 
 monkey_test()
    .with_generator(gen::u32::any())
-   .assert_true(|ground_truth| {
-      let input = ground_truth.to_string();
-      let actual_output = input.parse::<u32>().unwrap();
-      actual_output == ground_truth
-   });
+   .assert_eq(|n| n, |n| n.to_string().parse::<u32>().unwrap());
 ```
 
 ### Idempotens
@@ -131,7 +127,7 @@ use monkey_test::*;
 
 monkey_test()
    .with_generator(gen::i8::ranged(-127..))
-   .assert_true(|n| n.abs() == n.abs().abs().abs().abs());
+   .assert_eq(|n| n.abs(), |n| n.abs().abs().abs().abs());
 ```
 
 ### Oracle
@@ -148,11 +144,7 @@ use monkey_test::*;
 
 monkey_test()
    .with_generator(gen::u8::ranged(..128))
-   .assert_true(|n| {
-      let oracle_method = n + n;
-      let tested_method = n * 2;
-      tested_method == oracle_method
-   });
+   .assert_eq(|n| n + n, |n| n * 2 );
 ```
 
 ### Induction
