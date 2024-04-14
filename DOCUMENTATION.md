@@ -6,6 +6,27 @@ tool like QuickCheck
 [(Wikipedia)](https://en.wikipedia.org/wiki/QuickCheck)
 [(github)](https://github.com/nick8325/quickcheck) and similar libraries.
 
+## Contents
+
+* [Property based testing core concepts](#property-based-testing-core-concepts)
+* [Nomenclature](#nomenclature)
+* [Common classes of properties](#common-classes-of-properties)
+  * [No explosion](#no-explosion)
+  * [Simplification](#simplification)
+  * [Symmetry](#symmetry)
+  * [Idempotens](#idempotens)
+  * [Invariance](#invariance)
+  * [Oracle](#oracle)
+  * [Induction](#induction)
+  * [Stateful testing](#stateful-testing)
+* [Features](#features)
+  * [Generators and shrinkers for basic types](#generators-and-shrinkers-for-basic-types)
+  * [Generators and shrinkers for collections](#generators-and-shrinkers-for-collections)
+  * [Pick values and mix generators](#pick-values-and-mix-generators)
+  * [Compose generators and shrinkers for more complex types](#compose-generators-and-shrinkers-for-more-complex-types)
+  * [Create generators and shrinkers from scratch](#create-generators-and-shrinkers-from-scratch)
+* [Key design principles of Monkey Test](#key-design-principles-of-monkey-test)
+
 ## Property based testing core concepts
 
 PBT is a complement to normal unit testing.
