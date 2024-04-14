@@ -23,10 +23,8 @@ assert_eq!(16_f64.sqrt(), 4_f64);
 
 With PBT a property of your code is validated against an arbitrary number of
 generated examples.
-A propery is saying something more general about your code than a specific
-example and outcome.
-You often loose some specificity but can say something more general about
-the code under test.
+A propery can loose some specificity, but can usually say something more general
+about the code under test compared to a specific test example and outcome.
 Further, using random examples in test can find aspects you missed when
 manually choosing examples to test.
 
@@ -49,35 +47,18 @@ The answer is that usually when code goes wrong or has a bug, the
 return value is not just a little bit off, but many times it is way off and
 fail spectacularly, like returning a negative value or panicing.
 
-```rust
-// Combining unit tests with more general properties
-use monkey_test::*;
-
-assert_eq!(1_f64.sqrt(), 1.0);
-assert_eq!(4_f64.sqrt(), 2.0);
-assert_eq!(9_f64.sqrt(), 3.0);
-assert_eq!(16_f64.sqrt(), 4.0);
-
-monkey_test()
-    .with_generator(gen::f64::ranged(2.0..))
-    .title("Lower bound")
-    .assert_true(|n| n.sqrt() > 1.0)
-    .title("Upper bound")
-    .assert_true(|n| n.sqrt() < n);
-```
-
 In short, combining general property based tests with some specific
 unit tests is a powerful testing technique to both specify the precise behaviour
 and finding bugs you did not forsee yourself.
 
 ## Nomenclature
 
-- *Generator* - A source of random examples
-- *Property* - Your parameterized test
-- *Shrinker* - Generate smaller examples based on failing example, in order to
+* *Generator* - A source of random examples
+* *Property* - Your parameterized test
+* *Shrinker* - Generate smaller examples based on failing example, in order to
   simplify the failure
 
-## Some common classes of properties to use
+## Common classes of properties
 
 How do you write a useful property that is valid for all generated examples?
 One baby step is to try parameterize an already existing example based test.
@@ -89,13 +70,14 @@ Just shoot examples at code under test and make sure there are no errors and
 no panics.
 
 ```rust,should_panic
-// Testing that there are no panics, but will panic on division by zero.
+// Testing that there are no panics, but will panic on division by zero for
+// example range 700..800.
 use monkey_test::*;
 
 monkey_test()
-   .with_example_count(1000)
-   .with_generator(gen::u32::any())
-   .assert_no_panic(|n| { let _ = 1/n; });
+   .with_example_count(1_000)
+   .with_generator(gen::i32::ranged(-10_000..10_000))
+   .assert_no_panic(|n| { let _ = 1/(n / 100 - 7); });
 ```
 
 ```rust,should_panic
@@ -111,7 +93,8 @@ monkey_test()
 
 Since the examples used are random, i.e. unknown, it can be hard to be specific
 about what result to expect. However, using the "loose boundaries" principle,
-you can usually at least specify some simplified generic property to verify.
+you can usually at least specify some relaxed model - a simplified property
+to verify.
 
 ```rust
 // We can at least specify that all results from `abs()` should be positive, if
@@ -133,7 +116,7 @@ input format and make sure your business logic calculate an answer that
 corresponds to the ground truth data.
 
 ```rust
-// Testing the serialize and deserialize round trip for a parser
+// Testing the serialize and deserialize round trip for a parser.
 use monkey_test::*;
 
 monkey_test()
@@ -144,13 +127,30 @@ monkey_test()
 ### Idempotens
 
 Applying the same function many times generate the same result.
+This can be useful for showing that there is no hidden state
+affecting the result of the code under test.
 
 ```rust
+// Absolute value stays the same through several applications of "abs".
 use monkey_test::*;
 
 monkey_test()
    .with_generator(gen::i8::ranged(-127..))
    .assert_eq(|n| n.abs(), |n| n.abs().abs().abs().abs());
+```
+
+### Invariance
+
+A property or value that is not changed by some specific operation or
+transformation.
+
+```rust
+// The negation operation does not affect the absolute value.
+use monkey_test::*;
+
+monkey_test()
+   .with_generator(gen::i8::ranged(-127..))
+   .assert_eq(|n| n.abs(), |n| (-n).abs());
 ```
 
 ### Oracle
@@ -162,7 +162,8 @@ legacy code. Perhaps compare the output of old and new code to enable
 reckless refactoring.
 
 ```rust
-// Example of analogous function to get to the same result
+// Operation "n * 2" can be double checked with the oracle function "n + n",
+// an analogous function to get to the same result.
 use monkey_test::*;
 
 monkey_test()
@@ -184,17 +185,55 @@ assert_eq!{Vec::<i64>::new().len(), 0};
 // Induction general case
 monkey_test()
    .with_generator(gen::vec::any(gen::u8::any()))
-   .assert_true(|original| {
-      let mut modified = original.clone();
-      modified.push(42);
-      modified.len() == original.len() +1
-   });
+   .assert_eq(
+      |vec| vec.len() + 1,
+      |mut vec| {
+         vec.push(42 /* Add a single arbitrary item to vec */);
+         vec.len()
+      });
 ```
 
 ### Stateful testing
 
 As one example, execute a series of commands against a stateful system, to
 then verify some property of the system.
+
+```rust,should_panic
+// Make sure counter value is the same as the sum of all increments applied.
+// In this case, it will fail with a series of increments like the shrunken
+// failure example [-44, -128, -111, -128, -90] and failure
+// reason "Actual value should equal expected -501, but got -500".
+
+use monkey_test::*;
+
+// The stateful system under test
+struct Counter{acc: i64}
+impl Counter {
+   fn add(&mut self, value: i8) {
+      self.acc += value as i64;
+      // Buggy if statement...
+      if self.acc < -500 {
+         self.acc = -500;
+      }
+   }
+}
+
+monkey_test()
+   .with_generator(gen::vec::any(gen::i8::any()))
+   .assert_eq(
+      // Expected sum of increments
+      |vec| vec.iter().cloned().map(|x| x as i64).sum(),
+      // Actual counter accumulation
+      |vec| {
+         let mut counter = Counter{ acc:0 };
+         vec.iter().cloned().for_each(|x| counter.add(x));
+         counter.acc
+      });
+```
+
+Another example on stateful testing can be to poke at a stateful
+API with a random sequence of legal commands and verify that the API does not
+panic.
 
 ## Features
 
@@ -220,7 +259,7 @@ let mostly_true = gen::bool::with_ratio(1,20);
 There are some more specialized generators. In module
 `gen::sized` there are generators that return progressively larger and lager
 values, suitable for controlling the size of generated collections. In module
-`gen::fixed` there are generators that do not use randomnes, which can be
+`gen::fixed` there are generators that do not use randomness, which can be
 useful some times.
 
 ```rust
@@ -258,7 +297,7 @@ let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
 ### Compose generators and shrinkers for more complex types
 
 Generators and shrinkers for more complex types can be constructed from more
-basic once, using one of `zip`, `zip_3`, ..., `zip_6` together with `map`.
+basic ones, using one of `zip`, `zip_3`, ..., `zip_6` together with `map`.
 When constructing generators this way, you automatically also get a shrinker for
 the complex type.
 
@@ -280,7 +319,7 @@ let colors: BoxGen<Color> = gen::u8::any()
    .map(|(r, g, b, a)| Color{r, g, b, a}, |c| (c.r, c.g, c.b, c.a));
 ```
 
-### Create your own generators and shrinkers from scratch
+### Create generators and shrinkers from scratch
 
 For implemementing a generator on your own, you only need to implement the
 [Gen] trait.
@@ -312,7 +351,7 @@ impl Gen<u32> for DiceGen {
     }
 }
 
-fn dice_trow_generator_from_struct(side_count: u32) -> BoxGen<u32> {
+fn dice_throw_generator_from_struct(side_count: u32) -> BoxGen<u32> {
     Box::new(DiceGen { side_count })
 }
 ```
@@ -325,7 +364,7 @@ use monkey_test::*;
 use rand::Rng;
 use rand::SeedableRng;
 
-fn dice_trow_generator_from_fn(side_count: u32) -> BoxGen<u32> {
+fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
     gen::from_fn(move |seed| {
         let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
@@ -337,21 +376,21 @@ fn dice_trow_generator_from_fn(side_count: u32) -> BoxGen<u32> {
 Similarly, a shrinker can be implemented by either implementing the [Shrink]
 trait directly, or just make use of [shrink::from_fn].
 
-## Key design principles of the Monkey Test tool
+## Key design principles of Monkey Test
 
-- *configurability and flexibility* - Leave a high degree of configurability
+* *configurability and flexibility* - Leave a high degree of configurability
    and flexibility to the user by letting most details to be specified
    programatically. The aim is to have an declarative builder-style API like
    the Java library
    QuickTheories [(github)](https://github.com/quicktheories/QuickTheories).
 
-- *powerful shinking* - Good shrinkers is a really important aspect of a
+* *powerful shinking* - Good shrinkers is a really important aspect of a
    property based testing tool. Let say that the failing example is a vector
    of 1000 elements and only 3 of the elements in combination is the actual
    failure cause. You are then unlikely to find the 3-element combination,
    if the shrinking is not powerful enough.
 
-- *composability for complex test examples* - Basic type generators and
+* *composability for complex test examples* - Basic type generators and
    shrinkers are provided out of the box.
    User should also be able to genereate and shrink more complex types, by
    composing together more primitive generators and shrinkers into more
@@ -361,7 +400,7 @@ trait directly, or just make use of [shrink::from_fn].
    which is fenomenal in this aspect, having the power to for example easily
    generate and shrink recursive data structures, by using composition.
 
-- *minimize macro magic* - In order to keep the tool simple, just avoid macros
+* *minimize macro magic* - In order to keep the tool simple, just avoid macros
    if same developer experience can be provided using normal Rust code.
    Macros-use is an complex escape hatch only to be used when normal syntax
    is insufficient.
