@@ -47,13 +47,14 @@ where
 {
     let mut subtraction = original;
     let mut old_result = original;
+    let two = F::one() + F::one();
 
     std::iter::from_fn(move || {
         let result = original - subtraction;
         if result == old_result {
             None
         } else {
-            subtraction = subtraction.div(F::one().add(F::one()));
+            subtraction = subtraction / two;
             old_result = result;
 
             Some(vec![-result, result])

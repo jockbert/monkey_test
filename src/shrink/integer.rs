@@ -45,14 +45,14 @@ where
     E: PrimInt,
 {
     let mut decrement = original;
-    let two = E::one().add(E::one());
+    let two = E::one() + E::one();
 
     std::iter::from_fn(move || {
         if decrement.is_zero() {
             None
         } else {
-            let result = original.sub(decrement);
-            decrement = decrement.div(two);
+            let result = original - decrement;
+            decrement = decrement / two;
             Some(result)
         }
     })
