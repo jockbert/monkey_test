@@ -100,14 +100,14 @@ mod test {
     /// states or examples in generator are returned until no more is to return.
     #[test]
     fn all_values_from_generator_are_returned() {
-        // Mixing with a single generator should use values from that generator
-        // every time.
         let mixer = super::mix_with_ratio(&[(
             42,
             crate::gen::fixed::sequence(&[1, 2, 3, 4, 5, 6]),
         )]);
 
-        assert_iter_eq(mixer.examples(1337), vec![1, 2, 3, 4, 5, 6]);
+        assert_iter_eq(mixer.examples(1337), vec![1, 2, 3, 4, 5, 6],
+        "Mixing with a single generator should use values from that generator \
+        every time");
     }
 
     #[test]
@@ -117,9 +117,17 @@ mod test {
             crate::gen::fixed::sequence(&['a', 'b', 'c']),
         )]);
 
-        assert_iter_eq(mixer.examples(1337), vec!['a', 'b', 'c']);
+        assert_iter_eq(
+            mixer.examples(1337),
+            vec!['a', 'b', 'c'],
+            "should choose from singel given generator disgregarding of ratio",
+        );
 
-        assert_iter_eq(mixer.examples(1337), vec!['a', 'b', 'c']);
+        assert_iter_eq(
+            mixer.examples(1337),
+            vec!['a', 'b', 'c'],
+            "should get the same result even the second time around",
+        );
 
         assert!(mixer.examples(1337).next() == Some('a'));
         assert!(mixer.examples(1337).next() == Some('a'));

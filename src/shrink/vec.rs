@@ -199,6 +199,7 @@ mod test {
                 // 8th eight removed
                 vec![1, 2, 3, 4, 5, 6, 7],
             ],
+            "removes iteratively smaller parts of original failing vector",
         )
     }
 
@@ -230,6 +231,7 @@ mod test {
                 // 4th iteration step 5
                 vec![1, 2, 3, 4],
             ],
+            "partition odd vector sizes",
         )
     }
 
@@ -241,6 +243,7 @@ mod test {
                 // everything is removed
                 vec![],
             ],
+            "only size zero is a shrunken size one",
         )
     }
 
@@ -248,8 +251,9 @@ mod test {
     pub fn eager_can_handle_size_zero() {
         assert_iter_eq(
             super::eager_size(Vec::<u8>::new()),
-            Vec::<Vec<u8>>::new(),
-        )
+            Vec::<Vec<_>>::new(),
+            "shrinking empty vector givies no shrinking candidated",
+        );
     }
 
     #[test]
@@ -269,6 +273,8 @@ mod test {
                 // shrinking 4th element
                 vec![1, 2, 3, 0],
             ],
+            "per element shrinker tries to shrink every element, in \
+            this case using zero",
         )
     }
 }

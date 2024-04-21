@@ -50,8 +50,16 @@ mod tests {
     fn has_shrinker_that_shrinks_to_false() {
         let shrinker = super::any().shrinker();
 
-        assert_iter_eq(shrinker.candidates(true), vec![false]);
+        assert_iter_eq(
+            shrinker.candidates(true),
+            vec![false],
+            "shrinking from 'true' to 'false'",
+        );
 
-        assert_iter_eq(shrinker.candidates(false), vec![]);
+        assert_iter_eq(
+            shrinker.candidates(false),
+            vec![],
+            "no more to shrink to after 'false'",
+        );
     }
 }

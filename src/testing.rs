@@ -15,7 +15,7 @@ where
 }
 
 /// Compares two iterators and makes sur elements are equal
-pub fn assert_iter_eq<A, E>(actual: A, expected: E)
+pub fn assert_iter_eq<A, E>(actual: A, expected: E, because_message: &str)
 where
     A: IntoIterator,
     E: IntoIterator,
@@ -32,6 +32,8 @@ where
             .into_iter()
             .take(safety_termination)
             .collect::<Vec<_>>(),
+        "{}",
+        because_message,
     )
 }
 

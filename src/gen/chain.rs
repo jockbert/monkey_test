@@ -39,7 +39,11 @@ mod test {
             fixed::sequence::<u8>(&[]),
         );
 
-        assert_iter_eq(gen.examples(1234), vec![]);
+        assert_iter_eq(
+            gen.examples(1234),
+            vec![],
+            "empty generators has no examples to concatenate",
+        );
     }
 
     #[test]
@@ -49,6 +53,10 @@ mod test {
             fixed::sequence::<u8>(&[3, 4]),
         );
 
-        assert_iter_eq(gen.examples(1234), vec![1, 2, 3, 4]);
+        assert_iter_eq(
+            gen.examples(1234),
+            vec![1, 2, 3, 4],
+            "given generators' examples are concatenated",
+        );
     }
 }

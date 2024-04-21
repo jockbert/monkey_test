@@ -77,6 +77,7 @@ mod test {
         assert_iter_eq(
             super::max_iterator(extra_large, extra_large, max_size).take(6),
             vec![max_size, max_size, max_size, max_size, max_size, max_size],
+            "stay flat when at max size",
         );
     }
 
@@ -100,6 +101,8 @@ mod test {
                 // 10% of 50 is a increase of 5 exactly ......fighting rust_fmt
                 55,
             ],
+            "max iterator should increase with largest value of percent, \
+            but at least with 1 to get growth at all",
         );
     }
 
@@ -110,6 +113,7 @@ mod test {
         assert_iter_eq(
             super::max_iterator(16, percent_increase, 1337).take(10),
             vec![16, 32, 64, 128, 256, 512, 1024, 1337, 1337, 1337],
+            "size should grow with increase 100% up to max value 1337",
         );
     }
 

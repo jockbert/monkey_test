@@ -73,6 +73,7 @@ mod test {
         assert_iter_eq(
             super::float().candidates(f32::NAN).take(4),
             vec![f32::NEG_INFINITY, f32::INFINITY, -0.0, 0.0],
+            "should shrink to (-)inf and further from NaN",
         )
     }
 

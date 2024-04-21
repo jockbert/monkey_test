@@ -88,8 +88,20 @@ mod test {
 
     #[test]
     fn eager_tries_iteratively_smaller_decrement_from_original() {
-        assert_iter_eq(super::eager(16), vec![0, 8, 12, 14, 15]);
-        assert_iter_eq(super::eager(-16), vec![0, -8, -12, -14, -15]);
-        assert_iter_eq(super::eager(17), vec![0, 9, 13, 15, 16]);
+        assert_iter_eq(
+            super::eager(16),
+            vec![0, 8, 12, 14, 15],
+            "positives don to zero",
+        );
+        assert_iter_eq(
+            super::eager(-16),
+            vec![0, -8, -12, -14, -15],
+            "negatives up to zero",
+        );
+        assert_iter_eq(
+            super::eager(17),
+            vec![0, 9, 13, 15, 16],
+            "not a multiple of 2",
+        );
     }
 }
