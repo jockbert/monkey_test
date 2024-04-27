@@ -48,7 +48,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::shrink::int;
+    use crate::shrink::int_to_zero;
     use crate::shrink::none;
     use crate::testing::assert_shrinker_has_at_least_these_candidates;
     use crate::BoxShrink;
@@ -67,7 +67,8 @@ mod test {
     /// initial behaviour.
     #[test]
     fn returns_permutations_of_inner_candidates() {
-        let shrink: BoxShrink<(u8, u8)> = super::zip(int(), int());
+        let shrink: BoxShrink<(u8, u8)> =
+            super::zip(int_to_zero(), int_to_zero());
 
         assert_shrinker_has_at_least_these_candidates(
             shrink,

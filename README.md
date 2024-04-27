@@ -64,12 +64,12 @@ and shrinkers for:
 
 Other known limitations:
 
-* For now, integer and float generators do not limit them self to shrink to
+* For now, float generators do not limit them self to shrink to
   values within given generator range, but will by default shrink toward zero.
   For instance, let say that we create generator
-  `monkey_test::gen::i64::ranged(10..100)`, the associated shrinker will not
-  only try candidates withing the given range `10..100`, but can also try other
-  values like -10 and will ultimately try to shrink toward zero.
+  `monkey_test::gen::f64::ranged(10.0..100.0)`, the associated shrinker will not
+  only try candidates withing the given range `10.0..100.0`, but can also try other
+  values like -10.0 and will ultimately try to shrink toward zero.
 
 For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 

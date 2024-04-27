@@ -180,13 +180,13 @@ mod test {
     #[test]
     fn mix_should_reuse_shrinker_from_first_generator() {
         let with_shrinker = super::mix_evenly(&[
-            crate::gen::u8::any().with_shrinker(crate::shrink::int()),
+            crate::gen::u8::any().with_shrinker(crate::shrink::int_to_zero()),
             crate::gen::u8::any().with_shrinker(crate::shrink::none()),
         ]);
 
         let without_shrinker = super::mix_evenly(&[
             crate::gen::u8::any().with_shrinker(crate::shrink::none()),
-            crate::gen::u8::any().with_shrinker(crate::shrink::int()),
+            crate::gen::u8::any().with_shrinker(crate::shrink::int_to_zero()),
         ]);
 
         assert_generator_can_shrink(with_shrinker, 10);

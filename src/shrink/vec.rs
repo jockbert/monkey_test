@@ -13,7 +13,7 @@
 //! let smaller_candidates =  int_vectors
 //!     .shrinker()
 //!     .candidates(failing_example_to_shrink)
-//!     .take(20)
+//!     .take(25)
 //!     .collect::<Vec<_>>();
 //!
 //! assert_eq!{
@@ -38,12 +38,17 @@
 //!         vec![-1, 2, 3, 4, 5, 6, 7,  ],
 //!         // Shrinking of individul elements starts here.
 //!         //    ↓ First element
-//!         vec![ 0, 2, 3, 4, 5, 6, 7, 8],
 //!         vec![ 1, 2, 3, 4, 5, 6, 7, 8],
+//!         vec![ 0, 2, 3, 4, 5, 6, 7, 8],
 //!         //       ↓ Second element
-//!         vec![-1, 0, 3, 4, 5, 6, 7, 8],
+//!         vec![-1, -1, 3, 4, 5, 6, 7, 8],
 //!         vec![-1, 1, 3, 4, 5, 6, 7, 8],
+//!         vec![-1, 0, 3, 4, 5, 6, 7, 8],
 //!         //          ↓ Third element
+//!         vec![-1, 2, -2, 4, 5, 6, 7, 8],
+//!         vec![-1, 2, 2, 4, 5, 6, 7, 8],
+//!         vec![-1, 2, -1, 4, 5, 6, 7, 8],
+//!         vec![-1, 2, 1, 4, 5, 6, 7, 8],
 //!         vec![-1, 2, 0, 4, 5, 6, 7, 8],
 //!         // And further ...
 //!     ]

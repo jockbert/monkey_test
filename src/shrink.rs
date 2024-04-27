@@ -15,7 +15,12 @@ pub use bool::bool_to_true;
 pub use float::float;
 pub use from_fn::from_fn;
 pub use from_fn::from_fn_boxed;
-pub use integer::int_to_zero as int;
+
+#[allow(deprecated)]
+pub use integer::int;
+pub use integer::int_in_range;
+pub use integer::int_to_zero;
+
 pub use map::map;
 pub use no_shrink::none;
 pub use zip::zip;

@@ -48,7 +48,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::shrink::int;
+    use crate::shrink::int_to_zero;
     use crate::shrink::none;
     use crate::testing::assert_shrinker_has_at_least_these_candidates;
     use crate::BoxShrink;
@@ -70,7 +70,7 @@ mod test {
     #[test]
     fn returns_some_other_stringified_numbers() {
         let shrink: BoxShrink<String> = super::map(
-            int::<i64>(),
+            int_to_zero::<i64>(),
             |i| i.to_string(),
             |s: String| s.parse().unwrap(),
         );

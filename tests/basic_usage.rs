@@ -12,7 +12,7 @@ fn can_fail_with_details_when_using_check() {
     let actual_result: MonkeyResult<u8> = monkey_test()
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::int())
+        .with_shrinker(shrink::int_to_zero())
         .title("Less than thirteen")
         .test_true(|x| x < 13);
 
@@ -37,7 +37,7 @@ fn can_fail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::int())
+        .with_shrinker(shrink::int_to_zero())
         .assert_true(|x| x < 13);
 }
 
@@ -47,7 +47,7 @@ fn can_assert_minimumfail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
         .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::int())
+        .with_shrinker(shrink::int_to_zero())
         .test_true(|x| x < 15)
         .assert_minimum_failure(15);
 }
@@ -65,13 +65,23 @@ fn can_assert_that_there_is_no_panic_thrown() {
         });
 }
 
+/// Assert for equality prints out expected and actual values when failing.
+/// Things to note:
+/// 1. The first argument in `[monkey_test::ConfAndGen::assert_eq]` is the
+///    expected value and the second argument is the actual value tested.
+///    This may not be the usual rust `assert_eq!` macro convention, but is
+///    common in other test frameworks, like
+///    [in JUnit](https://junit.org/junit5/docs/5.0.1/api/org/junit/jupiter/api/Assertions.html).
+/// 2. When property is failing, all shrinked values are kept in the same range
+///    as given in the generator, namely 10 or larger. That is why 11 is the
+///    smallest failure.
 #[test]
-#[should_panic(
-    expected = "Reason: Actual value should equal expected 1, but got 0."
-)]
+#[should_panic(expected = "Monkey test property failed!\n\
+    Failure: 11\n\
+    Reason: Actual value should equal expected 11, but got 10.")]
 fn can_assert_eq() {
     monkey_test()
-        .with_generator(gen::u32::any())
+        .with_generator(gen::u32::ranged(10..))
         .assert_eq(|n| n, |n| n / 2 * 2);
 }
 

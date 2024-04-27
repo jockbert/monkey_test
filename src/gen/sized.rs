@@ -46,7 +46,7 @@ pub fn progressively_increasing(
         max_iterator(start_size, percent_increase, max_size)
             .map(move |max| rng.sample(Uniform::new_inclusive(0usize, max)))
     })
-    .with_shrinker(crate::shrink::int())
+    .with_shrinker(crate::shrink::int_to_zero())
 }
 
 fn max_iterator(

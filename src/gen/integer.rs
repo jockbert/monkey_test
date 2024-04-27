@@ -13,7 +13,7 @@ use std::ops::RangeBounds;
 /// value zero, if in range of given bounds.
 pub fn ranged<E, B>(bounds: B) -> BoxGen<E>
 where
-    E: PrimInt + SampleUniform + 'static + std::fmt::Debug,
+    E: PrimInt + SampleUniform + std::fmt::Debug + 'static,
     B: RangeBounds<E>,
 {
     let min = start(&bounds);
@@ -34,7 +34,7 @@ where
 /// name, since `ranged` should be preferred.
 pub fn completely_random<E, B>(bounds: B) -> BoxGen<E>
 where
-    E: PrimInt + SampleUniform + 'static,
+    E: PrimInt + SampleUniform + std::fmt::Debug + 'static,
     B: RangeBounds<E>,
 {
     let min = start(&bounds);
@@ -44,7 +44,7 @@ where
         let distr = rand::distributions::Uniform::new_inclusive(min, max);
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
-    .with_shrinker(crate::shrink::int())
+    .with_shrinker(crate::shrink::int_in_range(min, max))
 }
 
 fn start<E, B>(bounds: &B) -> E
@@ -108,6 +108,6 @@ mod tests {
 
     #[test]
     fn has_shrinker() {
-        assert_generator_can_shrink(super::ranged(..10), 123);
+        assert_generator_can_shrink(super::ranged(..1000), 123);
     }
 }
