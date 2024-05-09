@@ -1,7 +1,24 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.1...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.2...main).
+
+## Release 0.7.2 (2024-05-09) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.1...v0.7.2)
+
+This release focuses on adding valid-range-aware integer shrinkers.
+
+### New features
+
+* Improve default integer shrinker, so it keeps track of the range of valid
+  values and only provide skrinked candidates within that range. This is useful
+  if integer generator is given an explicit range for the examples generated,
+  then this range is also used in the shrinker, so in case of a failure also
+  the shrinked candidates are kept witin this given range.
+
+### Other changes
+
+* Improve the main documentation with additional examples in the common classes
+  of properties and add a table of contents.
 
 ## Release 0.7.1 (2024-04-13) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.0...v0.7.1)
 
