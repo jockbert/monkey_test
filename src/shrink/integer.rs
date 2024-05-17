@@ -319,16 +319,13 @@ mod test {
         );
     }
 
+    /// Providing failing examples out of range is logically wrong and
+    /// will panic. Assumptions and graceful degradation can be made but
+    /// not sure it is the logically right thing to do. Better to be
+    /// restrictive now and possibly open up API at a later time.
     #[test]
     #[should_panic = "Given example 1337 is not in range 0..=16."]
     fn eager_with_example_out_of_range_should_panic() {
-        assert_iter_eq(
-            super::eager(1337, u64::min_value(), 16),
-            vec![0, 8, 12, 14],
-            "providing failing examples out of range is logically wrong and \
-            will panic. Assumptions and graceful degradation can be made but \
-            not sure it is the logically right thing to do. Better to be \
-            restrictive now and possibly open up API at a later time.",
-        );
+        let _ = super::eager(1337, u64::min_value(), 16);
     }
 }
