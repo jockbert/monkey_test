@@ -154,7 +154,7 @@ where
         |i| from_twos_complement_bits(i),
         |f| to_twos_complement_bits(f),
     )
-    .with_shrinker(crate::shrinks::float())
+    .with_shrinker(crate::shrinks::float_to_zero())
 }
 
 fn check_bounds_are_finite<F>(start: F, end: F)
