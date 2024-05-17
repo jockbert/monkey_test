@@ -14,7 +14,12 @@ mod zip;
 pub use bool::bool;
 pub use bool::bool_to_true;
 pub use filter::filter;
+
+#[allow(deprecated)]
 pub use float::float;
+pub use float::float_in_range;
+pub use float::float_to_zero;
+
 pub use from_fn::from_fn;
 pub use from_fn::from_fn_boxed;
 
