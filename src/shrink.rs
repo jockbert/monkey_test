@@ -1,6 +1,7 @@
 //! The `shrink` module contains built in shrinkers.
 
 mod bool;
+mod filter;
 pub mod fixed;
 mod float;
 mod from_fn;
@@ -12,6 +13,7 @@ mod zip;
 
 pub use bool::bool;
 pub use bool::bool_to_true;
+pub use filter::filter;
 pub use float::float;
 pub use from_fn::from_fn;
 pub use from_fn::from_fn_boxed;

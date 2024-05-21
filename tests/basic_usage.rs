@@ -135,3 +135,18 @@ fn mix_from_alternative_generators_with_ratio() {
         .with_generator(mostly_evens)
         .assert_true(|number| (0..10).contains(&number));
 }
+
+/// Adding filter to generator, also reuses the filtering in shrinking.
+#[test]
+fn filtering_of_generated_values() {
+    monkey_test()
+        .with_generator(
+            gen::u8::any()
+                // only odd numbers
+                .filter(|e| e % 2 == 1)
+                // only numbers equal or greater to 100
+                .filter(|&e| e >= 100u8),
+        )
+        .test_true(|_example| false)
+        .assert_minimum_failure(101);
+}

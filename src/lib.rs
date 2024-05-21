@@ -378,6 +378,26 @@ impl<E0: Clone + 'static> MapWithShrink<E0> for dyn Shrink<E0> {
     }
 }
 
+/// Non-object-safe trait for providing shrinker filtering.
+pub trait FilterWithShrink<E>
+where
+    E: Clone + 'static,
+{
+    /// See [shrink::filter].
+    fn filter<P>(&self, predicate: P) -> BoxShrink<E>
+    where
+        P: Fn(&E) -> bool + Clone + 'static;
+}
+
+impl<E: Clone + 'static> FilterWithShrink<E> for dyn Shrink<E> {
+    fn filter<P>(&self, predicate: P) -> BoxShrink<E>
+    where
+        P: Fn(&E) -> bool + Clone + 'static,
+    {
+        shrink::filter(self.clone_box(), predicate)
+    }
+}
+
 // Doctest the readme file
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]

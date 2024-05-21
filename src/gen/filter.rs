@@ -7,10 +7,14 @@ where
     E: Clone + 'static,
     P: Fn(&E) -> bool + Clone + 'static,
 {
+    let original_shrinker = original_gen.shrinker();
+    let filtered_shrinker = original_shrinker.filter(predicate.clone());
+
     crate::gen::from_fn(move |seed| {
         let p = predicate.clone();
         original_gen.examples(seed).filter(move |e| p(e))
     })
+    .with_shrinker(filtered_shrinker)
 }
 
 #[cfg(test)]
