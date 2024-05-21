@@ -318,7 +318,8 @@ let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
 ### Compose generators and shrinkers for more complex types
 
 Generators and shrinkers for more complex types can be constructed from more
-basic ones, using one of `zip`, `zip_3`, ..., `zip_6` together with `map`.
+basic ones, using one of `zip`, `zip_3`, ..., `zip_6` together with `map`
+and `filter`.
 When constructing generators this way, you automatically also get a shrinker for
 the complex type.
 
@@ -330,14 +331,16 @@ struct Point {x: u16, y: u16}
 
 let points: BoxGen<Point> = gen::u16::any()
    .zip(gen::u16::any())
-   .map(|(x, y)| Point{x, y}, |p| (p.x, p.y));
+   .map(|(x, y)| Point{x, y}, |p| (p.x, p.y))
+   .filter(|p| p.x != p.y);
 
 #[derive(Clone)]
 struct Color {r: u8, g: u8, b: u8, a: u8}
 
 let colors: BoxGen<Color> = gen::u8::any()
    .zip_4(gen::u8::any(), gen::u8::any(), gen::u8::any())
-   .map(|(r, g, b, a)| Color{r, g, b, a}, |c| (c.r, c.g, c.b, c.a));
+   .map(|(r, g, b, a)| Color{r, g, b, a}, |c| (c.r, c.g, c.b, c.a))
+   .filter(|c| c.r > 10);
 ```
 
 ### Create generators and shrinkers from scratch
