@@ -298,6 +298,26 @@ impl<E0: Clone + 'static> MapWithGen<E0> for dyn Gen<E0> {
     }
 }
 
+/// Non-object-safe trait for providing example filtering in generator.
+pub trait FilterWithGen<E>
+where
+    E: Clone + 'static,
+{
+    /// See [gen::filter].
+    fn filter<P>(&self, predicate: P) -> BoxGen<E>
+    where
+        P: Fn(&E) -> bool + Clone + 'static;
+}
+
+impl<E: Clone + 'static> FilterWithGen<E> for dyn Gen<E> {
+    fn filter<P>(&self, predicate: P) -> BoxGen<E>
+    where
+        P: Fn(&E) -> bool + Clone + 'static,
+    {
+        gen::filter(self.clone_box(), predicate)
+    }
+}
+
 /// The shrinker trait, for shrinking a failed example values into smaller ones.
 /// What is determined as a smaller value can be subjective and is up to author
 /// or tester to determine, but as a rule of thumb a smaller value should be

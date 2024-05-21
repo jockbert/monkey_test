@@ -2,6 +2,7 @@
 
 pub mod bool;
 mod chain;
+mod filter;
 pub mod fixed;
 mod float;
 mod float_parts;
@@ -18,6 +19,7 @@ mod zip;
 
 use crate::BoxGen;
 pub use chain::chain;
+pub use filter::filter;
 pub use from_fn::from_fn;
 pub use from_fn::from_fn_boxed;
 pub use map::map;
