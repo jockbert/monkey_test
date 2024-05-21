@@ -8,10 +8,27 @@ where
     P: Fn(&E) -> bool + Clone + 'static,
 {
     crate::shrink::from_fn(move |original: E| {
-        original_shrink
-            .clone()
-            .candidates(original.clone())
-            .filter(predicate.clone())
+        let pred = predicate.clone();
+        let mut filter_streak = 0;
+
+        original_shrink.clone().candidates(original.clone()).filter(
+            move |candidate| {
+                let verdict = pred(candidate);
+
+                filter_streak = if verdict { 0 } else { filter_streak + 1 };
+
+                if filter_streak >= 100 {
+                    panic!(
+                        "Too heavy filtering. Filtered out 100 examples in a \
+                        row. For test performance, please use more efficient \
+                        way to generate examples than heavy reliance on \
+                        filtering."
+                    )
+                }
+
+                verdict
+            },
+        )
     })
 }
 
@@ -32,5 +49,31 @@ mod test {
             vec![10, 8, 6, 4, 2],
             "only even candidates should be returned",
         )
+    }
+
+    #[test]
+    #[should_panic = "Too heavy filtering. Filtered out 100 examples in a row. \
+       For test performance, please use more efficient way to generate \
+       examples than heavy reliance on filtering."]
+    fn should_panic_on_too_heavy_filtering() {
+        let filtererd_shrinker =
+            crate::shrink::int_to_zero::<u8>().filter(|&e| e == 234);
+
+        // Trying to get a shrinked candidate should throw, since all
+        // candidates are filtered out.
+        filtererd_shrinker.candidates(200).next();
+    }
+
+    #[test]
+    fn should_not_panic_on_repeaded_filtering() {
+        let filtererd_shrinker =
+            crate::shrink::int_to_zero::<u16>().filter(|&e| e % 2 == 0);
+
+        // Trying to get a shrinked candidate should throw, since all
+        // candidates are filtered out.
+        assert!(
+            filtererd_shrinker.candidates(2000).count() > 1000,
+            "More candidates that the limit for to heavy filtering is filtered \
+            out without panicing");
     }
 }
