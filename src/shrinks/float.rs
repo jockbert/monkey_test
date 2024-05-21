@@ -208,4 +208,28 @@ mod test {
                 );
             });
     }
+
+    #[test]
+    fn shrink_to_positive_target() {
+        monkey_test()
+            .with_generator(gen::f64::positive().zip(gen::f64::positive()))
+            .assert_eq(
+                |(a, b)| a.min(b),
+                |(a, b)| {
+                    let range_min = a.min(b);
+                    let failing_original = a.max(b);
+
+                    if a == b {
+                        // threre are no candidates if shrinking from x to x.
+                        a
+                    } else {
+                        dbg!(range_min, failing_original);
+                        super::float_in_range(range_min, f64::MAX)
+                            .candidates(failing_original)
+                            .last()
+                            .unwrap()
+                    }
+                },
+            );
+    }
 }

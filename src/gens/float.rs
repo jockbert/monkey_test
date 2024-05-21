@@ -336,6 +336,13 @@ mod test {
     }
 
     #[test]
+    fn verify_generator_positive_f64() {
+        monkey_test()
+            .with_generator(gen::f64::positive())
+            .assert_true(|f| f >= 0.0 && f.is_sign_positive());
+    }
+
+    #[test]
     fn verify_generator_negative() {
         let generator = gens::f32::negative();
         assert_all_values_are_in_range(
