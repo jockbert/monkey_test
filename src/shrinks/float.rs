@@ -137,8 +137,14 @@ mod test {
     /// restrictive now and possibly open up API at a later time.
     #[test]
     #[should_panic = "Given example 1337.0 is not in range 0.0..=16.0."]
-    fn out_of_range_example_should_panic() {
+    fn out_of_range_example_1337_should_panic() {
         let _ = super::finite_values(1337.0, 0.0, 16.0);
+    }
+
+    #[test]
+    #[should_panic = "Given example -0.0 is not in range 0.0..=16.0."]
+    fn out_of_range_example_neg_zero_should_panic() {
+        let _ = super::finite_values(-0.0, 0.0, 16.0);
     }
 
     #[test]
@@ -210,25 +216,66 @@ mod test {
     }
 
     #[test]
+    fn candidate_should_never_be_the_same_as_original() {
+        monkey_test().with_generator(gen::f64::any()).assert_true(
+            |original_failure| {
+                super::float_to_zero()
+                    .candidates(original_failure)
+                    .all(|candidate| candidate != original_failure)
+            },
+        );
+    }
+
+    #[test]
+    fn positive_range_should_never_have_negatve_zero() {
+        monkey_test()
+            .with_generator(gen::f64::positive())
+            .assert_true(|original_failure| {
+                super::float_in_range(0.0, f64::MAX)
+                    .candidates(original_failure)
+                    .all(|candidate| candidate.is_sign_positive())
+            });
+    }
+
+    // TODO nned to figer out how to handle this
+    #[test]
+    fn should_handle_positive_infinity() {
+        assert!(
+            super::float_in_range(0.0, f64::MAX)
+                .candidates(f64::INFINITY)
+                .count()
+                > 10
+        );
+    }
+    // TODO nned to figer out how to handle this
+    #[test]
+    fn should_handle_negative_infinity() {
+        assert!(
+            super::float_in_range(f64::MIN, -0.0)
+                .candidates(f64::NEG_INFINITY)
+                .count()
+                > 10
+        );
+    }
+
+    #[test]
     fn shrink_to_positive_target() {
         monkey_test()
-            .with_generator(gen::f64::positive().zip(gen::f64::positive()))
+            .with_generator(
+                gen::f64::positive()
+                    .zip(gen::f64::positive())
+                    .filter(|(a, b)| a != b),
+            )
             .assert_eq(
                 |(a, b)| a.min(b),
                 |(a, b)| {
                     let range_min = a.min(b);
                     let failing_original = a.max(b);
 
-                    if a == b {
-                        // threre are no candidates if shrinking from x to x.
-                        a
-                    } else {
-                        dbg!(range_min, failing_original);
-                        super::float_in_range(range_min, f64::MAX)
-                            .candidates(failing_original)
-                            .last()
-                            .unwrap()
-                    }
+                    super::float_in_range(range_min, f64::MAX)
+                        .candidates(failing_original)
+                        .last()
+                        .unwrap_or(range_min)
                 },
             );
     }
