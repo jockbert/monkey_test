@@ -87,7 +87,12 @@ where
     })
     .flatten()
     // Filter out examples out of range
-    .filter(move |e| min <= *e && *e <= max)
+    .filter(move |e| {
+        min <= *e
+            && *e <= max
+            && (e.is_sign_positive() == min.is_sign_positive()
+                || e.is_sign_positive() == max.is_sign_positive())
+    })
 }
 
 /// Panics if example is out of range
@@ -96,7 +101,11 @@ fn check_example_is_in_range<F: Float + std::fmt::Debug>(
     min: F,
     max: F,
 ) {
-    if !(example >= min && example <= max) {
+    if !(example >= min
+        && example <= max
+        && (example.is_sign_positive() == min.is_sign_positive()
+            || example.is_sign_positive() == max.is_sign_positive()))
+    {
         panic!("Given example {example:?} is not in range {min:?}..={max:?}.")
     }
 }
