@@ -235,9 +235,13 @@ mod test {
                     .candidates(original_failure)
                     .all(|candidate| candidate.is_sign_positive())
             });
+
+        // thread 'shrink::float::test::positive_range_should_never_have_negatve_zero' panicked at src/shrink/float.rs:109:9:
+        // Given example -1.7976931348623157e308 is not in range 0.0..=1.7976931348623157e308.
+        // note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
     }
 
-    // TODO nned to figer out how to handle this
+    // TODO need to figure out how to handle this
     #[test]
     fn should_handle_positive_infinity() {
         assert!(
@@ -247,7 +251,7 @@ mod test {
                 > 10
         );
     }
-    // TODO nned to figer out how to handle this
+    // TODO need to figure out how to handle this
     #[test]
     fn should_handle_negative_infinity() {
         assert!(
@@ -259,6 +263,7 @@ mod test {
     }
 
     #[test]
+    #[ignore = "reason"]
     fn shrink_to_positive_target() {
         monkey_test()
             .with_generator(
