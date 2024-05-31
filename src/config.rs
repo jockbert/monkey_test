@@ -199,6 +199,8 @@ where
     }
 }
 
+/// Panics on an error MonkeyResult. The panic has a message that tries to
+/// present an easy interpretable test result of the property under test.
 fn panic_on_err<E>(result: MonkeyResult<E>)
 where
     E: std::fmt::Debug,
@@ -239,6 +241,7 @@ where
     }
 }
 
+/// Tests that the property does not throw a panic for given example.
 fn test_no_panic<E>(prop: fn(E), example: E) -> Result<(), String>
 where
     E: std::fmt::Debug + std::panic::UnwindSafe + Clone + 'static,
