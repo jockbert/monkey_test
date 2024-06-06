@@ -1,7 +1,34 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.2...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.3...main).
+
+## Release 0.7.3 (2024-06-06) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.2...v0.7.3)
+
+This release focuses on adding filtering to generators and shrinkers.
+
+### New features
+
+* Now, there are filtering in generators and shrinkers. Let say that, you want
+  to generate any `u8` value besides zero. This can now be achieved by using
+  generator `monkey_test::gen::u8::any()` and just filter out the value zero.
+  The filtering is also propagated to the associated shinker too, so even if
+  failure is found, the value zero will not be one of the shinked examples used
+  when searching for a smaller failure.
+* If example filtering is too heavy in either generator or shrinker, the
+  filtering will complain about it by throwing a panic with a hopefully
+  informative message.
+* Catch panic and treat it as a property failures in all monkey_test assert
+  methods.
+
+  A property can panic for some example even tough for instance asserting
+  equality. These panics should also be caught and treated as a property
+  failure.
+
+  Previously, unexpectedly panicing in non-panic-related test, monkey_test
+  did not even say for which example it occurred, basicly just aborting
+  the normal monkey_test procedure. This is now fixed and panics are
+  caught and treated as any other failure in the monkey_test procedure.
 
 ## Release 0.7.2 (2024-05-09) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.1...v0.7.2)
 
