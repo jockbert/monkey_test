@@ -82,19 +82,25 @@ impl Default for Conf {
 
 impl<E> ConfAndGen<E>
 where
-    E: Clone + 'static,
+    E: std::fmt::Debug + std::panic::UnwindSafe + Clone + 'static,
 {
     /// Check that the property returns true for all generated example values.
     /// It returns a [`MonkeyResult`](MonkeyResult) to indicate success or
     /// failure.
-    pub fn test_true(&self, prop: Property<E>) -> MonkeyResult<E> {
-        crate::runner::evaluate_property(self, |example: E| {
-            if prop(example) {
-                Ok(())
-            } else {
-                Err("Expecting 'true' but got 'false'.".into())
-            }
-        })
+    pub fn test_true(&self, prop: Property<E>) -> MonkeyResult<E>
+    where
+        E: std::fmt::Debug + std::panic::UnwindSafe,
+    {
+        crate::runner::evaluate_property(
+            self,
+            catch_panic(|example: E| {
+                if prop(example) {
+                    Ok(())
+                } else {
+                    Err("Expecting 'true' but got 'false'.".into())
+                }
+            }),
+        )
     }
 
     /// This function is deprecated, due to name change, aligning names of
@@ -107,10 +113,7 @@ where
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
     #[track_caller]
-    pub fn assert_true(&self, prop: Property<E>) -> &ConfAndGen<E>
-    where
-        E: std::fmt::Debug,
-    {
+    pub fn assert_true(&self, prop: Property<E>) -> &ConfAndGen<E> {
         panic_on_err(self.test_true(prop));
         self
     }
@@ -118,13 +121,14 @@ where
     /// Check that the property do not panic for any generated example values.
     /// It panics on failure.
     #[track_caller]
-    pub fn assert_no_panic(&self, prop: fn(E) -> ()) -> &ConfAndGen<E>
-    where
-        E: std::fmt::Debug + std::panic::UnwindSafe,
-    {
-        panic_on_err(crate::runner::evaluate_property(self, |example| {
-            test_no_panic(prop, example)
-        }));
+    pub fn assert_no_panic(&self, prop: fn(E) -> ()) -> &ConfAndGen<E> {
+        panic_on_err(crate::runner::evaluate_property(
+            self,
+            catch_panic(|example| {
+                prop(example);
+                Ok(())
+            }),
+        ));
         self
     }
 
@@ -137,20 +141,22 @@ where
         actual: fn(E) -> D,
     ) -> &ConfAndGen<E>
     where
-        E: std::fmt::Debug,
         D: std::fmt::Debug + PartialEq,
     {
-        panic_on_err(crate::runner::evaluate_property(self, |example| {
-            let a = actual(example.clone());
-            let e = expected(example);
-            if a == e {
-                Ok(())
-            } else {
-                Err(format!(
+        panic_on_err(crate::runner::evaluate_property(
+            self,
+            catch_panic(|example: E| {
+                let a = actual(example.clone());
+                let e = expected(example);
+                if a == e {
+                    Ok(())
+                } else {
+                    Err(format!(
                     "Actual value should equal expected {e:?}, but got {a:?}."
                 ))
-            }
-        }));
+                }
+            }),
+        ));
         self
     }
 
@@ -163,20 +169,22 @@ where
         actual: fn(E) -> D,
     ) -> &ConfAndGen<E>
     where
-        E: std::fmt::Debug,
         D: std::fmt::Debug + PartialEq,
     {
-        panic_on_err(crate::runner::evaluate_property(self, |example| {
-            let a = actual(example.clone());
-            let e = expected(example);
-            if a != e {
-                Ok(())
-            } else {
-                Err(format!(
+        panic_on_err(crate::runner::evaluate_property(
+            self,
+            catch_panic(|example: E| {
+                let a = actual(example.clone());
+                let e = expected(example);
+                if a != e {
+                    Ok(())
+                } else {
+                    Err(format!(
                     "Actual value should not equal expected {e:?}, but got {a:?}."
                 ))
-            }
-        }));
+                }
+            }),
+        ));
         self
     }
 
@@ -241,34 +249,44 @@ where
     }
 }
 
-/// Tests that the property does not throw a panic for given example.
-fn test_no_panic<E>(prop: fn(E), example: E) -> Result<(), String>
+/// Catches panics and treats a panic as the same as a property failure.
+fn catch_panic<E, P>(prop: P) -> impl Fn(E) -> Result<(), String>
 where
     E: std::fmt::Debug + std::panic::UnwindSafe + Clone + 'static,
+    P: std::panic::RefUnwindSafe + Fn(E) -> Result<(), String>,
 {
-    let original_panic_hook = std::panic::take_hook();
-    let (tx, rx) = mpsc::channel();
+    move |example: E| {
+        let original_panic_hook = std::panic::take_hook();
+        let (tx, rx) = mpsc::channel();
 
-    // Set temporary panic hook catching original panic loaction and
-    // muting stacktrace printouts to stdout. If not muted, there can be a panic
-    // stacktrace for each failing example while shrinking a failure.
-    std::panic::set_hook(Box::new(move |info| {
-        if let Some(loc) = info.location() {
-            let location_text =
-                format! {"in file '{}' at line {}", loc.file(), loc.line()};
-            tx.send(location_text).unwrap();
+        // Set temporary panic hook catching original panic loaction and
+        // muting stacktrace printouts to stdout. If not muted, there can be a panic
+        // stacktrace for each failing example while shrinking a failure.
+        std::panic::set_hook(Box::new(move |info| {
+            if let Some(loc) = info.location() {
+                let location_text =
+                    format! {"in file '{}' at line {}", loc.file(), loc.line()};
+                tx.send(location_text).unwrap();
+            }
+        }));
+
+        // Do a test with a single example
+        let result_or_panic = std::panic::catch_unwind(|| prop(example));
+
+        // Restore old original panic hook
+        std::panic::set_hook(original_panic_hook);
+
+        match result_or_panic {
+            Ok(inner_result) => inner_result,
+            Err(panic) => {
+                let message =
+                    panic_message::get_panic_message(&panic).unwrap_or("<?>");
+                let location =
+                    rx.try_recv().unwrap_or("at unknown location".into());
+                Err(
+                    format! {"Expecting no panic, but got panic {message:?} {location}." },
+                )
+            }
         }
-    }));
-
-    // Do a test with a single example
-    let maybe_panic = std::panic::catch_unwind(|| prop(example));
-
-    // Restore old original panic hook
-    std::panic::set_hook(original_panic_hook);
-
-    maybe_panic.map_err(|panic| {
-        let message = panic_message::get_panic_message(&panic).unwrap_or("<?>");
-        let location = rx.try_recv().unwrap_or("at unknown location".into());
-        format! {"Expecting no panic, but got panic {message:?} {location}." }
-    })
+    }
 }
