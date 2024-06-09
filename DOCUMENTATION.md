@@ -214,6 +214,16 @@ let some_longs = gens::i64::ranged(10..=20);
 let mostly_true = gens::bool::with_ratio(1,20);
 ```
 
+Various generators for `char` type:
+
+```rust
+use monkey_test::*;
+let same_as_unicode = gens::char::any();
+let unicode = gens::char::unicode();
+let alpha_lower = gens::char::alpha_lower();
+let alpha_numeric = gens::char::alpha_numeric();
+```
+
 There are also specialized generators:
 
 * In `gens::fixed`, generators that produce fixed values without randomness.
