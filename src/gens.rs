@@ -17,6 +17,7 @@ mod other_shrink;
 mod pick;
 mod sample_target;
 pub mod sized;
+pub mod string;
 pub mod vec;
 mod zip;
 
