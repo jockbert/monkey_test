@@ -214,7 +214,7 @@ let some_longs = gens::i64::ranged(10..=20);
 let mostly_true = gens::bool::with_ratio(1,20);
 ```
 
-Various generators for `char` type:
+Various generators for types `char` and `String`:
 
 ```rust
 use monkey_test::*;
@@ -222,6 +222,13 @@ let same_as_unicode = gens::char::any();
 let unicode = gens::char::unicode();
 let alpha_lower = gens::char::alpha_lower();
 let alpha_numeric = gens::char::alpha_numeric();
+
+let alpha_upper_string = gens::string::alpha_upper();
+let any_string_starting_with_a_of_length_5 =
+    gens::string::any().of_size(4..=4).map(
+        |str_suffix| format!("A{}", str_suffix),
+        |str_with_prefix_a| str_with_prefix_a.clone()[1..].to_string(),
+    );
 ```
 
 There are also specialized generators:

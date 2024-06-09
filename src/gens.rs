@@ -16,6 +16,7 @@ mod of_size;
 mod other_shrink;
 mod pick;
 pub mod sized;
+pub mod string;
 pub mod vec;
 mod zip;
 

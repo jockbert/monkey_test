@@ -59,7 +59,6 @@ Currently, in versions 0.x.y, the library is in active development.
 It is currently missing some parts, primarily built in generators
 and shrinkers for:
 
-* Strings.
 * Commonly used data structures besides `Vec`.
 * Recursive data structures.
 
