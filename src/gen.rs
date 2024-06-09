@@ -2,6 +2,7 @@
 
 pub mod bool;
 mod chain;
+pub mod char;
 mod filter;
 pub mod fixed;
 mod float;
