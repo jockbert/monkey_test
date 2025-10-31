@@ -6,9 +6,11 @@
 /// <https://en.wikipedia.org/wiki/Double-precision_floating-point_format> and
 /// <https://en.wikipedia.org/wiki/Single-precision_floating-point_format>
 pub trait FloatParts: std::fmt::Debug {
+    #[cfg(test)]
     /// Max exponent value still being a finite (normal) number.
     fn exponent_normal_max() -> u16;
 
+    #[cfg(test)]
     /// Max fraction value still being a finite (normal) number.
     fn fraction_normal_max() -> u64;
 
@@ -61,10 +63,12 @@ pub trait FloatParts: std::fmt::Debug {
 }
 
 impl FloatParts for f32 {
+    #[cfg(test)]
     fn exponent_normal_max() -> u16 {
         0xfe
     }
 
+    #[cfg(test)]
     fn fraction_normal_max() -> u64 {
         0x7fffff
     }
@@ -87,10 +91,12 @@ impl FloatParts for f32 {
 }
 
 impl FloatParts for f64 {
+    #[cfg(test)]
     fn exponent_normal_max() -> u16 {
         0x7fe
     }
 
+    #[cfg(test)]
     fn fraction_normal_max() -> u64 {
         0xfffffffffffff
     }
