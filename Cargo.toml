@@ -18,7 +18,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 num-traits = "0.2"
 rand = "0.8.5"
-rand_chacha = "0"
+rand_chacha = "0.3.1"
 panic-message = "0.3.0"
 
 [dev-dependencies]
