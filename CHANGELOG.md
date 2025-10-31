@@ -1,7 +1,21 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.3...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.4...main).
+
+## Release 0.7.4 (2025-10-31) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.3...v0.7.4)
+
+This release focuses on making the crate buildable again by pinning down
+version of dependency.
+
+### Other changes
+
+* Pin down dependency `rand_chacha` to version 0.3.1 instead of the floating
+  version 0. Version 0.9.0 of `rand_chacha` introduces API changes that
+  currently breaks `monkey_test`.
+* Only expose some functions in test-configuration, in order to removing
+  dead code warning.
+* Eliminate some clippy warnings.
 
 ## Release 0.7.3 (2024-06-06) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.2...v0.7.3)
 
@@ -177,7 +191,7 @@ Release with focus on improving vector generator and vector shrinker performance
 * Avoid using same fixed seed (0) when testing properties.
 * Improve shrinking performance, by renewing shrinking candidates when smaller
   failure is found.
-  
+
   Earlier, when smaller failure example was found in shinking phase, the
   same original shrinker candidates iterator was further used, not
   taking advantage of the newly found smaller failure.
