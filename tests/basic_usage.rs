@@ -85,6 +85,10 @@ fn can_assert_eq() {
         .assert_eq(|n| n, |n| n / 2 * 2);
 }
 
+/// Shows how to test for the proper of values being not equal, here shown as a
+/// faulty property due to positive odd numbers divided by two are rounded down.
+///
+/// Here for n=0, both 2/2=1 and 3/2=1.
 #[test]
 #[should_panic(
     expected = "Reason: Actual value should not equal expected 1, but got 1."
@@ -93,7 +97,7 @@ fn can_assert_ne() {
     monkey_test()
         .with_example_count(1_000)
         .with_generator(gen::u32::ranged(0..10_000))
-        .assert_ne(|n| (n + 1) / 2, |n| (n + 2) / 2);
+        .assert_ne(|n| (n + 2) / 2, |n| (n + 3) / 2);
 }
 
 #[test]

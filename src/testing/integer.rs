@@ -20,7 +20,7 @@ pub fn assert_even_distr<E>(
 
     let expected_range = (expected_max - expected_min + E::one())
         .to_usize()
-        .unwrap_or(usize::max_value());
+        .unwrap_or(usize::MAX);
 
     // Pick so many elements such there should be roughly x instances of
     // each value.

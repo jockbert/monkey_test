@@ -94,7 +94,7 @@ where
                 do_shrink(prop, first_example.clone(), cg.gen.shrinker());
 
             // All but last shrinked value, up to a max limit
-            let other_count = shrinked_values.len().min(100).max(1) as u64 - 1;
+            let other_count = shrinked_values.len().clamp(1, 100) as u64 - 1;
             let some_other_failures = shrinked_values
                 .clone()
                 .into_iter()

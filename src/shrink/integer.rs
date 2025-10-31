@@ -144,7 +144,7 @@ fn shrink_target<E: PrimInt>(range_min: E, range_max: E) -> E {
 }
 
 /// Mirror a value `x` around the `mirror`, returning `2*mirror-x`, if possible
-/// witout overflow.  
+/// witout overflow.
 fn mirror_around<E: PrimInt>(mirror: E, x: E) -> Option<E> {
     let diff = x.saturating_sub(mirror);
     let x_mirrored = mirror.saturating_sub(diff);
@@ -273,7 +273,7 @@ mod test {
     #[test]
     fn eager_tries_iteratively_smaller_decrement_both_positive_and_negative() {
         assert_iter_eq(
-            super::eager(16, i64::min_value(), i64::max_value()),
+            super::eager(16, i64::MIN, i64::MAX),
             vec![8, -8, 12, -12, 14, -14],
             "shrinks toward zero, interleave positive and negative canidates \
             if not restricted by given range",
@@ -284,7 +284,7 @@ mod test {
     fn eager_tries_iteratively_smaller_decrement_with_positive_only_for_unsigned(
     ) {
         assert_iter_eq(
-            super::eager(16, u64::min_value(), u64::max_value()),
+            super::eager(16, u64::MIN, u64::MAX),
             vec![8, 12, 14],
             "shrinks toward zero, with only positive canidates for unsigned \
             integer typed",
@@ -294,26 +294,26 @@ mod test {
     #[test]
     fn eager_only_returns_candidates_within_range() {
         assert_iter_eq(
-            super::eager(16, -5, i64::max_value()),
+            super::eager(16, -5, i64::MAX),
             vec![8, 12, 14],
             "shrinks down toward zero, but only positives are in range",
         );
 
         assert_iter_eq(
-            super::eager(17, 1, i64::max_value()),
+            super::eager(17, 1, i64::MAX),
             vec![9, 13, 15],
             "shrink as in first but translated 1 to rateger 1 from 17, so \
             difference from original_failure to target is still 16",
         );
 
         assert_iter_eq(
-            super::eager(-16, i64::min_value(), 5),
+            super::eager(-16, i64::MIN, 5),
             vec![-8, -12, -14],
             "same shrinking as in first assert, but only negative are in range."
         );
 
         assert_iter_eq(
-            super::eager(16, -12, i64::max_value()),
+            super::eager(16, -12, i64::MAX),
             vec![8, -8, 12, -12, 14],
             "same shrinking as in first assert, but some (!) negative are in range."
         );
@@ -326,6 +326,6 @@ mod test {
     #[test]
     #[should_panic = "Given example 1337 is not in range 0..=16."]
     fn eager_with_example_out_of_range_should_panic() {
-        let _ = super::eager(1337, u64::min_value(), 16);
+        let _ = super::eager(1337, u64::MIN, 16);
     }
 }

@@ -94,7 +94,7 @@ impl<E> EagerIterator<E> {
         self.len_to_remove = match self.len_to_remove {
             usize::MAX => usize::MAX / 2,
             1 => 0,
-            _ => (self.len_to_remove + 1) / 2,
+            _ => self.len_to_remove.div_ceil(2),
         }
     }
 
