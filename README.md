@@ -74,6 +74,37 @@ Other known limitations:
 
 For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 
+## Key design principles
+
+The key design principles of the Monkey Test library are the following:
+
+* *configurability and flexibility* - Leave a high degree of configurability
+  and flexibility to the user by letting most details to be specified
+  programatically. The aim is to have an declarative builder-style API like
+  the Java library
+  QuickTheories [(github)](https://github.com/quicktheories/QuickTheories).
+
+* *powerful shrinking* - Good shrinkers is a really important aspect of a
+  property based testing tool. Let say that the failing example is a vector
+  of 1000 elements and only 3 of the elements in combination is the actual
+  failure cause. You are then unlikely to find the 3-element combination,
+  if the shrinking is not powerful enough.
+
+* *composability for complex test examples* - Basic type generators and
+  shrinkers are provided out of the box.
+  User should also be able to generate and shrink more complex types, by
+  composing together more primitive generators and shrinkers into more
+  complex ones.
+  The main inspiration here is the Scala library ScalaCheck
+  [(homepage)](https://scalacheck.org/),
+  which is phenomenal in this aspect, having the power to for example easily
+  generate and shrink recursive data structures, by using composition.
+
+* *minimize macro magic* - In order to keep the tool simple, just avoid macros
+  if same developer experience can be provided using normal Rust code.
+  Macro-use is a complex escape hatch only to be used when normal syntax
+  is insufficient.
+
 ## Alternative libraries
 
 There are other alternatives for property based testing in Rust.
