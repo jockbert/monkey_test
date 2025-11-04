@@ -1,7 +1,7 @@
 # Monkey Test
 
 Monkey Test is a
-[property based testing (*PBT*)](https://en.wikipedia.org/wiki/poftware_testing#Property_testing)
+[property based testing (*PBT*)](https://en.wikipedia.org/wiki/software_testing#Property_testing)
 tool like QuickCheck
 [(Wikipedia)](https://en.wikipedia.org/wiki/QuickCheck)
 [(github)](https://github.com/nick8325/quickcheck) and similar libraries.
@@ -14,7 +14,7 @@ tool like QuickCheck
   * [No explosion](#no-explosion)
   * [Simplification](#simplification)
   * [Symmetry](#symmetry)
-  * [Idempotens](#idempotens)
+  * [Idempotence](#idempotence)
   * [Invariance](#invariance)
   * [Oracle](#oracle)
   * [Induction](#induction)
@@ -31,7 +31,7 @@ tool like QuickCheck
 
 PBT is a complement to normal unit testing.
 
-A normal unit test uses a singel specific example input and verifies it
+A normal unit test uses a single specific example input and verifies it
 against a specific outcome.
 
 ```rust
@@ -44,7 +44,7 @@ assert_eq!(16_f64.sqrt(), 4_f64);
 
 With PBT a property of your code is validated against an arbitrary number of
 generated examples.
-A propery can loose some specificity, but can usually say something more general
+A property can loose some specificity, but can usually say something more general
 about the code under test compared to a specific test example and outcome.
 Further, using random examples in test can find aspects you missed when
 manually choosing examples to test.
@@ -70,7 +70,7 @@ fail spectacularly, like returning a negative value or panicing.
 
 In short, combining general property based tests with some specific
 unit tests is a powerful testing technique to both specify the precise behaviour
-and finding bugs you did not forsee yourself.
+and finding bugs you did not foresee yourself.
 
 ## Nomenclature
 
@@ -145,7 +145,7 @@ monkey_test()
    .assert_eq(|n| n, |n| n.to_string().parse::<u32>().unwrap());
 ```
 
-### Idempotens
+### Idempotence
 
 Applying the same function many times generate the same result.
 This can be useful for showing that there is no hidden state
@@ -278,10 +278,10 @@ let mostly_true = gen::bool::with_ratio(1,20);
 ```
 
 There are some more specialized generators. In module
-`gen::sized` there are generators that return progressively larger and lager
+`gen::sized` there are generators that return progressively larger and larger
 values, suitable for controlling the size of generated collections. In module
 `gen::fixed` there are generators that do not use randomness, which can be
-useful some times.
+useful sometimes.
 
 ```rust
 use monkey_test::*;
@@ -345,7 +345,7 @@ let colors: BoxGen<Color> = gen::u8::any()
 
 ### Create generators and shrinkers from scratch
 
-For implemementing a generator on your own, you only need to implement the
+For implementing a generator on your own, you only need to implement the
 [Gen] trait.
 
 ```rust
@@ -408,7 +408,7 @@ trait directly, or just make use of [shrink::from_fn].
   the Java library
   QuickTheories [(github)](https://github.com/quicktheories/QuickTheories).
 
-* *powerful shinking* - Good shrinkers is a really important aspect of a
+* *powerful shrinking* - Good shrinkers is a really important aspect of a
   property based testing tool. Let say that the failing example is a vector
   of 1000 elements and only 3 of the elements in combination is the actual
   failure cause. You are then unlikely to find the 3-element combination,
@@ -416,15 +416,15 @@ trait directly, or just make use of [shrink::from_fn].
 
 * *composability for complex test examples* - Basic type generators and
   shrinkers are provided out of the box.
-  User should also be able to genereate and shrink more complex types, by
+  User should also be able to generate and shrink more complex types, by
   composing together more primitive generators and shrinkers into more
   complex ones.
   The main inspiration here is the Scala library ScalaCheck
   [(homepage)](https://scalacheck.org/),
-  which is fenomenal in this aspect, having the power to for example easily
+  which is phenomenal in this aspect, having the power to for example easily
   generate and shrink recursive data structures, by using composition.
 
 * *minimize macro magic* - In order to keep the tool simple, just avoid macros
   if same developer experience can be provided using normal Rust code.
-  Macros-use is an complex escape hatch only to be used when normal syntax
+  Macro-use is a complex escape hatch only to be used when normal syntax
   is insufficient.

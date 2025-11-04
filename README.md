@@ -10,9 +10,9 @@ A [property based testing](https://en.wikipedia.org/wiki/Software_testing#Proper
 [similar libraries](https://en.wikipedia.org/wiki/QuickCheck), for
 the Rust programming language.
 
-<mark>☝️ Note! This library is in active development.
-Parts of functionality is missing and API can undergo changes.
-For details on recent changes, see the [CHANGELOG](CHANGELOG.md).</mark>
+> **☝️ Note!** This library is in active development.
+> Parts of the functionality are missing and API can undergo changes.
+> For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 
 ## Example
 
@@ -44,18 +44,19 @@ Then try some small example, like the one above.
 
 ## Documentation and how-to guide
 
-[The Monkey Test DOCUMENTATION](./DOCUMENTATION.md)
-(also found on [docs.rs](https://docs.rs/monkey_test/))
-shows how to use the library and tries to be a complete how-to guide to using
-Monkey Test and property based testing in general.
-Additional usage examples can be found in the source file
-[tests/basic_usage.rs](tests/basic_usage.rs) and other files in
-[test folder](tests).
+*Full documentation:* See file [DOCUMENTATION.md](./DOCUMENTATION.md),
+also found as part of the
+[source code documentation at docs.rs](https://docs.rs/monkey_test/).
+It tries to be a complete how-to guide to using Monkey Test and also gives
+a general introduction to property based testing.
+
+*Additional examples:* See [tests/basic_usage.rs](tests/basic_usage.rs)
+and other files in the [test folder](tests).
 
 ## Current status and missing parts
 
 Currently, in versions 0.x.y, the library is in active development.
-It is currently missing some parts, primarly built in generators
+It is currently missing some parts, primarily built in generators
 and shrinkers for:
 
 * Strings.
@@ -64,11 +65,11 @@ and shrinkers for:
 
 Other known limitations:
 
-* For now, float generators do not limit them self to shrink to
+* For now, float generators do not limit themselves to shrink to
   values within given generator range, but will by default shrink toward zero.
   For instance, let say that we create generator
   `monkey_test::gen::f64::ranged(10.0..100.0)`, the associated shrinker will not
-  only try candidates withing the given range `10.0..100.0`, but can also try other
+  only try candidates within the given range `10.0..100.0`, but can also try other
   values like -10.0 and will ultimately try to shrink toward zero.
 
 For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
@@ -78,7 +79,7 @@ For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 There are other alternatives for property based testing in Rust.
 The Monkey Test library exist for mostly subjective reasons, not liking the
 API experience or the heavy use of macros and attributes in other libraries.
-Your milage may vary.
+Your mileage may vary.
 
 The most mature and widely adopted alternatives are
 [Quickcheck](https://crates.io/crates/quickcheck) and
@@ -100,5 +101,5 @@ This library needs feedback from users to become even better. Feel free to
 [open a pull request](https://github.com/jockbert/monkey_test/compare).
 
 All work in Monkey Test is licensed under the terms of the MIT license.
-By submitting a contribution you are agreeing to licence your work under those
+By submitting a contribution you are agreeing to license your work under those
 terms.
