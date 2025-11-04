@@ -10,7 +10,13 @@ tool like QuickCheck
 
 * [Property based testing core concepts](#property-based-testing-core-concepts)
 * [Nomenclature](#nomenclature)
-* [Common classes of properties](#common-classes-of-properties)
+* [Features](#features)
+  * [Generators and shrinkers for basic types](#generators-and-shrinkers-for-basic-types)
+  * [Generators and shrinkers for collections](#generators-and-shrinkers-for-collections)
+  * [Pick values and mix generators](#pick-values-and-mix-generators)
+  * [Compose generators and shrinkers for more complex types](#compose-generators-and-shrinkers-for-more-complex-types)
+  * [Create generators and shrinkers from scratch](#create-generators-and-shrinkers-from-scratch)
+* [How to write a property](#how-to-write-a-property)
   * [No explosion](#no-explosion)
   * [Simplification](#simplification)
   * [Symmetry](#symmetry)
@@ -19,13 +25,7 @@ tool like QuickCheck
   * [Oracle](#oracle)
   * [Induction](#induction)
   * [Stateful testing](#stateful-testing)
-* [Features](#features)
-  * [Generators and shrinkers for basic types](#generators-and-shrinkers-for-basic-types)
-  * [Generators and shrinkers for collections](#generators-and-shrinkers-for-collections)
-  * [Pick values and mix generators](#pick-values-and-mix-generators)
-  * [Compose generators and shrinkers for more complex types](#compose-generators-and-shrinkers-for-more-complex-types)
-  * [Create generators and shrinkers from scratch](#create-generators-and-shrinkers-from-scratch)
-* [Key design principles of Monkey Test](#key-design-principles-of-monkey-test)
+* [Library key design principles](#library-key-design-principles)
 
 ## Property based testing core concepts
 
@@ -79,10 +79,155 @@ and finding bugs you did not foresee yourself.
 * *Shrinker* - Generate smaller examples based on failing example, in order to
   simplify the failure
 
-## Common classes of properties
+## Features
 
-How do you write a useful property that is valid for all generated examples?
-One baby step is to try parameterize an already existing example based test.
+For a complete guide of all features in the Monkey Test library, refer to the
+[generated API documentation (docs.rs)](https://docs.rs/monkey_test).
+Additional usage examples can be found in
+[code repository test folder (github.com)](https://tests).
+A summary is given below.
+
+### Generators and shrinkers for basic types
+
+Generators for `bool`, `f32`, `f64` and for all integer types
+`i8`, `i16`, `i32`, `i64`, `i128`, `isize`,
+`u8`, `u16` `u32`, `u64` , `u128` and `usize`.
+
+```rust
+use monkey_test::*;
+let bytes = gen::u8::any();
+let some_longs = gen::i64::ranged(10..=20);
+let mostly_true = gen::bool::with_ratio(1,20);
+```
+
+There are some more specialized generators. In module
+`gen::sized` there are generators that return progressively larger and larger
+values, suitable for controlling the size of generated collections. In module
+`gen::fixed` there are generators that do not use randomness, which can be
+useful sometimes.
+
+```rust
+use monkey_test::*;
+let progressively_larger_sizes: BoxGen<usize> = gen::sized::default();
+let always_the_same_value: BoxGen<i32> = gen::fixed::constant(42);
+```
+
+### Generators and shrinkers for collections
+
+There is a generator and a shrinker for vectors.
+
+```rust
+use monkey_test::*;
+let int_vectors: BoxGen<Vec<i16>> = gen::vec::any(gen::i16::any());
+
+monkey_test()
+   .with_generator(int_vectors)
+   .test_true(|vec| vec.iter().all(|&n| n <= 1337) )
+   .assert_minimum_failure(vec![1338]);
+```
+
+### Pick values and mix generators
+
+Create generators that pick among values and mix values from different
+generators
+
+```rust
+use monkey_test::*;
+let fruits = gen::pick_evenly(&["banana", "apple", "orange"]);
+let nuts = gen::pick_evenly(&["peanut", "almond", "pecan"]);
+let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
+```
+
+### Compose generators and shrinkers for more complex types
+
+Generators and shrinkers for more complex types can be constructed from more
+basic ones, using one of `zip`, `zip_3`, ..., `zip_6` together with `map`
+and `filter`.
+When constructing generators this way, you automatically also get a shrinker for
+the complex type.
+
+```rust
+use monkey_test::*;
+
+#[derive(Clone)]
+struct Point {x: u16, y: u16}
+
+let points: BoxGen<Point> = gen::u16::any()
+   .zip(gen::u16::any())
+   .map(|(x, y)| Point{x, y}, |p| (p.x, p.y))
+   .filter(|p| p.x != p.y);
+
+#[derive(Clone)]
+struct Color {r: u8, g: u8, b: u8, a: u8}
+
+let colors: BoxGen<Color> = gen::u8::any()
+   .zip_4(gen::u8::any(), gen::u8::any(), gen::u8::any())
+   .map(|(r, g, b, a)| Color{r, g, b, a}, |c| (c.r, c.g, c.b, c.a))
+   .filter(|c| c.r > 10);
+```
+
+### Create generators and shrinkers from scratch
+
+For implementing a generator on your own, you only need to implement the
+[Gen] trait.
+
+```rust
+use monkey_test::*;
+// Use the randomization source of your choosing
+use rand::Rng;
+use rand::SeedableRng;
+
+#[derive(Clone)]
+struct DiceGen {
+   /// Die side count
+   side_count: u32,
+}
+
+impl Gen<u32> for DiceGen {
+    fn examples(&self, seed: u64) -> BoxIter<u32> {
+        let distr =
+            rand::distributions::Uniform::new_inclusive(1, self.side_count);
+        let iter =
+            rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr);
+        Box::new(iter)
+    }
+
+    fn shrinker(&self) -> BoxShrink<u32> {
+        shrink::int()
+        // Use shrink::none() for not providing any shrinking.
+    }
+}
+
+fn dice_throw_generator_from_struct(side_count: u32) -> BoxGen<u32> {
+    Box::new(DiceGen { side_count })
+}
+```
+
+Some boilerplate code can be eliminated and the same functionality can be
+achieved by using [gen::from_fn] instead of implementing the [Gen] trait.
+
+```rust
+use monkey_test::*;
+use rand::Rng;
+use rand::SeedableRng;
+
+fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
+    gen::from_fn(move |seed| {
+        let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
+        rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
+    })
+    .with_shrinker(shrink::int())
+}
+```
+
+Similarly, a shrinker can be implemented by either implementing the [Shrink]
+trait directly, or just make use of [shrink::from_fn].
+
+## How to write a property
+
+How do you write a useful property that is testable and valid for all generated
+examples?
+One baby-step is to try parameterize an already existing example based test.
 As an inspiration, here follow some common classes of properties to test.
 
 ### No explosion
@@ -256,151 +401,9 @@ Another example on stateful testing can be to poke at a stateful
 API with a random sequence of legal commands and verify that the API does not
 panic.
 
-## Features
+## Library key design principles
 
-For a complete guide of all features in Monkey Test, refer to the
-[generated API documentation (docs.rs)](https://docs.rs/monkey_test).
-Additional usage examples can be found in
-[code repository test folder (github.com)](https://tests).
-A summary is given below.
-
-### Generators and shrinkers for basic types
-
-Generators for `bool`, `f32`, `f64` and for all integer types
-`i8`, `i16`, `i32`, `i64`, `i128`, `isize`,
-`u8`, `u16` `u32`, `u64` , `u128` and `usize`.
-
-```rust
-use monkey_test::*;
-let bytes = gen::u8::any();
-let some_longs = gen::i64::ranged(10..=20);
-let mostly_true = gen::bool::with_ratio(1,20);
-```
-
-There are some more specialized generators. In module
-`gen::sized` there are generators that return progressively larger and larger
-values, suitable for controlling the size of generated collections. In module
-`gen::fixed` there are generators that do not use randomness, which can be
-useful sometimes.
-
-```rust
-use monkey_test::*;
-let progressively_larger_sizes: BoxGen<usize> = gen::sized::default();
-let always_the_same_value: BoxGen<i32> = gen::fixed::constant(42);
-```
-
-### Generators and shrinkers for collections
-
-There is a generator and a shrinker for vectors.
-
-```rust
-use monkey_test::*;
-let int_vectors: BoxGen<Vec<i16>> = gen::vec::any(gen::i16::any());
-
-monkey_test()
-   .with_generator(int_vectors)
-   .test_true(|vec| vec.iter().all(|&n| n <= 1337) )
-   .assert_minimum_failure(vec![1338]);
-```
-
-### Pick values and mix generators
-
-Create generators that pick among values and mix values from different
-generators
-
-```rust
-use monkey_test::*;
-let fruits = gen::pick_evenly(&["banana", "apple", "orange"]);
-let nuts = gen::pick_evenly(&["peanut", "almond", "pecan"]);
-let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
-```
-
-### Compose generators and shrinkers for more complex types
-
-Generators and shrinkers for more complex types can be constructed from more
-basic ones, using one of `zip`, `zip_3`, ..., `zip_6` together with `map`
-and `filter`.
-When constructing generators this way, you automatically also get a shrinker for
-the complex type.
-
-```rust
-use monkey_test::*;
-
-#[derive(Clone)]
-struct Point {x: u16, y: u16}
-
-let points: BoxGen<Point> = gen::u16::any()
-   .zip(gen::u16::any())
-   .map(|(x, y)| Point{x, y}, |p| (p.x, p.y))
-   .filter(|p| p.x != p.y);
-
-#[derive(Clone)]
-struct Color {r: u8, g: u8, b: u8, a: u8}
-
-let colors: BoxGen<Color> = gen::u8::any()
-   .zip_4(gen::u8::any(), gen::u8::any(), gen::u8::any())
-   .map(|(r, g, b, a)| Color{r, g, b, a}, |c| (c.r, c.g, c.b, c.a))
-   .filter(|c| c.r > 10);
-```
-
-### Create generators and shrinkers from scratch
-
-For implementing a generator on your own, you only need to implement the
-[Gen] trait.
-
-```rust
-use monkey_test::*;
-// Use the randomization source of your choosing
-use rand::Rng;
-use rand::SeedableRng;
-
-#[derive(Clone)]
-struct DiceGen {
-   /// Die side count
-   side_count: u32,
-}
-
-impl Gen<u32> for DiceGen {
-    fn examples(&self, seed: u64) -> BoxIter<u32> {
-        let distr =
-            rand::distributions::Uniform::new_inclusive(1, self.side_count);
-        let iter =
-            rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr);
-        Box::new(iter)
-    }
-
-    fn shrinker(&self) -> BoxShrink<u32> {
-        shrink::int()
-        // Use shrink::none() for not providing any shrinking.
-    }
-}
-
-fn dice_throw_generator_from_struct(side_count: u32) -> BoxGen<u32> {
-    Box::new(DiceGen { side_count })
-}
-```
-
-Some boilerplate code can be eliminated and the same functionality can be
-achieved by using [gen::from_fn] instead of implementing the [Gen] trait.
-
-```rust
-use monkey_test::*;
-use rand::Rng;
-use rand::SeedableRng;
-
-fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
-    gen::from_fn(move |seed| {
-        let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
-        rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
-    })
-    .with_shrinker(shrink::int())
-}
-```
-
-Similarly, a shrinker can be implemented by either implementing the [Shrink]
-trait directly, or just make use of [shrink::from_fn].
-
-## Key design principles of Monkey Test
+The key design principles of the Monkey Test library are the following:
 
 * *configurability and flexibility* - Leave a high degree of configurability
   and flexibility to the user by letting most details to be specified
