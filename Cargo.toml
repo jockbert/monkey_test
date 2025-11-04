@@ -1,6 +1,7 @@
 [package]
 name = "monkey_test"
 version = "0.7.4"
+rust-version = "1.73"
 edition = "2021"
 license = "MIT"
 homepage = "https://github.com/jockbert/monkey_test"
