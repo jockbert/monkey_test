@@ -1,7 +1,12 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.4...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.5...main).
+
+## Release 0.7.5 (2025-11-05) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.4...v0.7.5)
+
+This release adds MSRV (Minimum Supported Rust Version), which should give some
+guidance to users of this lirary.
 
 ## Release 0.7.4 (2025-10-31) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.3...v0.7.4)
 
