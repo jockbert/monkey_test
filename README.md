@@ -1,7 +1,7 @@
 
 # Monkey Test
 
-![monkey test logo](assets/monkeytest-banner.png)
+[![monkey test logo](assets/monkeytest-banner-full-logo.png "Monkey Test logotype")](assets/monkeytest-logo.png)
 
 A [property based testing](https://en.wikipedia.org/wiki/Software_testing#Property_testing)
 *(PBT)* tool like
