@@ -5,16 +5,15 @@
 
 ## Release 0.7.4 (2025-10-31) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.3...v0.7.4)
 
-This release focuses on making the crate buildable again by pinning down
-version of dependency.
+This release makes the crate buildable again by pinning down version on dependency.
 
 ### Other changes
 
 * Pin down dependency `rand_chacha` to version 0.3.1 instead of the floating
   version 0. Version 0.9.0 of `rand_chacha` introduces API changes that
   currently breaks `monkey_test`.
-* Only expose some functions in test-configuration, in order to removing
-  dead code warning.
+* Only expose some functions in test-configuration, in order to remove
+  dead code warnings.
 * Eliminate some clippy warnings.
 
 ## Release 0.7.3 (2024-06-06) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.2...v0.7.3)
@@ -27,7 +26,7 @@ This release focuses on adding filtering to generators and shrinkers.
   to generate any `u8` value besides zero. This can now be achieved by using
   generator `monkey_test::gen::u8::any()` and just filter out the value zero.
   The filtering is also propagated to the associated shinker too, so even if
-  failure is found, the value zero will not be one of the shinked examples used
+  failure is found, the value zero will not be one of the shrinked examples used
   when searching for a smaller failure.
 * If example filtering is too heavy in either generator or shrinker, the
   filtering will complain about it by throwing a panic with a hopefully
@@ -39,7 +38,7 @@ This release focuses on adding filtering to generators and shrinkers.
   equality. These panics should also be caught and treated as a property
   failure.
 
-  Previously, unexpectedly panicing in non-panic-related test, monkey_test
+  Previously, unexpectedly panicking in non-panic-related test, monkey_test
   did not even say for which example it occurred, basicly just aborting
   the normal monkey_test procedure. This is now fixed and panics are
   caught and treated as any other failure in the monkey_test procedure.
@@ -51,15 +50,15 @@ This release focuses on adding valid-range-aware integer shrinkers.
 ### New features
 
 * Improve default integer shrinker, so it keeps track of the range of valid
-  values and only provide skrinked candidates within that range. This is useful
+  values and only provide shrunk candidates within that range. This is useful
   if integer generator is given an explicit range for the examples generated,
   then this range is also used in the shrinker, so in case of a failure also
-  the shrinked candidates are kept witin this given range.
+  the shrinked candidates are kept within this given range.
 
 ### Other changes
 
-* Improve the main documentation with additional examples in the common classes
-  of properties and add a table of contents.
+* Improve the main documentation with additional examples in the common types
+  of property-based tests and add a table of contents.
 
 ## Release 0.7.1 (2024-04-13) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.0...v0.7.1)
 
@@ -115,7 +114,7 @@ informative panic messages when a property fails.
 * Use different seeds for the different parts of generated tuple in `gen::zip`.
   Earlier, same seed was used for the different parts of tuple
   generator (`zip`). This lead to tuples where both parts/items
-  of tuple got the same value, if same generator type happended to be used
+  of tuple got the same value, if same generator type happened to be used
   for both tuple parts/items, only generating symmetric tuples
   like `(42, 42)` and `(1337, 1337)`.
 
@@ -168,19 +167,20 @@ Release with focus on improving vector generator and vector shrinker performance
   in order to increase the overall effectiveness of the vector shrinker.
 * Greatly improve integer shrinking speed.
   By first trying some candidates exponentially closer to target (zero),
-  the integer shinker has the potential for greatly reduced shrinking
+  the integer shrinker has the potential for greatly reduced shrinking
   effort, compared to old way. In the old way, candidates was tried consecutive
   in decrementing order from  the original value, shrinking in linear time.
 * Include some overweight to the value zero (0) in integer generators, if zero
   is included in the range generated. This should increase the possibility to
   find property bugs related to boundary cases related to the value zero.
-  As before, some overwheight is also given to the extremes (min and max) of
+  As before, some overweight is also given to the extremes (min and max) of
   the integer range generated.
 
 ### Breaking changes
 
 * Rename shrinker `shrink::number()` to `shrinker::int()`, in order to make
-  the shrinker name more specific and distinct. The same applies to module `shrink::num_shrink` which is renamed to `shrink::integer`.
+  the shrinker name more specific and distinct. The same applies to module
+  `shrink::num_shrink` which is renamed to `shrink::integer`.
   This is a preparation step for in the future also adding
   shrinkers for types `f32` and `f64`, which are also numbers, but are types
   that will not be supported by the existing integer shrinker, hence the name
@@ -208,7 +208,7 @@ Release with focus on functional style generator composition with `zip` and
 
 ### New features
 
-* Add possibility to zip genrators together, with `gen::zip`, into generators of
+* Add possibility to zip generators together, with `gen::zip`, into generators of
   tuples.
 * Add possibility to map generators from on type to another, with `gen::map`.
   Together with zipping, this can be used for creating generators and shrinkers
@@ -218,7 +218,7 @@ Release with focus on functional style generator composition with `zip` and
   values (minimum and maximum).
 
   The value of this is that you have a completely random generator of
-  all possible u64-type values, the chance of actualy testing the
+  all possible u64-type values, the chance of actually testing the
   extreme values (in this case 0 and 2^64-1) is extremely small in the
   100 examples actually applied to a propery. Testing with the extreme
   values are important, if you want to find bugs.
@@ -232,7 +232,8 @@ Release with focus on functional style generator composition with `zip` and
 ### Breaking changes
 
 * Rename `ConfAndGen::check_true` to `ConfAndGen::test_property`. This naming
-  should make more sense when adding assert methods to `MonkeyResult`, like `MonkeyResult::assert_minimum_failure`.
+  should make more sense when adding assert methods to `MonkeyResult`, like
+  `MonkeyResult::assert_minimum_failure`.
 
 ## Release 0.3.0 (2024-01-19) [diff](https://github.com/jockbert/monkey_test/compare/v0.2.0...v0.3.0)
 
@@ -259,9 +260,9 @@ not a problem until shown otherwise.
 * Expose Box type aliases `BoxGen<E>` and `BoxShrink<E>` for `Gen<E>` and
   `Shrink<E>` in API.
 * Add generators to pick values among given set of values, with either even
-  distribution or oter distribution of users choosing.
+  distribution or other distribution of users choosing.
 * Add generators to mix together values from other generators, with either even
-  distribution or oter distribution of users choosing.
+  distribution or other distribution of users choosing.
 * Add success count to monkey test assert message.
 
 ### Breaking changes
@@ -296,7 +297,7 @@ not a problem until shown otherwise.
 * Configuration structs are (moved and) renamed from `Monkey` and
    `MonkeyWithGen` to `Conf` and `ConfWithGen`.
 * Type alias `SomeShrink<E> = Box<dyn Shrink<E>>` is replaced with use of
-   generic arguments for shrinker on all places ursed.
+   generic arguments for shrinker on all places used.
 * Rename `Gen.iter` to `Gen.examples`. This hopefully makes the purpose of
    the returned iterator more clear.
 * Include shinker in generator, adding method `Gen.shrinker`. This enables
