@@ -13,7 +13,7 @@ use std::marker::PhantomData;
 /// use monkey_test::*;
 ///
 /// // Creating a shrinker by providing closure returning an iterator.
-/// let my_shrink = shrink::from_fn(|original_failure| std::iter::repeat(42));
+/// let my_shrink = shrinks::from_fn(|original_failure| std::iter::repeat(42));
 ///
 /// assert_eq!(my_shrink.candidates(1337).next(), Some(42));
 /// ```

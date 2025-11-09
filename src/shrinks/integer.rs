@@ -27,7 +27,7 @@ pub fn int_in_range<E>(min: E, max: E) -> BoxShrink<E>
 where
     E: PrimInt + std::fmt::Debug + 'static,
 {
-    crate::shrink::from_fn(move |original| {
+    crate::shrinks::from_fn(move |original| {
         eager(original, min, max).chain(decrement(original, min, max))
     })
 }
@@ -161,7 +161,7 @@ fn mirror_around<E: PrimInt>(mirror: E, x: E) -> Option<E> {
 mod test {
     use num_traits::PrimInt;
 
-    use crate::{BoxGen, testing::assert_iter_eq};
+    use crate::{testing::assert_iter_eq, BoxGen};
 
     #[test]
     fn candidates_are_always_within_min_max_range_unsigned() {
@@ -281,8 +281,8 @@ mod test {
     }
 
     #[test]
-    fn eager_tries_iteratively_smaller_decrement_with_positive_only_for_unsigned()
-     {
+    fn eager_tries_iteratively_smaller_decrement_with_positive_only_for_unsigned(
+    ) {
         assert_iter_eq(
             super::eager(16, u64::MIN, u64::MAX),
             vec![8, 12, 14],

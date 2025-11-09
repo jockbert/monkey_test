@@ -7,7 +7,7 @@ where
     E: Clone + 'static,
     P: Fn(&E) -> bool + Clone + 'static,
 {
-    crate::shrink::from_fn(move |original: E| {
+    crate::shrinks::from_fn(move |original: E| {
         let pred = predicate.clone();
         let mut filter_streak = 0;
 
@@ -39,7 +39,7 @@ mod test {
 
     #[test]
     fn should_be_able_to_filter_using_predicate() {
-        let shrinker = crate::shrink::fixed::sequence(&[
+        let shrinker = crate::shrinks::fixed::sequence(&[
             11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1,
         ])
         .filter(|e| e % 2 == 0);
@@ -57,7 +57,7 @@ mod test {
        examples than heavy reliance on filtering."]
     fn should_panic_on_too_heavy_filtering() {
         let filtererd_shrinker =
-            crate::shrink::int_to_zero::<u8>().filter(|&e| e == 234);
+            crate::shrinks::int_to_zero::<u8>().filter(|&e| e == 234);
 
         // Trying to get a shrinked candidate should throw, since all
         // candidates are filtered out.
@@ -67,7 +67,7 @@ mod test {
     #[test]
     fn should_not_panic_on_repeaded_filtering() {
         let filtererd_shrinker =
-            crate::shrink::int_to_zero::<u16>().filter(|&e| e % 2 == 0);
+            crate::shrinks::int_to_zero::<u16>().filter(|&e| e % 2 == 0);
 
         // Trying to get a shrinked candidate should throw, since all
         // candidates are filtered out.

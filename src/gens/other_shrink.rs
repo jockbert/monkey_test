@@ -9,11 +9,11 @@ use crate::{BoxGen, BoxIter, BoxShrink, Gen};
 /// assert!(gen1.shrinker().candidates(123).next().is_some());
 ///
 /// // let generator have other shrinker
-/// let gen2 = gens::other_shrinker(gen1, shrink::none());
+/// let gen2 = gens::other_shrinker(gen1, shrinks::none());
 /// assert!(gen2.shrinker().candidates(123).next().is_none());
 ///
 /// // let generator have other shrinker again (alternative way)
-/// let gen3 = gen2.with_shrinker(shrink::int());
+/// let gen3 = gen2.with_shrinker(shrinks::int());
 /// assert!(gen3.shrinker().candidates(123).next().is_some());
 /// ```
 pub fn other_shrinker<E: Clone + 'static>(

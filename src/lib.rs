@@ -13,7 +13,7 @@
 mod config;
 pub mod gens;
 mod runner;
-pub mod shrink;
+pub mod shrinks;
 
 #[cfg(test)]
 mod testing;
@@ -108,7 +108,7 @@ pub trait Gen<E: Clone + 'static>: CloneGen<E> {
     /// This enables distributing a default shrinker with given generator,
     /// reducing the need to explicitly configure a shrinker at place of use.
     ///
-    /// When implementing a [Gen], you can return a empty [shrink::none]
+    /// When implementing a [Gen], you can return a empty [shrinks::none]
     /// shrinker, if that makes the implementation easier, but when you will not
     /// get any shrinking functionality applied to failing example.
     fn shrinker(&self) -> BoxShrink<E>;
@@ -336,7 +336,7 @@ pub trait ZipWithShrink<E0>
 where
     E0: Clone + 'static,
 {
-    /// See [shrink::zip].
+    /// See [shrinks::zip].
     fn zip<E1>(&self, other_shrink: BoxShrink<E1>) -> BoxShrink<(E0, E1)>
     where
         E1: Clone + 'static;
@@ -347,7 +347,7 @@ impl<E0: Clone + 'static> ZipWithShrink<E0> for dyn Shrink<E0> {
     where
         E1: Clone + 'static,
     {
-        shrink::zip(self.clone_box(), other_gen)
+        shrinks::zip(self.clone_box(), other_gen)
     }
 }
 
@@ -356,7 +356,7 @@ pub trait MapWithShrink<E0>
 where
     E0: Clone + 'static,
 {
-    /// See [shrink::map].
+    /// See [shrinks::map].
     fn map<E1>(
         &self,
         map_fn: fn(E0) -> E1,
@@ -375,7 +375,7 @@ impl<E0: Clone + 'static> MapWithShrink<E0> for dyn Shrink<E0> {
     where
         E1: Clone + 'static,
     {
-        shrink::map(self.clone_box(), map_fn, unmap_fn)
+        shrinks::map(self.clone_box(), map_fn, unmap_fn)
     }
 }
 
@@ -384,7 +384,7 @@ pub trait FilterWithShrink<E>
 where
     E: Clone + 'static,
 {
-    /// See [shrink::filter].
+    /// See [shrinks::filter].
     fn filter<P>(&self, predicate: P) -> BoxShrink<E>
     where
         P: Fn(&E) -> bool + Clone + 'static;
@@ -395,7 +395,7 @@ impl<E: Clone + 'static> FilterWithShrink<E> for dyn Shrink<E> {
     where
         P: Fn(&E) -> bool + Clone + 'static,
     {
-        shrink::filter(self.clone_box(), predicate)
+        shrinks::filter(self.clone_box(), predicate)
     }
 }
 

@@ -192,8 +192,8 @@ impl Gen<u32> for DiceGen {
     }
 
     fn shrinker(&self) -> BoxShrink<u32> {
-        shrink::int()
-        // Use shrink::none() for not providing any shrinking.
+        shrinks::int()
+        // Use shrinks::none() for not providing any shrinking.
     }
 }
 
@@ -215,12 +215,12 @@ fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
         let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
-    .with_shrinker(shrink::int())
+    .with_shrinker(shrinks::int())
 }
 ```
 
 Similarly, a shrinker can be implemented by either implementing the [Shrink]
-trait directly, or just make use of [shrink::from_fn].
+trait directly, or just make use of [shrinks::from_fn].
 
 ## How to write a property
 

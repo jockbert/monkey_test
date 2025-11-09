@@ -65,7 +65,7 @@ mod test {
     #[test]
     fn should_not_panic_on_repeaded_filtering() {
         let filtererd_shrinker =
-            crate::shrink::int_to_zero::<u16>().filter(|&e| e % 2 == 0);
+            crate::shrinks::int_to_zero::<u16>().filter(|&e| e % 2 == 0);
 
         // Trying to get a shrinked candidate should throw, since all
         // candidates are filtered out.

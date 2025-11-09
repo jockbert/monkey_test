@@ -30,7 +30,7 @@ where
         let it2 = g1.clone().examples(seeds.next().expect("should have seed"));
         it1.zip(it2)
     })
-    .with_shrinker(crate::shrink::zip(s0, s1))
+    .with_shrinker(crate::shrinks::zip(s0, s1))
 }
 
 #[cfg(test)]

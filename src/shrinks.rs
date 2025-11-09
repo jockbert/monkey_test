@@ -1,4 +1,4 @@
-//! The `shrink` module contains built in shrinkers.
+//! The `shrinks` module contains built in shrinkers.
 
 mod bool;
 mod filter;

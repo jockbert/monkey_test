@@ -5,5 +5,5 @@ pub fn none<E>() -> BoxShrink<E>
 where
     E: Clone + 'static,
 {
-    crate::shrink::from_fn(|_original| std::iter::empty())
+    crate::shrinks::from_fn(|_original| std::iter::empty())
 }

@@ -3,13 +3,13 @@
 //! and [crate::gens::f32] instead, which are specializations of this module.
 
 use super::float_parts::FloatParts;
+use crate::gens;
 use crate::BoxGen;
 use crate::MapWithGen;
-use crate::gens;
 use num_traits::Float;
+use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
-use rand::distributions::uniform::SampleUniform;
 use std::fmt::Debug;
 use std::ops::Bound;
 use std::ops::RangeBounds;
@@ -156,7 +156,7 @@ where
         |i| from_twos_complement_bits(i),
         |f| to_twos_complement_bits(f),
     )
-    .with_shrinker(crate::shrink::float())
+    .with_shrinker(crate::shrinks::float())
 }
 
 fn check_bounds_are_finite<F>(start: F, end: F)
@@ -238,10 +238,10 @@ mod test {
 
     use super::from_twos_complement_bits;
     use super::to_twos_complement_bits;
-    use crate::BoxGen;
     use crate::gens;
     use crate::monkey_test;
     use crate::testing::assert_generator_can_shrink;
+    use crate::BoxGen;
     use std::ops::RangeBounds;
 
     #[test]

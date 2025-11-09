@@ -6,7 +6,7 @@ use crate::BoxGen;
 /// ratios.
 pub fn with_ratio(ratio_false: u8, ratio_true: u8) -> BoxGen<bool> {
     crate::gens::pick_with_ratio(&[(ratio_false, false), (ratio_true, true)])
-        .with_shrinker(crate::shrink::bool())
+        .with_shrinker(crate::shrinks::bool())
 }
 
 /// Uniformly distributed generator of `true` and `false`. Please use [any]

@@ -12,7 +12,7 @@ fn can_fail_with_details_when_using_check() {
     let actual_result: MonkeyResult<u8> = monkey_test()
         .with_seed(123456)
         .with_generator(gens::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::int_to_zero())
+        .with_shrinker(shrinks::int_to_zero())
         .title("Less than thirteen")
         .test_true(|x| x < 13);
 
@@ -37,7 +37,7 @@ fn can_fail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
         .with_generator(gens::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::int_to_zero())
+        .with_shrinker(shrinks::int_to_zero())
         .assert_true(|x| x < 13);
 }
 
@@ -47,7 +47,7 @@ fn can_assert_minimumfail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
         .with_generator(gens::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
-        .with_shrinker(shrink::int_to_zero())
+        .with_shrinker(shrinks::int_to_zero())
         .test_true(|x| x < 15)
         .assert_minimum_failure(15);
 }
@@ -106,7 +106,7 @@ fn use_all_settings_available() {
         .with_example_count(1_000)
         .with_seed(1234567890)
         .with_generator(gens::u8::any())
-        .with_shrinker(shrink::none())
+        .with_shrinker(shrinks::none())
         .assert_true(|x| x as u16 * x as u16 >= x as u16);
 }
 

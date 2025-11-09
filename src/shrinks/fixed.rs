@@ -9,5 +9,5 @@ where
     E: Clone + std::fmt::Debug + 'static,
 {
     let data = candidates.to_vec();
-    crate::shrink::from_fn(move |_original| data.clone().into_iter())
+    crate::shrinks::from_fn(move |_original| data.clone().into_iter())
 }

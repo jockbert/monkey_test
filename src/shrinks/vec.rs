@@ -62,7 +62,7 @@ use crate::BoxShrink;
 pub fn default<E: Clone + 'static>(
     element_shrinker: BoxShrink<E>,
 ) -> BoxShrink<Vec<E>> {
-    crate::shrink::from_fn(move |original: Vec<E>| {
+    crate::shrinks::from_fn(move |original: Vec<E>| {
         eager_size(original.clone())
             .chain(per_element(original, element_shrinker.clone()))
     })
@@ -71,7 +71,7 @@ pub fn default<E: Clone + 'static>(
 /// Shrinker that only tries to reduce the vector size, not trying to shrink
 /// individual elements.
 pub fn no_element_shrinkning<E: Clone + 'static>() -> BoxShrink<Vec<E>> {
-    crate::shrink::from_fn(move |original: Vec<E>| eager_size(original))
+    crate::shrinks::from_fn(move |original: Vec<E>| eager_size(original))
 }
 
 fn eager_size<E>(original: Vec<E>) -> EagerIterator<E> {
@@ -266,7 +266,7 @@ mod test {
         assert_iter_eq(
             super::per_element(
                 vec![1, 2, 3, 4],
-                crate::shrink::fixed::sequence(&[0]),
+                crate::shrinks::fixed::sequence(&[0]),
             ),
             vec![
                 // shrinking 1st element

@@ -13,7 +13,7 @@ pub fn bool_to_true() -> BoxShrink<bool> {
 }
 
 fn bool_to(shrink_to_true: bool) -> BoxShrink<bool> {
-    crate::shrink::from_fn_boxed(move |original: bool| {
+    crate::shrinks::from_fn_boxed(move |original: bool| {
         if original ^ shrink_to_true {
             Box::new(std::iter::once(!original))
         } else {

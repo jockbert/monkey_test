@@ -2,9 +2,9 @@
 
 use crate::BoxGen;
 use num_traits::PrimInt;
+use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
-use rand::distributions::uniform::SampleUniform;
 use std::ops::Bound;
 use std::ops::RangeBounds;
 
@@ -44,7 +44,7 @@ where
         let distr = rand::distributions::Uniform::new_inclusive(min, max);
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
-    .with_shrinker(crate::shrink::int_in_range(min, max))
+    .with_shrinker(crate::shrinks::int_in_range(min, max))
 }
 
 fn start<E, B>(bounds: &B) -> E

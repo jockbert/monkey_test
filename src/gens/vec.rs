@@ -71,5 +71,5 @@ pub fn any<E: Clone + 'static>(element_gen: BoxGen<E>) -> BoxGen<Vec<E>> {
             element_gen.examples(seed).take(size).collect::<Vec<_>>()
         })
     })
-    .with_shrinker(crate::shrink::vec::default(element_shrinker))
+    .with_shrinker(crate::shrinks::vec::default(element_shrinker))
 }

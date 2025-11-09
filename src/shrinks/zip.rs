@@ -5,15 +5,15 @@ use crate::BoxShrink;
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let alfa1: BoxShrink<u8> = shrink::int::<u8>();
-/// let beta1: BoxShrink<i64> = shrink::int::<i64>();
+/// let alfa1: BoxShrink<u8> = shrinks::int::<u8>();
+/// let beta1: BoxShrink<i64> = shrinks::int::<i64>();
 ///
-/// let alfa2: BoxShrink<u8> = shrink::int::<u8>();
-/// let beta2: BoxShrink<i64> = shrink::int::<i64>();
+/// let alfa2: BoxShrink<u8> = shrinks::int::<u8>();
+/// let beta2: BoxShrink<i64> = shrinks::int::<i64>();
 ///
 ///
 /// // Zip two shrinkers to a tuple shrinker.
-/// let tuples1: BoxShrink<(u8, i64)> = shrink::zip(alfa1, beta1);
+/// let tuples1: BoxShrink<(u8, i64)> = shrinks::zip(alfa1, beta1);
 ///
 /// // Shorthand way to do the same thing.
 /// let tuples2: BoxShrink<(u8, i64)> = alfa2.zip(beta2);
@@ -26,7 +26,7 @@ where
     E0: Clone + 'static,
     E1: Clone + 'static,
 {
-    crate::shrink::from_fn(move |original: (E0, E1)| {
+    crate::shrinks::from_fn(move |original: (E0, E1)| {
         let o0 = original.0.clone();
         let o1 = original.1.clone();
 
@@ -48,8 +48,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::shrink::int_to_zero;
-    use crate::shrink::none;
+    use crate::shrinks::int_to_zero;
+    use crate::shrinks::none;
     use crate::testing::assert_shrinker_has_at_least_these_candidates;
     use crate::BoxShrink;
 

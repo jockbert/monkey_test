@@ -1,7 +1,7 @@
-use crate::BoxGen;
-use crate::BoxShrink;
 use crate::gens::Ratio;
 use crate::gens::SampleTarget;
+use crate::BoxGen;
+use crate::BoxShrink;
 use rand::Rng;
 use rand::SeedableRng;
 
@@ -26,7 +26,7 @@ where
         generators
             .first()
             .map(|g| g.shrinker())
-            .unwrap_or(crate::shrink::none()),
+            .unwrap_or(crate::shrinks::none()),
         SampleTarget::evenly(generators),
     )
 }
@@ -52,7 +52,7 @@ where
         ratios_and_gens
             .first()
             .map(|pair| pair.1.shrinker())
-            .unwrap_or(crate::shrink::none()),
+            .unwrap_or(crate::shrinks::none()),
         SampleTarget::with_ratios(ratios_and_gens),
     )
 }
@@ -183,13 +183,13 @@ mod test {
     #[test]
     fn mix_should_reuse_shrinker_from_first_generator() {
         let with_shrinker = super::mix_evenly(&[
-            crate::gens::u8::any().with_shrinker(crate::shrink::int_to_zero()),
-            crate::gens::u8::any().with_shrinker(crate::shrink::none()),
+            crate::gens::u8::any().with_shrinker(crate::shrinks::int_to_zero()),
+            crate::gens::u8::any().with_shrinker(crate::shrinks::none()),
         ]);
 
         let without_shrinker = super::mix_evenly(&[
-            crate::gens::u8::any().with_shrinker(crate::shrink::none()),
-            crate::gens::u8::any().with_shrinker(crate::shrink::int_to_zero()),
+            crate::gens::u8::any().with_shrinker(crate::shrinks::none()),
+            crate::gens::u8::any().with_shrinker(crate::shrinks::int_to_zero()),
         ]);
 
         assert_generator_can_shrink(with_shrinker, 10);

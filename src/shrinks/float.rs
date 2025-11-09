@@ -1,5 +1,5 @@
+use crate::shrinks;
 use crate::BoxShrink;
-use crate::shrink;
 use num_traits::Float;
 
 /// Float value (both types `f32` and `f64`) shrinker shrinking towards `+0.0`.
@@ -13,7 +13,7 @@ pub fn float<F>() -> BoxShrink<F>
 where
     F: Float + std::fmt::Debug + Clone + 'static,
 {
-    shrink::from_fn(move |original: F| {
+    shrinks::from_fn(move |original: F| {
         let finite_original = if original.is_finite() {
             original
         } else {

@@ -11,20 +11,20 @@ use crate::BoxShrink;
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let number_string_shrinker: BoxShrink<String> = shrink::map(
-///     shrink::int::<i64>(),
+/// let number_string_shrinker: BoxShrink<String> = shrinks::map(
+///     shrinks::int::<i64>(),
 ///     |i: i64| i.to_string(),
 ///     |s: String| s.parse().unwrap(),
 /// );
 ///
-/// let even_numbers_only_shrinker: BoxShrink<i64> = shrink::map(
-///     shrink::int::<i64>(),
+/// let even_numbers_only_shrinker: BoxShrink<i64> = shrinks::map(
+///     shrinks::int::<i64>(),
 ///     |i:i64| i * 2,
 ///     |even: i64| even / 2,
 /// );
 ///
 /// // Shorthand way to do the same thing
-/// let even_numbers_only_shrinker_2: BoxShrink<i64> = shrink::int::<i64>()
+/// let even_numbers_only_shrinker_2: BoxShrink<i64> = shrinks::int::<i64>()
 ///     .map(
 ///        |i:i64| i * 2,
 ///        |even: i64| even / 2,
@@ -39,7 +39,7 @@ where
     E0: Clone + 'static,
     E1: Clone + 'static,
 {
-    crate::shrink::from_fn(move |original: E1| {
+    crate::shrinks::from_fn(move |original: E1| {
         let o1 = original.clone();
         let o0 = (unmap_fn)(o1);
         shrink0.candidates(o0).map(map_fn)
@@ -48,8 +48,8 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::shrink::int_to_zero;
-    use crate::shrink::none;
+    use crate::shrinks::int_to_zero;
+    use crate::shrinks::none;
     use crate::testing::assert_shrinker_has_at_least_these_candidates;
     use crate::BoxShrink;
 

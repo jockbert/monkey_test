@@ -5,9 +5,9 @@ use std::cmp::min;
 
 use crate::BoxGen;
 use crate::BoxIter;
+use rand::distributions::Uniform;
 use rand::Rng;
 use rand::SeedableRng;
-use rand::distributions::Uniform;
 
 /// A progressively increasing usize generator, with some sort of reasobable
 /// default values. For more details, see [progressively_increasing].
@@ -46,7 +46,7 @@ pub fn progressively_increasing(
         max_iterator(start_size, percent_increase, max_size)
             .map(move |max| rng.sample(Uniform::new_inclusive(0usize, max)))
     })
-    .with_shrinker(crate::shrink::int_to_zero())
+    .with_shrinker(crate::shrinks::int_to_zero())
 }
 
 fn max_iterator(
