@@ -5,7 +5,7 @@ use crate::BoxGen;
 /// Generator of boolean values where ratio can be scewed according to given
 /// ratios.
 pub fn with_ratio(ratio_false: u8, ratio_true: u8) -> BoxGen<bool> {
-    crate::gen::pick_with_ratio(&[(ratio_false, false), (ratio_true, true)])
+    crate::gens::pick_with_ratio(&[(ratio_false, false), (ratio_true, true)])
         .with_shrinker(crate::shrink::bool())
 }
 

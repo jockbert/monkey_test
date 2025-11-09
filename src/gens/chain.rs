@@ -6,7 +6,7 @@ use crate::BoxGen;
 /// If first generator is infinite, second generator will never be used.
 ///
 /// ```
-/// use monkey_test::gen::fixed::sequence;
+/// use monkey_test::gens::fixed::sequence;
 /// use monkey_test::*;
 ///
 /// let a = sequence::<u32>(&[1, 2]);
@@ -22,7 +22,7 @@ where
 {
     let shrinker = first_gen.shrinker();
 
-    crate::gen::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed| {
         first_gen.examples(seed).chain(second_gen.examples(seed))
     })
     .with_shrinker(shrinker)
@@ -30,17 +30,17 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::{gen::fixed, testing::assert_iter_eq};
+    use crate::{gens::fixed, testing::assert_iter_eq};
 
     #[test]
     fn empty_generators() {
-        let gen = super::chain(
+        let generator = super::chain(
             fixed::sequence::<u8>(&[]),
             fixed::sequence::<u8>(&[]),
         );
 
         assert_iter_eq(
-            gen.examples(1234),
+            generator.examples(1234),
             vec![],
             "empty generators has no examples to concatenate",
         );
@@ -48,13 +48,13 @@ mod test {
 
     #[test]
     fn some_elements_in_each_generator() {
-        let gen = super::chain(
+        let generator = super::chain(
             fixed::sequence::<u8>(&[1, 2]),
             fixed::sequence::<u8>(&[3, 4]),
         );
 
         assert_iter_eq(
-            gen.examples(1234),
+            generator.examples(1234),
             vec![1, 2, 3, 4],
             "given generators' examples are concatenated",
         );

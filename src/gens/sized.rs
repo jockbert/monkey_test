@@ -5,9 +5,9 @@ use std::cmp::min;
 
 use crate::BoxGen;
 use crate::BoxIter;
-use rand::distributions::Uniform;
 use rand::Rng;
 use rand::SeedableRng;
+use rand::distributions::Uniform;
 
 /// A progressively increasing usize generator, with some sort of reasobable
 /// default values. For more details, see [progressively_increasing].
@@ -40,7 +40,7 @@ pub fn progressively_increasing(
     percent_increase: usize,
     max_size: usize,
 ) -> BoxGen<usize> {
-    crate::gen::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed| {
         let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
         max_iterator(start_size, percent_increase, max_size)

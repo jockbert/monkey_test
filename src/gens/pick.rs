@@ -1,5 +1,5 @@
-use crate::gen::Ratio;
-use crate::gen::SampleTarget;
+use crate::gens::Ratio;
+use crate::gens::SampleTarget;
 use crate::BoxGen;
 use rand::Rng;
 use rand::SeedableRng;
@@ -22,7 +22,7 @@ where
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let gen_ = gen::pick_with_ratio(&[(1, 'a'), (4, 'b'), (5, 'c')]);
+/// let gen_ = gens::pick_with_ratio(&[(1, 'a'), (4, 'b'), (5, 'c')]);
 /// ```
 pub fn pick_with_ratio<E>(ratios_and_examples: &[(Ratio, E)]) -> BoxGen<E>
 where
@@ -35,7 +35,7 @@ fn pick_with_sample_target<E>(sample_target: SampleTarget<E>) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    crate::gen::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed| {
         let high = sample_target.sample_domain_max();
         let distr = rand::distributions::Uniform::new_inclusive(1usize, high);
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);

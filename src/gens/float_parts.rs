@@ -124,19 +124,19 @@ mod test {
     use crate::*;
 
     fn f32_exp() -> BoxGen<u16> {
-        gen::u16::ranged(0..=f32::exponent_normal_max())
+        gens::u16::ranged(0..=f32::exponent_normal_max())
     }
 
     fn f64_exp() -> BoxGen<u16> {
-        gen::u16::ranged(0..=f64::exponent_normal_max())
+        gens::u16::ranged(0..=f64::exponent_normal_max())
     }
 
     fn f32_frac() -> BoxGen<u64> {
-        gen::u64::ranged(0..=f32::fraction_normal_max())
+        gens::u64::ranged(0..=f32::fraction_normal_max())
     }
 
     fn f64_frac() -> BoxGen<u64> {
-        gen::u64::ranged(0..=f64::fraction_normal_max())
+        gens::u64::ranged(0..=f64::fraction_normal_max())
     }
 
     fn compose_f32(
@@ -159,7 +159,7 @@ mod test {
     fn roundtrip_test_f32() {
         crate::monkey_test()
             .with_generator(
-                f32_exp().zip(f32_frac()).zip(crate::gen::bool::any()),
+                f32_exp().zip(f32_frac()).zip(crate::gens::bool::any()),
             )
             .assert_true(|((e, f), s)| {
                 compose_f32(s, e, f).is_sign_negative() == s
@@ -172,7 +172,7 @@ mod test {
     fn roundtrip_test_f64() {
         crate::monkey_test()
             .with_generator(
-                f64_exp().zip(f64_frac()).zip(crate::gen::bool::any()),
+                f64_exp().zip(f64_frac()).zip(crate::gens::bool::any()),
             )
             .assert_true(|((e, f), s)| {
                 compose_f64(s, e, f).is_sign_negative() == s

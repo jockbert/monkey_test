@@ -161,14 +161,14 @@ fn mirror_around<E: PrimInt>(mirror: E, x: E) -> Option<E> {
 mod test {
     use num_traits::PrimInt;
 
-    use crate::{testing::assert_iter_eq, BoxGen};
+    use crate::{BoxGen, testing::assert_iter_eq};
 
     #[test]
     fn candidates_are_always_within_min_max_range_unsigned() {
         use crate::*;
 
-        let mmms = crate::gen::u8::any()
-            .zip_3(crate::gen::u8::any(), crate::gen::u8::any());
+        let mmms = crate::gens::u8::any()
+            .zip_3(crate::gens::u8::any(), crate::gens::u8::any());
 
         assert_within_range(mmms);
     }
@@ -177,19 +177,19 @@ mod test {
     fn candidates_are_always_within_min_max_range_signed() {
         use crate::*;
 
-        let mmms = crate::gen::i8::any()
-            .zip_3(crate::gen::i8::any(), crate::gen::i8::any());
+        let mmms = crate::gens::i8::any()
+            .zip_3(crate::gens::i8::any(), crate::gens::i8::any());
 
         assert_within_range(mmms);
     }
 
-    fn assert_within_range<E>(gen: BoxGen<(E, E, E)>)
+    fn assert_within_range<E>(g: BoxGen<(E, E, E)>)
     where
         E: PrimInt + std::fmt::Debug + std::panic::UnwindSafe + 'static,
     {
         crate::monkey_test()
             .with_example_count(1000)
-            .with_generator(gen)
+            .with_generator(g)
             .assert_no_panic(|(a, b, c)| {
                 let min = a.min(b).min(c);
                 let max = a.max(b).max(c);
@@ -281,8 +281,8 @@ mod test {
     }
 
     #[test]
-    fn eager_tries_iteratively_smaller_decrement_with_positive_only_for_unsigned(
-    ) {
+    fn eager_tries_iteratively_smaller_decrement_with_positive_only_for_unsigned()
+     {
         assert_iter_eq(
             super::eager(16, u64::MIN, u64::MAX),
             vec![8, 12, 14],
@@ -309,13 +309,13 @@ mod test {
         assert_iter_eq(
             super::eager(-16, i64::MIN, 5),
             vec![-8, -12, -14],
-            "same shrinking as in first assert, but only negative are in range."
+            "same shrinking as in first assert, but only negative are in range.",
         );
 
         assert_iter_eq(
             super::eager(16, -12, i64::MAX),
             vec![8, -8, 12, -12, 14],
-            "same shrinking as in first assert, but some (!) negative are in range."
+            "same shrinking as in first assert, but some (!) negative are in range.",
         );
     }
 

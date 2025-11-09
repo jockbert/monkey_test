@@ -6,22 +6,22 @@ use crate::BoxGen;
 /// Generates a fixed sequence of examples and then ends, having no more values.
 ///
 /// ```
-/// let gen = monkey_test::gen::fixed::sequence(&[1, 20, 300]);
+/// let generator = monkey_test::gens::fixed::sequence(&[1, 20, 300]);
 ///
-/// assert_eq!(gen.examples(1337).collect::<Vec<_>>(), vec![1, 20, 300]);
-/// assert_eq!(gen.examples(42).collect::<Vec<_>>(), vec![1, 20, 300]);
+/// assert_eq!(generator.examples(1337).collect::<Vec<_>>(), vec![1, 20, 300]);
+/// assert_eq!(generator.examples(42).collect::<Vec<_>>(), vec![1, 20, 300]);
 /// ```
 pub fn sequence<E>(examples: &[E]) -> BoxGen<E>
 where
     E: Clone + std::fmt::Debug + 'static,
 {
     let example_vec = examples.to_vec();
-    crate::gen::from_fn(move |_seed| example_vec.clone().into_iter())
+    crate::gens::from_fn(move |_seed| example_vec.clone().into_iter())
 }
 
 /// Infinite generator always returning given constant
 pub fn constant<E: Clone + 'static>(example: E) -> BoxGen<E> {
-    crate::gen::from_fn(move |_seed| std::iter::repeat(example.clone()))
+    crate::gens::from_fn(move |_seed| std::iter::repeat(example.clone()))
 }
 
 /// Generates a fixed loop of examples. This generator is convenient when you,
@@ -29,7 +29,7 @@ pub fn constant<E: Clone + 'static>(example: E) -> BoxGen<E> {
 /// distribition is not always exact when dealing with randomness.
 ///
 /// ```
-/// let looper = monkey_test::gen::fixed::in_loop(&[1, 20, 300]);
+/// let looper = monkey_test::gens::fixed::in_loop(&[1, 20, 300]);
 ///
 /// let examples = looper.examples(42).take(10).collect::<Vec<_>>();
 /// assert_eq!(examples, vec![1, 20, 300, 1, 20, 300, 1, 20, 300, 1]);
@@ -43,7 +43,7 @@ where
     E: Clone + 'static,
 {
     let examples_vec = examples.to_vec().clone();
-    crate::gen::from_fn(move |_seed| {
+    crate::gens::from_fn(move |_seed| {
         let x = examples_vec.clone();
         LoopIter { data: x, index: 0 }
     })

@@ -1,7 +1,7 @@
-use crate::gen::Ratio;
-use crate::gen::SampleTarget;
 use crate::BoxGen;
 use crate::BoxShrink;
+use crate::gens::Ratio;
+use crate::gens::SampleTarget;
 use rand::Rng;
 use rand::SeedableRng;
 
@@ -12,11 +12,11 @@ use rand::SeedableRng;
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let low = gen::u8::ranged(1..20);
-/// let all = gen::u8::any();
-/// let extremes = gen::pick_evenly(&[0u8, 255u8]);
+/// let low = gens::u8::ranged(1..20);
+/// let all = gens::u8::any();
+/// let extremes = gens::pick_evenly(&[0u8, 255u8]);
 ///
-/// let mixed = gen::mix_evenly(&[low, all, extremes]);
+/// let mixed = gens::mix_evenly(&[low, all, extremes]);
 /// ```
 pub fn mix_evenly<E>(generators: &[BoxGen<E>]) -> BoxGen<E>
 where
@@ -25,7 +25,7 @@ where
     mix_with_sample_target(
         generators
             .first()
-            .map(|gen| gen.shrinker())
+            .map(|g| g.shrinker())
             .unwrap_or(crate::shrink::none()),
         SampleTarget::evenly(generators),
     )
@@ -38,11 +38,11 @@ where
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let low = gen::u8::ranged(1..20);
-/// let all = gen::u8::any();
-/// let extremes = gen::pick_evenly(&[0u8, 255u8]);
+/// let low = gens::u8::ranged(1..20);
+/// let all = gens::u8::any();
+/// let extremes = gens::pick_evenly(&[0u8, 255u8]);
 ///
-/// let mixed = gen::mix_with_ratio(&[(4, low), (5, all), (1, extremes)]);
+/// let mixed = gens::mix_with_ratio(&[(4, low), (5, all), (1, extremes)]);
 /// ```
 pub fn mix_with_ratio<E>(ratios_and_gens: &[(Ratio, BoxGen<E>)]) -> BoxGen<E>
 where
@@ -64,13 +64,13 @@ fn mix_with_sample_target<E>(
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    crate::gen::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed| {
         let high = sample_target.sample_domain_max();
         let distr = rand::distributions::Uniform::new_inclusive(1usize, high);
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
         let mut sample_iterators =
-            sample_target.clone().map(|gen| gen.examples(seed));
+            sample_target.clone().map(|g| g.examples(seed));
 
         rng.sample_iter(distr)
             .map(move |sample| {
@@ -102,19 +102,22 @@ mod test {
     fn all_values_from_generator_are_returned() {
         let mixer = super::mix_with_ratio(&[(
             42,
-            crate::gen::fixed::sequence(&[1, 2, 3, 4, 5, 6]),
+            crate::gens::fixed::sequence(&[1, 2, 3, 4, 5, 6]),
         )]);
 
-        assert_iter_eq(mixer.examples(1337), vec![1, 2, 3, 4, 5, 6],
-        "Mixing with a single generator should use values from that generator \
-        every time");
+        assert_iter_eq(
+            mixer.examples(1337),
+            vec![1, 2, 3, 4, 5, 6],
+            "Mixing with a single generator should use values from that generator \
+        every time",
+        );
     }
 
     #[test]
     fn mixer_be_used_more_than_once() {
         let mixer = super::mix_with_ratio(&[(
             42,
-            crate::gen::fixed::sequence(&['a', 'b', 'c']),
+            crate::gens::fixed::sequence(&['a', 'b', 'c']),
         )]);
 
         assert_iter_eq(
@@ -140,8 +143,8 @@ mod test {
     #[test]
     fn values_are_distributed_according_to_ratio() {
         let mixer = super::mix_with_ratio(&[
-            (64, crate::gen::pick_evenly(&['A', 'B'])),
-            (32, crate::gen::pick_evenly(&['1', '2', '3', '4'])),
+            (64, crate::gens::pick_evenly(&['A', 'B'])),
+            (32, crate::gens::pick_evenly(&['1', '2', '3', '4'])),
         ]);
 
         let expected = distribution_from_pairs(&[
@@ -161,8 +164,8 @@ mod test {
     #[test]
     fn mix_evenly_has_uniform_distribution() {
         let mixer = super::mix_evenly(&[
-            crate::gen::pick_evenly(&['A', 'B']),
-            crate::gen::pick_evenly(&['1', '2', '3', '4']),
+            crate::gens::pick_evenly(&['A', 'B']),
+            crate::gens::pick_evenly(&['1', '2', '3', '4']),
         ]);
 
         let expected = distribution_from_pairs(&[
@@ -180,13 +183,13 @@ mod test {
     #[test]
     fn mix_should_reuse_shrinker_from_first_generator() {
         let with_shrinker = super::mix_evenly(&[
-            crate::gen::u8::any().with_shrinker(crate::shrink::int_to_zero()),
-            crate::gen::u8::any().with_shrinker(crate::shrink::none()),
+            crate::gens::u8::any().with_shrinker(crate::shrink::int_to_zero()),
+            crate::gens::u8::any().with_shrinker(crate::shrink::none()),
         ]);
 
         let without_shrinker = super::mix_evenly(&[
-            crate::gen::u8::any().with_shrinker(crate::shrink::none()),
-            crate::gen::u8::any().with_shrinker(crate::shrink::int_to_zero()),
+            crate::gens::u8::any().with_shrinker(crate::shrink::none()),
+            crate::gens::u8::any().with_shrinker(crate::shrink::int_to_zero()),
         ]);
 
         assert_generator_can_shrink(with_shrinker, 10);

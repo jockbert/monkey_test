@@ -39,11 +39,13 @@ where
 
 /// Makes sure generator has a shrinker that can give a shrinked example, which
 /// is not the same as the original example.
-pub fn assert_generator_can_shrink<E>(gen: BoxGen<E>, example_to_shrink: E)
-where
+pub fn assert_generator_can_shrink<E>(
+    generator: BoxGen<E>,
+    example_to_shrink: E,
+) where
     E: Clone + PartialEq + Debug + 'static,
 {
-    let shrinker = gen.shrinker();
+    let shrinker = generator.shrinker();
     let candidate = shrinker.candidates(example_to_shrink.clone()).next();
     assert!(
         candidate.is_some(),
@@ -62,11 +64,13 @@ where
 }
 
 /// Makes sure generator has a shrinker that cannot shrink.
-pub fn assert_generator_cannot_shrink<E>(gen: BoxGen<E>, example_to_shrink: E)
-where
+pub fn assert_generator_cannot_shrink<E>(
+    generator: BoxGen<E>,
+    example_to_shrink: E,
+) where
     E: Clone + PartialEq + Debug + 'static,
 {
-    let shrinker = gen.shrinker();
+    let shrinker = generator.shrinker();
     let candidate = shrinker.candidates(example_to_shrink.clone()).next();
     assert!(
         candidate.is_none(),

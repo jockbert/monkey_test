@@ -1,5 +1,5 @@
-use crate::shrink;
 use crate::BoxShrink;
+use crate::shrink;
 use num_traits::Float;
 
 /// Float value (both types `f32` and `f64`) shrinker shrinking towards `+0.0`.
@@ -65,7 +65,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::gen;
+    use crate::gens;
     use crate::monkey_test;
     use crate::testing::assert_iter_eq;
 
@@ -81,7 +81,7 @@ mod test {
     #[test]
     fn shrinker_should_always_terminate() {
         monkey_test()
-            .with_generator(gen::f64::any())
+            .with_generator(gens::f64::any())
             .assert_true(|f| dbg!(super::float().candidates(f).count()) < 200);
     }
 }

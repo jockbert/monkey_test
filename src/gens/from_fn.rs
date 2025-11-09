@@ -10,7 +10,7 @@ use crate::Gen;
 ///
 /// Please note! No shrinker is associated with the resulting generator, so
 /// shrinker need to be provided too. That can be done by using either
-/// [Gen::with_shrinker] or [crate::gen::other_shrinker], alternatively provide
+/// [Gen::with_shrinker] or [crate::gens::other_shrinker], alternatively provide
 /// at place of testing the propery with [crate::ConfAndGen::with_shrinker]
 ///
 /// For alternatives, see [from_fn_boxed].
@@ -19,7 +19,7 @@ use crate::Gen;
 /// use monkey_test::*;
 ///
 /// // Creating a generator by providing closure returning an iterator.
-/// let my_gen = gen::from_fn(|seed| std::iter::repeat(42));
+/// let my_gen = gens::from_fn(|seed| std::iter::repeat(42));
 ///
 /// // First alternative for providing a shrinker - attaching it to the generator.
 /// let my_shrinking_gen = my_gen.with_shrinker(shrink::int());
@@ -63,7 +63,7 @@ where
 ///
 /// // Creating a generator by providing closure returning a boxed iterator.
 /// let my_gen: BoxGen<i64> =
-///     gen::from_fn_boxed(|seed| Box::new(std::iter::repeat(42)));
+///     gens::from_fn_boxed(|seed| Box::new(std::iter::repeat(42)));
 /// ```
 ///
 pub fn from_fn_boxed<E, F>(f: F) -> BoxGen<E>

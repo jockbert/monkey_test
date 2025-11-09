@@ -8,7 +8,7 @@
 //!
 //! let failing_example_to_shrink = vec![-1, 2, 3, 4, 5, 6, 7, 8];
 //!
-//! let int_vectors = gen::vec::any(gen::i16::any());
+//! let int_vectors = gens::vec::any(gens::i16::any());
 //!
 //! let smaller_candidates =  int_vectors
 //!     .shrinker()

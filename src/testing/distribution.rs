@@ -148,32 +148,32 @@ fn format_distribution<T: Debug>(d: &Distribution<T>) -> String {
     expected = "Unexpected generator example <10> with frequency 33.3%."
 )]
 fn assert_should_fail_on_unexpected_additional_generator_example() {
-    let gen = crate::gen::fixed::in_loop(&[10, 11, 12]);
+    let generator = crate::gens::fixed::in_loop(&[10, 11, 12]);
     let expected = even_distribution_of::<u8>(&[11, 12]);
 
-    assert_generator_has_distribution_within_percent(gen, expected, 1.0);
+    assert_generator_has_distribution_within_percent(generator, expected, 1.0);
 }
 
 #[test]
 #[should_panic = "Generator never returned expected example <13>. Expected \
     to have frequency 33.3%."]
 fn assert_should_fail_on_missing_example_in_generator() {
-    let gen = crate::gen::fixed::in_loop(&[11, 12]);
+    let generator = crate::gens::fixed::in_loop(&[11, 12]);
     let expected = even_distribution_of::<u8>(&[11, 12, 13]);
 
-    assert_generator_has_distribution_within_percent(gen, expected, 1.0);
+    assert_generator_has_distribution_within_percent(generator, expected, 1.0);
 }
 
 #[test]
 #[should_panic = "Frequency of example <11> is expected to be 75.0%, but \
     actually is 50.0%."]
 fn assert_should_fail_on_frequency_missmatch() {
-    let gen = crate::gen::fixed::in_loop(&[11, 12]);
+    let generator = crate::gens::fixed::in_loop(&[11, 12]);
 
     // Expected 11 as 75% and and 12 as 25% of the generator examples.
     let mut expected = Distribution::<u8>::new();
     expected.insert(11, 3);
     expected.insert(12, 1);
 
-    assert_generator_has_distribution_within_percent(gen, expected, 1.0);
+    assert_generator_has_distribution_within_percent(generator, expected, 1.0);
 }

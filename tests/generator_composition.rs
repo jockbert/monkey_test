@@ -8,11 +8,11 @@ fn not_too_wide_tuple((width, height): (u16, u16)) -> bool {
 }
 
 fn heights() -> BoxGen<u16> {
-    gen::u16::ranged(..100)
+    gens::u16::ranged(..100)
 }
 
 fn widths() -> BoxGen<u16> {
-    gen::u16::ranged(..100)
+    gens::u16::ranged(..100)
 }
 
 /// Zipping two generators into generator of tuples automatically also creates
@@ -44,7 +44,7 @@ struct Rectangle {
 /// type, that (hopefully) already have good shrinker defined.
 fn rectangle_structs() -> BoxGen<Rectangle> {
     // Combining two generators with map and unmap.
-    gen::map(
+    gens::map(
         rectangle_tuples(),
         |(width, height)| Rectangle { width, height },
         |r: Rectangle| (r.width, r.height),
@@ -79,8 +79,8 @@ struct Color {
 /// Composing together 4 generaetors using `zip_4` to a generator of Color
 /// structs.
 fn any_color() -> BoxGen<Color> {
-    gen::u8::any()
-        .zip_4(gen::u8::any(), gen::u8::any(), gen::u8::any())
+    gens::u8::any()
+        .zip_4(gens::u8::any(), gens::u8::any(), gens::u8::any())
         .map(
             |(red, green, blue, alpha)| Color {
                 red,

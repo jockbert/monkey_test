@@ -10,7 +10,7 @@ where
     let original_shrinker = original_gen.shrinker();
     let filtered_shrinker = original_shrinker.filter(predicate.clone());
 
-    crate::gen::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed| {
         let pred = predicate.clone();
         let mut filter_streak = 0;
 
@@ -42,7 +42,7 @@ mod test {
     #[test]
     fn filter_out_evens() {
         assert_iter_eq(
-            gen::fixed::sequence(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
+            gens::fixed::sequence(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
                 .filter(|e| e % 2 == 0)
                 .examples(1337),
             vec![2, 4, 6, 8, 10, 12],
@@ -55,7 +55,7 @@ mod test {
        For test performance, please use more efficient way to generate \
        examples than heavy reliance on filtering."]
     fn should_panic_on_too_heavy_filtering() {
-        let filtererd_generator = crate::gen::u128::any().filter(|_| false);
+        let filtererd_generator = crate::gens::u128::any().filter(|_| false);
 
         // Trying to get an example should throw, since all examples are
         // filtered out.
@@ -72,6 +72,7 @@ mod test {
         assert!(
             filtererd_shrinker.candidates(2000).count() > 1000,
             "More candidates that the limit for to heavy filtering is filtered \
-            out without panicing");
+            out without panicing"
+        );
     }
 }

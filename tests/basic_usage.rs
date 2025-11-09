@@ -3,7 +3,7 @@ use monkey_test::*;
 #[test]
 fn add_up_to_overflow() {
     monkey_test()
-        .with_generator(gen::u8::any())
+        .with_generator(gens::u8::any())
         .assert_true(|x| x == 255 || x + 1 > x);
 }
 
@@ -11,7 +11,7 @@ fn add_up_to_overflow() {
 fn can_fail_with_details_when_using_check() {
     let actual_result: MonkeyResult<u8> = monkey_test()
         .with_seed(123456)
-        .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
+        .with_generator(gens::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int_to_zero())
         .title("Less than thirteen")
         .test_true(|x| x < 13);
@@ -36,7 +36,7 @@ fn can_fail_with_details_when_using_check() {
 fn can_fail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
-        .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
+        .with_generator(gens::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int_to_zero())
         .assert_true(|x| x < 13);
 }
@@ -46,7 +46,7 @@ fn can_fail_with_panic_when_using_assert() {
 fn can_assert_minimumfail_with_panic_when_using_assert() {
     monkey_test()
         .with_seed(123456)
-        .with_generator(gen::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
+        .with_generator(gens::fixed::sequence(&[1, 2, 3, 10, 20, 30]))
         .with_shrinker(shrink::int_to_zero())
         .test_true(|x| x < 15)
         .assert_minimum_failure(15);
@@ -59,7 +59,7 @@ fn can_assert_minimumfail_with_panic_when_using_assert() {
 fn can_assert_that_there_is_no_panic_thrown() {
     monkey_test()
         .with_example_count(1_000)
-        .with_generator(gen::u32::any())
+        .with_generator(gens::u32::any())
         .assert_no_panic(|n| {
             let _ = 1 / (n / u32::MAX);
         });
@@ -81,7 +81,7 @@ fn can_assert_that_there_is_no_panic_thrown() {
     Reason: Actual value should equal expected 11, but got 10.")]
 fn can_assert_eq() {
     monkey_test()
-        .with_generator(gen::u32::ranged(10..))
+        .with_generator(gens::u32::ranged(10..))
         .assert_eq(|n| n, |n| n / 2 * 2);
 }
 
@@ -96,7 +96,7 @@ fn can_assert_eq() {
 fn can_assert_ne() {
     monkey_test()
         .with_example_count(1_000)
-        .with_generator(gen::u32::ranged(0..10_000))
+        .with_generator(gens::u32::ranged(0..10_000))
         .assert_ne(|n| (n + 2) / 2, |n| (n + 3) / 2);
 }
 
@@ -105,7 +105,7 @@ fn use_all_settings_available() {
     monkey_test()
         .with_example_count(1_000)
         .with_seed(1234567890)
-        .with_generator(gen::u8::any())
+        .with_generator(gens::u8::any())
         .with_shrinker(shrink::none())
         .assert_true(|x| x as u16 * x as u16 >= x as u16);
 }
@@ -113,14 +113,14 @@ fn use_all_settings_available() {
 #[test]
 fn pick_from_alternatives_evenly() {
     monkey_test()
-        .with_generator(gen::pick_evenly(&["Apple", "Orange", "Banana"]))
+        .with_generator(gens::pick_evenly(&["Apple", "Orange", "Banana"]))
         .assert_true(|fruit| fruit.ends_with('e') || fruit.ends_with('a'));
 }
 
 #[test]
 fn pick_from_alternatives_with_ratio() {
     monkey_test()
-        .with_generator(gen::pick_with_ratio(&[
+        .with_generator(gens::pick_with_ratio(&[
             (1, "Apple"),
             (2, "Orange"),
             (55, "Banana"),
@@ -130,10 +130,10 @@ fn pick_from_alternatives_with_ratio() {
 
 #[test]
 fn mix_from_alternative_generators_with_ratio() {
-    let evens = gen::pick_evenly(&[0, 2, 4, 6, 8]);
-    let odds = gen::pick_evenly(&[1, 3, 5, 7, 9]);
+    let evens = gens::pick_evenly(&[0, 2, 4, 6, 8]);
+    let odds = gens::pick_evenly(&[1, 3, 5, 7, 9]);
 
-    let mostly_evens = gen::mix_with_ratio(&[(93, evens), (7, odds)]);
+    let mostly_evens = gens::mix_with_ratio(&[(93, evens), (7, odds)]);
 
     monkey_test()
         .with_generator(mostly_evens)
@@ -145,7 +145,7 @@ fn mix_from_alternative_generators_with_ratio() {
 fn filtering_of_generated_values() {
     monkey_test()
         .with_generator(
-            gen::u8::any()
+            gens::u8::any()
                 // only odd numbers
                 .filter(|e| e % 2 == 1)
                 // only numbers equal or greater to 100

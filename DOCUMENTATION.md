@@ -53,7 +53,7 @@ manually choosing examples to test.
 use monkey_test::*;
 
 monkey_test()
-    .with_generator(gen::f64::ranged(2.0..))
+    .with_generator(gens::f64::ranged(2.0..))
     .title("Lower bound")
     .assert_true(|n| n.sqrt() > 1.0)
     .title("Upper bound")
@@ -94,21 +94,21 @@ Generators for `bool`, `f32`, `f64` and for all integer types
 
 ```rust
 use monkey_test::*;
-let bytes = gen::u8::any();
-let some_longs = gen::i64::ranged(10..=20);
-let mostly_true = gen::bool::with_ratio(1,20);
+let bytes = gens::u8::any();
+let some_longs = gens::i64::ranged(10..=20);
+let mostly_true = gens::bool::with_ratio(1,20);
 ```
 
 There are some more specialized generators. In module
-`gen::sized` there are generators that return progressively larger and larger
+`gens::sized` there are generators that return progressively larger and larger
 values, suitable for controlling the size of generated collections. In module
-`gen::fixed` there are generators that do not use randomness, which can be
+`gens::fixed` there are generators that do not use randomness, which can be
 useful sometimes.
 
 ```rust
 use monkey_test::*;
-let progressively_larger_sizes: BoxGen<usize> = gen::sized::default();
-let always_the_same_value: BoxGen<i32> = gen::fixed::constant(42);
+let progressively_larger_sizes: BoxGen<usize> = gens::sized::default();
+let always_the_same_value: BoxGen<i32> = gens::fixed::constant(42);
 ```
 
 ### Generators and shrinkers for collections
@@ -117,7 +117,7 @@ There is a generator and a shrinker for vectors.
 
 ```rust
 use monkey_test::*;
-let int_vectors: BoxGen<Vec<i16>> = gen::vec::any(gen::i16::any());
+let int_vectors: BoxGen<Vec<i16>> = gens::vec::any(gens::i16::any());
 
 monkey_test()
    .with_generator(int_vectors)
@@ -132,9 +132,9 @@ generators
 
 ```rust
 use monkey_test::*;
-let fruits = gen::pick_evenly(&["banana", "apple", "orange"]);
-let nuts = gen::pick_evenly(&["peanut", "almond", "pecan"]);
-let snacks = gen::mix_with_ratio(&[(3, nuts), (1, fruits)]);
+let fruits = gens::pick_evenly(&["banana", "apple", "orange"]);
+let nuts = gens::pick_evenly(&["peanut", "almond", "pecan"]);
+let snacks = gens::mix_with_ratio(&[(3, nuts), (1, fruits)]);
 ```
 
 ### Compose generators and shrinkers for more complex types
@@ -151,16 +151,16 @@ use monkey_test::*;
 #[derive(Clone)]
 struct Point {x: u16, y: u16}
 
-let points: BoxGen<Point> = gen::u16::any()
-   .zip(gen::u16::any())
+let points: BoxGen<Point> = gens::u16::any()
+   .zip(gens::u16::any())
    .map(|(x, y)| Point{x, y}, |p| (p.x, p.y))
    .filter(|p| p.x != p.y);
 
 #[derive(Clone)]
 struct Color {r: u8, g: u8, b: u8, a: u8}
 
-let colors: BoxGen<Color> = gen::u8::any()
-   .zip_4(gen::u8::any(), gen::u8::any(), gen::u8::any())
+let colors: BoxGen<Color> = gens::u8::any()
+   .zip_4(gens::u8::any(), gens::u8::any(), gens::u8::any())
    .map(|(r, g, b, a)| Color{r, g, b, a}, |c| (c.r, c.g, c.b, c.a))
    .filter(|c| c.r > 10);
 ```
@@ -203,7 +203,7 @@ fn dice_throw_generator_from_struct(side_count: u32) -> BoxGen<u32> {
 ```
 
 Some boilerplate code can be eliminated and the same functionality can be
-achieved by using [gen::from_fn] instead of implementing the [Gen] trait.
+achieved by using [gens::from_fn] instead of implementing the [Gen] trait.
 
 ```rust
 use monkey_test::*;
@@ -211,7 +211,7 @@ use rand::Rng;
 use rand::SeedableRng;
 
 fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
-    gen::from_fn(move |seed| {
+    gens::from_fn(move |seed| {
         let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
@@ -241,7 +241,7 @@ use monkey_test::*;
 
 monkey_test()
    .with_example_count(1_000)
-   .with_generator(gen::i32::ranged(-10_000..10_000))
+   .with_generator(gens::i32::ranged(-10_000..10_000))
    .assert_no_panic(|n| { let _ = 1/(n / 100 - 7); });
 ```
 
@@ -250,7 +250,7 @@ monkey_test()
 use monkey_test::*;
 
 monkey_test()
-   .with_generator(gen::i8::any())
+   .with_generator(gens::i8::any())
    .assert_true(|n| u8::try_from(n).is_ok() );
 ```
 
@@ -267,7 +267,7 @@ to verify.
 use monkey_test::*;
 
 monkey_test()
-   .with_generator(gen::i8::any())
+   .with_generator(gens::i8::any())
    .assert_true(|n| n == i8::MIN || n.abs() >= 0 );
 ```
 
@@ -285,7 +285,7 @@ corresponds to the ground truth data.
 use monkey_test::*;
 
 monkey_test()
-   .with_generator(gen::u32::any())
+   .with_generator(gens::u32::any())
    .assert_eq(|n| n, |n| n.to_string().parse::<u32>().unwrap());
 ```
 
@@ -300,7 +300,7 @@ affecting the result of the code under test.
 use monkey_test::*;
 
 monkey_test()
-   .with_generator(gen::i8::ranged(-127..))
+   .with_generator(gens::i8::ranged(-127..))
    .assert_eq(|n| n.abs(), |n| n.abs().abs().abs().abs());
 ```
 
@@ -314,7 +314,7 @@ transformation.
 use monkey_test::*;
 
 monkey_test()
-   .with_generator(gen::i8::ranged(-127..))
+   .with_generator(gens::i8::ranged(-127..))
    .assert_eq(|n| n.abs(), |n| (-n).abs());
 ```
 
@@ -332,7 +332,7 @@ reckless refactoring.
 use monkey_test::*;
 
 monkey_test()
-   .with_generator(gen::u8::ranged(..128))
+   .with_generator(gens::u8::ranged(..128))
    .assert_eq(|n| n + n, |n| n * 2 );
 ```
 
@@ -349,7 +349,7 @@ assert_eq!{Vec::<i64>::new().len(), 0};
 
 // Induction general case
 monkey_test()
-   .with_generator(gen::vec::any(gen::u8::any()))
+   .with_generator(gens::vec::any(gens::u8::any()))
    .assert_eq(
       |vec| vec.len() + 1,
       |mut vec| {
@@ -384,7 +384,7 @@ impl Counter {
 }
 
 monkey_test()
-   .with_generator(gen::vec::any(gen::i8::any()))
+   .with_generator(gens::vec::any(gens::i8::any()))
    .assert_eq(
       // Expected sum of increments
       |vec| vec.iter().cloned().map(|x| x as i64).sum(),

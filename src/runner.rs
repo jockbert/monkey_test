@@ -61,14 +61,17 @@ impl<E> MonkeyResult<E> {
     {
         match self {
             MonkeyResult::MonkeyOk() => panic!(
-                "Expecting property to fail for some example, but it never failed."),
-            MonkeyResult::MonkeyErr { minimum_failure, .. } => assert!(
+                "Expecting property to fail for some example, but it never failed."
+            ),
+            MonkeyResult::MonkeyErr {
+                minimum_failure, ..
+            } => assert!(
                 expected_minimum_failure == *minimum_failure,
                 "Expecting property to fail, which it did, but also \
                 expecting minimum failure to be equal to {:?}, but got {:?}",
                 expected_minimum_failure,
                 minimum_failure,
-            )
+            ),
         };
         self
     }
@@ -79,7 +82,7 @@ where
     E: Clone + 'static,
     P: Fn(E) -> Result<(), String>,
 {
-    let mut it = cg.gen.examples(cg.conf.seed);
+    let mut it = cg.generator.examples(cg.conf.seed);
 
     for i in 0..cg.conf.example_count {
         let example = it.next();
@@ -91,7 +94,7 @@ where
 
         if let Err(first_reason) = maybe_first_reason {
             let shrinked_values =
-                do_shrink(prop, first_example.clone(), cg.gen.shrinker());
+                do_shrink(prop, first_example.clone(), cg.generator.shrinker());
 
             // All but last shrinked value, up to a max limit
             let other_count = shrinked_values.len().clamp(1, 100) as u64 - 1;

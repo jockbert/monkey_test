@@ -14,20 +14,20 @@ use crate::BoxGen;
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let number_string_generator: BoxGen<String> = gen::map(
-///     gen::i64::any(),
+/// let number_string_generator: BoxGen<String> = gens::map(
+///     gens::i64::any(),
 ///     |i: i64| i.to_string(),
 ///     |s: String| s.parse().unwrap(),
 /// );
 ///
-/// let even_numbers_only_generator: BoxGen<u64> = gen::map(
-///     gen::u64::ranged(..10_000),
+/// let even_numbers_only_generator: BoxGen<u64> = gens::map(
+///     gens::u64::ranged(..10_000),
 ///     |i: u64| i * 2,
 ///     |even: u64| even / 2,
 /// );
 ///
 /// // Shorthand way to do the same thing
-/// let even_numbers_only_generator_2: BoxGen<u64> = gen::u64::ranged(..10_000)
+/// let even_numbers_only_generator_2: BoxGen<u64> = gens::u64::ranged(..10_000)
 ///     .map(|i| i * 2, |e| e / 2);
 /// ```
 pub fn map<E0, E1>(
@@ -41,13 +41,13 @@ where
 {
     let shrinker = gen0.shrinker();
 
-    crate::gen::from_fn(move |seed| gen0.examples(seed).map(map_fn))
+    crate::gens::from_fn(move |seed| gen0.examples(seed).map(map_fn))
         .with_shrinker(crate::shrink::map(shrinker, map_fn, unmap_fn))
 }
 
 #[cfg(test)]
 mod test {
-    use crate::gen::fixed;
+    use crate::gens::fixed;
     use crate::testing::assert_generator_is_empty;
     use crate::testing::assert_shrinker_has_some_candidates_given;
     use crate::testing::distribution::assert_generator_has_distribution_within_percent;
@@ -55,19 +55,19 @@ mod test {
 
     #[test]
     fn empty_generators_can_not_build_anything() {
-        let gen = super::map(
+        let generator = super::map(
             fixed::sequence::<u8>(&[]),
             |i| i.to_string(),
             |s| s.parse().unwrap(),
         );
 
         // Empty output generator
-        assert_generator_is_empty(gen);
+        assert_generator_is_empty(generator);
     }
 
     #[test]
     fn always_same_values_with_generators_that_ignore_seed() {
-        let gen = super::map(
+        let generator = super::map(
             fixed::sequence(&[1, 2]),
             |i| i.to_string(),
             |s| s.parse().unwrap(),
@@ -76,26 +76,30 @@ mod test {
         let expected =
             even_distribution_of(&["1".to_string(), "2".to_string()]);
 
-        assert_generator_has_distribution_within_percent(gen, expected, 1.0)
+        assert_generator_has_distribution_within_percent(
+            generator, expected, 1.0,
+        )
     }
 
     #[test]
     fn even_distribution_with_generators_using_seed() {
-        let gen = super::map(
-            crate::gen::i32::completely_random(1..4),
+        let generator = super::map(
+            crate::gens::i32::completely_random(1..4),
             |i| i * 10,
             |i| i / 10,
         );
 
         let expected = even_distribution_of(&[10, 20, 30]);
 
-        assert_generator_has_distribution_within_percent(gen, expected, 1.5)
+        assert_generator_has_distribution_within_percent(
+            generator, expected, 1.5,
+        )
     }
 
     #[test]
     fn automatically_can_shrink_mapped_examples() {
         let shrinker = super::map(
-            crate::gen::u8::any(),
+            crate::gens::u8::any(),
             |i| i.to_string(),
             |s| s.parse().unwrap(),
         )

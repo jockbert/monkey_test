@@ -11,7 +11,7 @@
 #![doc = include_str!("../DOCUMENTATION.md")]
 
 mod config;
-pub mod gen;
+pub mod gens;
 mod runner;
 pub mod shrink;
 
@@ -29,7 +29,7 @@ pub use config::*;
 /// use monkey_test::*;
 ///
 /// monkey_test()
-///   .with_generator(gen::u8::any())
+///   .with_generator(gens::u8::any())
 ///   .assert_true(|x| x < 15);
 /// ```
 pub fn monkey_test() -> Conf {
@@ -113,14 +113,14 @@ pub trait Gen<E: Clone + 'static>: CloneGen<E> {
     /// get any shrinking functionality applied to failing example.
     fn shrinker(&self) -> BoxShrink<E>;
 
-    /// Bind another shrinker to generator. See [gen::other_shrinker].
+    /// Bind another shrinker to generator. See [gens::other_shrinker].
     fn with_shrinker(&self, other_shrink: BoxShrink<E>) -> BoxGen<E> {
-        gen::other_shrinker(self.clone_box(), other_shrink)
+        gens::other_shrinker(self.clone_box(), other_shrink)
     }
 
-    /// Concatenate together two generators. See [gen::chain].
+    /// Concatenate together two generators. See [gens::chain].
     fn chain(&self, other_gen: BoxGen<E>) -> BoxGen<E> {
-        gen::chain(self.clone_box(), other_gen)
+        gens::chain(self.clone_box(), other_gen)
     }
 }
 
@@ -133,7 +133,7 @@ pub trait ZipWithGen<E0>
 where
     E0: Clone + 'static,
 {
-    /// See [gen::zip].
+    /// See [gens::zip].
     fn zip<E1>(&self, other_gen: BoxGen<E1>) -> BoxGen<(E0, E1)>
     where
         E1: Clone + 'static;
@@ -196,7 +196,7 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
     where
         E1: Clone + 'static,
     {
-        gen::zip(self.clone_box(), other_gen)
+        gens::zip(self.clone_box(), other_gen)
     }
 
     fn zip_3<E1, E2>(
@@ -208,7 +208,7 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
         E1: Clone + 'static,
         E2: Clone + 'static,
     {
-        gen::zip(gen::zip(self.clone_box(), gen1), gen2)
+        gens::zip(gens::zip(self.clone_box(), gen1), gen2)
             .map(|((e0, e1), e2)| (e0, e1, e2), |(e0, e1, e2)| ((e0, e1), e2))
     }
 
@@ -223,7 +223,7 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
         E2: Clone + 'static,
         E3: Clone + 'static,
     {
-        gen::zip(gen::zip(self.clone_box(), gen1), gen::zip(gen2, gen3)).map(
+        gens::zip(gens::zip(self.clone_box(), gen1), gens::zip(gen2, gen3)).map(
             |((e0, e1), (e2, e3))| (e0, e1, e2, e3),
             |(e0, e1, e2, e3)| ((e0, e1), (e2, e3)),
         )
@@ -242,10 +242,11 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
         E3: Clone + 'static,
         E4: Clone + 'static,
     {
-        gen::zip(gen::zip(self.clone_box(), gen1), gen2.zip_3(gen3, gen4)).map(
-            |((e0, e1), (e2, e3, e4))| (e0, e1, e2, e3, e4),
-            |(e0, e1, e2, e3, e4)| ((e0, e1), (e2, e3, e4)),
-        )
+        gens::zip(gens::zip(self.clone_box(), gen1), gen2.zip_3(gen3, gen4))
+            .map(
+                |((e0, e1), (e2, e3, e4))| (e0, e1, e2, e3, e4),
+                |(e0, e1, e2, e3, e4)| ((e0, e1), (e2, e3, e4)),
+            )
     }
 
     fn zip_6<E1, E2, E3, E4, E5>(
@@ -263,7 +264,7 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
         E4: Clone + 'static,
         E5: Clone + 'static,
     {
-        gen::zip(self.zip_3(gen1, gen2), gen3.zip_3(gen4, gen5)).map(
+        gens::zip(self.zip_3(gen1, gen2), gen3.zip_3(gen4, gen5)).map(
             |((e0, e1, e2), (e3, e4, e5))| (e0, e1, e2, e3, e4, e5),
             |(e0, e1, e2, e3, e4, e5)| ((e0, e1, e2), (e3, e4, e5)),
         )
@@ -275,7 +276,7 @@ pub trait MapWithGen<E0>
 where
     E0: Clone + 'static,
 {
-    /// See [gen::map].
+    /// See [gens::map].
     fn map<E1>(
         &self,
         map_fn: fn(E0) -> E1,
@@ -294,7 +295,7 @@ impl<E0: Clone + 'static> MapWithGen<E0> for dyn Gen<E0> {
     where
         E1: Clone + 'static,
     {
-        gen::map(self.clone_box(), map_fn, unmap_fn)
+        gens::map(self.clone_box(), map_fn, unmap_fn)
     }
 }
 
@@ -303,7 +304,7 @@ pub trait FilterWithGen<E>
 where
     E: Clone + 'static,
 {
-    /// See [gen::filter].
+    /// See [gens::filter].
     fn filter<P>(&self, predicate: P) -> BoxGen<E>
     where
         P: Fn(&E) -> bool + Clone + 'static;
@@ -314,7 +315,7 @@ impl<E: Clone + 'static> FilterWithGen<E> for dyn Gen<E> {
     where
         P: Fn(&E) -> bool + Clone + 'static,
     {
-        gen::filter(self.clone_box(), predicate)
+        gens::filter(self.clone_box(), predicate)
     }
 }
 

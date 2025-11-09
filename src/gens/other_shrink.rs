@@ -5,11 +5,11 @@ use crate::{BoxGen, BoxIter, BoxShrink, Gen};
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let gen = gen::u8::any();
-/// assert!(gen.shrinker().candidates(123).next().is_some());
+/// let gen1 = gens::u8::any();
+/// assert!(gen1.shrinker().candidates(123).next().is_some());
 ///
 /// // let generator have other shrinker
-/// let gen2 = gen::other_shrinker(gen, shrink::none());
+/// let gen2 = gens::other_shrinker(gen1, shrink::none());
 /// assert!(gen2.shrinker().candidates(123).next().is_none());
 ///
 /// // let generator have other shrinker again (alternative way)
@@ -17,11 +17,11 @@ use crate::{BoxGen, BoxIter, BoxShrink, Gen};
 /// assert!(gen3.shrinker().candidates(123).next().is_some());
 /// ```
 pub fn other_shrinker<E: Clone + 'static>(
-    gen: BoxGen<E>,
+    generator: BoxGen<E>,
     other_shrink: BoxShrink<E>,
 ) -> BoxGen<E> {
     Box::new(OtherShrinkGen {
-        generator: gen,
+        generator,
         shrinker: other_shrink,
     })
 }

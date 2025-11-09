@@ -25,20 +25,20 @@ where
     /// The configuration to use.
     pub conf: Conf,
     /// See [Conf::with_generator].
-    pub gen: BoxGen<E>,
+    pub generator: BoxGen<E>,
     /// See [ConfAndGen::title].
     pub title: Option<String>,
 }
 
 impl Conf {
     /// Specify which single generator to use in test.
-    pub fn with_generator<E>(&self, gen: BoxGen<E>) -> ConfAndGen<E>
+    pub fn with_generator<E>(&self, generator: BoxGen<E>) -> ConfAndGen<E>
     where
         E: Clone,
     {
         ConfAndGen {
             conf: self.clone(),
-            gen,
+            generator,
             title: None,
         }
     }
@@ -152,8 +152,8 @@ where
                     Ok(())
                 } else {
                     Err(format!(
-                    "Actual value should equal expected {e:?}, but got {a:?}."
-                ))
+                        "Actual value should equal expected {e:?}, but got {a:?}."
+                    ))
                 }
             }),
         ));
@@ -180,8 +180,8 @@ where
                     Ok(())
                 } else {
                     Err(format!(
-                    "Actual value should not equal expected {e:?}, but got {a:?}."
-                ))
+                        "Actual value should not equal expected {e:?}, but got {a:?}."
+                    ))
                 }
             }),
         ));
@@ -191,7 +191,7 @@ where
     /// Add/change which shriker to use when a failing example is found.
     pub fn with_shrinker(&self, shrink: BoxShrink<E>) -> ConfAndGen<E> {
         Self {
-            gen: self.gen.with_shrinker(shrink),
+            generator: self.generator.with_shrinker(shrink),
             ..self.clone()
         }
     }

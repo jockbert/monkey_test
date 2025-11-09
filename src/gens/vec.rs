@@ -8,7 +8,7 @@
 //! use monkey_test::*;
 //!
 //! let some_seed = 1337;
-//! let vectors_of_nine = gen::vec::any(gen::fixed::constant(9));
+//! let vectors_of_nine = gens::vec::any(gens::fixed::constant(9));
 //!
 //! let actual_examples = vectors_of_nine
 //!     .examples(some_seed)
@@ -62,9 +62,9 @@ use crate::BoxGen;
 pub fn any<E: Clone + 'static>(element_gen: BoxGen<E>) -> BoxGen<Vec<E>> {
     let element_shrinker = element_gen.shrinker();
 
-    crate::gen::from_fn(move |seed| {
-        let sizes = crate::gen::sized::default().examples(seed);
-        let seeds = crate::gen::seeds().examples(seed);
+    crate::gens::from_fn(move |seed| {
+        let sizes = crate::gens::sized::default().examples(seed);
+        let seeds = crate::gens::seeds().examples(seed);
         let element_gen = element_gen.clone();
 
         sizes.zip(seeds).map(move |(size, seed)| {

@@ -2,9 +2,9 @@
 
 use crate::BoxGen;
 use num_traits::PrimInt;
-use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
+use rand::distributions::uniform::SampleUniform;
 use std::ops::Bound;
 use std::ops::RangeBounds;
 
@@ -24,10 +24,10 @@ where
         extreme_values.push(E::zero());
     }
 
-    let extremes = crate::gen::pick_evenly(&extreme_values);
+    let extremes = crate::gens::pick_evenly(&extreme_values);
     let randoms = completely_random(bounds);
 
-    crate::gen::mix_with_ratio(&[(96, randoms), (6, extremes)])
+    crate::gens::mix_with_ratio(&[(96, randoms), (6, extremes)])
 }
 
 /// Int generator with completely random distribution. This function has a long
@@ -40,7 +40,7 @@ where
     let min = start(&bounds);
     let max = end(&bounds);
 
-    crate::gen::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed| {
         let distr = rand::distributions::Uniform::new_inclusive(min, max);
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })

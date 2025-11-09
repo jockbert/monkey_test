@@ -25,7 +25,7 @@ mod tests {
     #[should_panic(expected = "Property failed!\nFailure: 15")]
     fn test_that_will_fail() {
         monkey_test()
-            .with_generator(gen::u8::any())
+            .with_generator(gens::u8::any())
             .assert_true(|x| x < 15);
     }
 }
@@ -68,7 +68,7 @@ Other known limitations:
 * For now, float generators do not limit themselves to shrink to
   values within given generator range, but will by default shrink toward zero.
   For instance, let say that we create generator
-  `monkey_test::gen::f64::ranged(10.0..100.0)`, the associated shrinker will not
+  `monkey_test::gens::f64::ranged(10.0..100.0)`, the associated shrinker will not
   only try candidates within the given range `10.0..100.0`, but can also try other
   values like -10.0 and will ultimately try to shrink toward zero.
 

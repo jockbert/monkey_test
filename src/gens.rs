@@ -1,4 +1,4 @@
-//! The `gen` module contains built in generators.
+//! The `gens` module contains built in generators.
 
 pub mod bool;
 mod chain;
@@ -34,7 +34,7 @@ pub use zip::zip;
 
 /// Standard way to generate seeds for random source.
 pub fn seeds() -> BoxGen<u64> {
-    crate::gen::u64::completely_random(..)
+    crate::gens::u64::completely_random(..)
 }
 
 /// Macro to generate code for all integer type modules
@@ -90,7 +90,7 @@ macro_rules! float_module {
     ($name:ident) => {
         pub mod $name {
             //! Module with generators for floating point values. There are both
-            //! modules [crate::gen::f64] and [crate::gen::f32] for each type
+            //! modules [crate::gens::f64] and [crate::gens::f32] for each type
             //! respecive.
             //!
             //! There are some variants for generating floating point numbers. For

@@ -1,15 +1,15 @@
 //! Module with generators for generic floating point values.
-//! For non-generic types `f64` and `f32`, see modules [crate::gen::f64]
-//! and [crate::gen::f32] instead, which are specializations of this module.
+//! For non-generic types `f64` and `f32`, see modules [crate::gens::f64]
+//! and [crate::gens::f32] instead, which are specializations of this module.
 
 use super::float_parts::FloatParts;
-use crate::gen;
 use crate::BoxGen;
 use crate::MapWithGen;
+use crate::gens;
 use num_traits::Float;
-use rand::distributions::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
+use rand::distributions::uniform::SampleUniform;
 use std::fmt::Debug;
 use std::ops::Bound;
 use std::ops::RangeBounds;
@@ -20,8 +20,8 @@ pub fn any<F>() -> BoxGen<F>
 where
     F: Float + FloatParts + SampleUniform + 'static,
 {
-    let nans = gen::fixed::constant(F::nan());
-    gen::mix_with_ratio(&[(98, number()), (2, nans)])
+    let nans = gens::fixed::constant(F::nan());
+    gens::mix_with_ratio(&[(98, number()), (2, nans)])
 }
 
 /// Generator that only return finite numbers, `-Inf` and
@@ -30,8 +30,8 @@ pub fn number<F>() -> BoxGen<F>
 where
     F: Float + FloatParts + SampleUniform + 'static,
 {
-    let infs = gen::pick_evenly(&[F::neg_infinity(), F::infinity()]);
-    gen::mix_with_ratio(&[(98, finite()), (2, infs)])
+    let infs = gens::pick_evenly(&[F::neg_infinity(), F::infinity()]);
+    gens::mix_with_ratio(&[(98, finite()), (2, infs)])
 }
 
 /// Generator that only return numbers between 0 and `+Inf`.
@@ -39,9 +39,9 @@ pub fn positive<F>() -> BoxGen<F>
 where
     F: Float + FloatParts + SampleUniform + 'static,
 {
-    let infs = gen::fixed::constant(F::infinity());
+    let infs = gens::fixed::constant(F::infinity());
     let finites = ranged(F::zero()..=F::max_value());
-    gen::mix_with_ratio(&[(98, finites), (2, infs)])
+    gens::mix_with_ratio(&[(98, finites), (2, infs)])
 }
 
 /// Generator that only return numbers between `-Inf` and -0.
@@ -49,9 +49,9 @@ pub fn negative<F>() -> BoxGen<F>
 where
     F: Float + FloatParts + SampleUniform + 'static,
 {
-    let infs = gen::fixed::constant(F::neg_infinity());
+    let infs = gens::fixed::constant(F::neg_infinity());
     let finites = ranged(F::min_value()..=F::neg_zero());
-    gen::mix_with_ratio(&[(98, finites), (2, infs)])
+    gens::mix_with_ratio(&[(98, finites), (2, infs)])
 }
 
 /// Generator that only return finite numbers between minimum
@@ -118,9 +118,9 @@ where
         .cloned()
         .collect::<Vec<_>>();
 
-    let special_values = gen::pick_evenly(&relevant_special_values);
+    let special_values = gens::pick_evenly(&relevant_special_values);
 
-    gen::mix_with_ratio(&[
+    gens::mix_with_ratio(&[
         (90, completely_random_range(bound)),
         (10, special_values),
     ])
@@ -145,7 +145,7 @@ where
 
     // Generate two's complement bits signed integer representation of finite
     // floats
-    gen::from_fn(move |seed| {
+    gens::from_fn(move |seed| {
         //let distr = rand::distributions::Uniform::new_inclusive(min, max);
         let mut x = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
@@ -238,10 +238,10 @@ mod test {
 
     use super::from_twos_complement_bits;
     use super::to_twos_complement_bits;
-    use crate::gen;
+    use crate::BoxGen;
+    use crate::gens;
     use crate::monkey_test;
     use crate::testing::assert_generator_can_shrink;
-    use crate::BoxGen;
     use std::ops::RangeBounds;
 
     #[test]
@@ -254,7 +254,7 @@ mod test {
         let min = -max;
 
         monkey_test()
-            .with_generator(gen::i64::ranged(min..=max))
+            .with_generator(gens::i64::ranged(min..=max))
             .assert_true(|i| {
                 let f: f64 = from_twos_complement_bits(i);
                 let j = to_twos_complement_bits(f);
@@ -273,7 +273,7 @@ mod test {
         let min = -max;
 
         monkey_test()
-            .with_generator(gen::i64::ranged(min..=max))
+            .with_generator(gens::i64::ranged(min..=max))
             .assert_true(|i| {
                 let f: f32 = from_twos_complement_bits(i);
                 let j = to_twos_complement_bits(f);
@@ -301,10 +301,10 @@ mod test {
 
     #[test]
     fn verify_generator_any() {
-        let gen = gen::f32::any();
+        let generator = gens::f32::any();
 
         assert_has_values(
-            gen,
+            generator,
             &[
                 f32::NAN,
                 f32::MAX,
@@ -321,123 +321,138 @@ mod test {
 
     #[test]
     fn verify_generator_number() {
-        let gen = gen::f32::number();
+        let generator = gens::f32::number();
         assert_all_values_are_in_range(
-            gen.clone(),
+            generator.clone(),
             f32::NEG_INFINITY..=f32::INFINITY,
         );
-        assert_has_values(gen, &[0.0]);
+        assert_has_values(generator, &[0.0]);
     }
 
     #[test]
     fn verify_generator_positive() {
-        let gen = gen::f32::positive();
-        assert_all_values_are_in_range(gen.clone(), 0.0..=f32::INFINITY);
-        assert_does_not_have_value(gen.clone(), -0.0);
-        assert_has_values(gen, &[0.0, 1.0, f32::MAX, f32::INFINITY]);
+        let generator = gens::f32::positive();
+        assert_all_values_are_in_range(generator.clone(), 0.0..=f32::INFINITY);
+        assert_does_not_have_value(generator.clone(), -0.0);
+        assert_has_values(generator, &[0.0, 1.0, f32::MAX, f32::INFINITY]);
     }
 
     #[test]
     fn verify_generator_negative() {
-        let gen = gen::f32::negative();
-        assert_all_values_are_in_range(gen.clone(), f32::NEG_INFINITY..=-0.0);
-        assert_does_not_have_value(gen.clone(), 0.0);
-        assert_has_values(gen, &[-0.0, -1.0, f32::MIN, f32::NEG_INFINITY]);
+        let generator = gens::f32::negative();
+        assert_all_values_are_in_range(
+            generator.clone(),
+            f32::NEG_INFINITY..=-0.0,
+        );
+        assert_does_not_have_value(generator.clone(), 0.0);
+        assert_has_values(
+            generator,
+            &[-0.0, -1.0, f32::MIN, f32::NEG_INFINITY],
+        );
     }
 
     #[test]
     fn verify_generator_finite() {
-        let gen = gen::f32::finite();
-        assert_all_values_are_in_range(gen.clone(), f32::MIN..=f32::MAX);
-        assert_has_values(gen, &[-0.0, -1.0, 0.0, 1.0, f32::MIN, f32::MAX]);
+        let generator = gens::f32::finite();
+        assert_all_values_are_in_range(generator.clone(), f32::MIN..=f32::MAX);
+        assert_has_values(
+            generator,
+            &[-0.0, -1.0, 0.0, 1.0, f32::MIN, f32::MAX],
+        );
     }
 
     #[test]
     fn verify_generator_ranged() {
         // negative range
-        let gen = gen::f32::ranged(-555.0..=-72.0);
-        assert_all_values_are_in_range(gen.clone(), -555.0..=-72.0);
-        assert_has_values(gen, &[-555.0, -72.0]);
+        let generator = gens::f32::ranged(-555.0..=-72.0);
+        assert_all_values_are_in_range(generator.clone(), -555.0..=-72.0);
+        assert_has_values(generator, &[-555.0, -72.0]);
 
         // positive range
-        let gen = gen::f32::ranged(72.0..=555.0);
-        assert_all_values_are_in_range(gen.clone(), 72.0..=555.0);
-        assert_has_values(gen, &[72.0, 555.0]);
+        let generator = gens::f32::ranged(72.0..=555.0);
+        assert_all_values_are_in_range(generator.clone(), 72.0..=555.0);
+        assert_has_values(generator, &[72.0, 555.0]);
 
         // range inverted. lagest value first in range
-        let gen = gen::f32::ranged(555.0..=72.0);
-        assert_all_values_are_in_range(gen.clone(), 72.0..=555.0);
-        assert_has_values(gen, &[72.0, 555.0]);
+        let generator = gens::f32::ranged(555.0..=72.0);
+        assert_all_values_are_in_range(generator.clone(), 72.0..=555.0);
+        assert_has_values(generator, &[72.0, 555.0]);
 
         // sign-straddling range
-        let gen = gen::f32::ranged(-555.0..=72.0);
-        assert_all_values_are_in_range(gen.clone(), -555.0..=72.0);
-        assert_has_values(gen, &[-555.0, 72.0, -0.0, 0.0, -1.0, 1.0]);
+        let generator = gens::f32::ranged(-555.0..=72.0);
+        assert_all_values_are_in_range(generator.clone(), -555.0..=72.0);
+        assert_has_values(generator, &[-555.0, 72.0, -0.0, 0.0, -1.0, 1.0]);
     }
 
     #[test]
     fn verify_generator_zero_to_one() {
-        let gen = gen::f32::zero_to_one();
-        assert_all_values_are_in_range(gen.clone(), 0.0..1.0);
-        assert_has_values(gen.clone(), &[0.0]);
-        assert_does_not_have_value(gen, -0.0);
+        let generator = gens::f32::zero_to_one();
+        assert_all_values_are_in_range(generator.clone(), 0.0..1.0);
+        assert_has_values(generator.clone(), &[0.0]);
+        assert_does_not_have_value(generator, -0.0);
     }
 
     #[test]
     #[should_panic]
     fn let_ranged_panic_on_nan() {
-        gen::f32::ranged(f32::NAN..10.0);
+        gens::f32::ranged(f32::NAN..10.0);
     }
 
     #[test]
     #[should_panic]
     fn let_ranged_panic_on_neg_inf() {
-        gen::f32::ranged(f32::NEG_INFINITY..10.0);
+        gens::f32::ranged(f32::NEG_INFINITY..10.0);
     }
 
     #[test]
     #[should_panic]
     fn let_ranged_panic_on_pos_inf() {
-        gen::f32::ranged(10.0..=f32::INFINITY);
+        gens::f32::ranged(10.0..=f32::INFINITY);
     }
 
     #[test]
     #[should_panic]
     fn let_completely_random_panic_on_nan() {
-        gen::f32::completely_random(f32::NAN..10.0);
+        gens::f32::completely_random(f32::NAN..10.0);
     }
 
     #[test]
     #[should_panic]
     fn let_completely_random_panic_on_neg_inf() {
-        gen::f32::completely_random(f32::NEG_INFINITY..10.0);
+        gens::f32::completely_random(f32::NEG_INFINITY..10.0);
     }
 
     #[test]
     #[should_panic]
     fn let_completely_random_panic_on_pos_inf() {
-        gen::f32::completely_random(10.0..=f32::INFINITY);
+        gens::f32::completely_random(10.0..=f32::INFINITY);
     }
 
     #[test]
     fn should_have_shrinker() {
-        assert_generator_can_shrink(gen::f64::any(), std::f64::consts::PI)
+        assert_generator_can_shrink(gens::f64::any(), std::f64::consts::PI)
     }
 
-    fn assert_all_values_are_in_range<B>(gen: BoxGen<f32>, range: B)
+    fn assert_all_values_are_in_range<B>(generator: BoxGen<f32>, range: B)
     where
         B: RangeBounds<f32> + std::fmt::Debug,
     {
-        gen.examples(crate::seed_to_use()).take(1000).for_each(|v| {
-            assert!(range.contains(&v), "Range {range:?} should contain {v}")
-        });
+        generator
+            .examples(crate::seed_to_use())
+            .take(1000)
+            .for_each(|v| {
+                assert!(
+                    range.contains(&v),
+                    "Range {range:?} should contain {v}"
+                )
+            });
     }
 
-    fn assert_has_values(gen: BoxGen<f32>, values: &[f32]) {
+    fn assert_has_values(generator: BoxGen<f32>, values: &[f32]) {
         values.iter().for_each(|v| {
             let examples_count = 1000;
             let has_value =
-                gen.examples(crate::seed_to_use()).take(examples_count).any(|e| {
+                generator.examples(crate::seed_to_use()).take(examples_count).any(|e| {
                   float_equals(e, *v)
                 });
 
@@ -448,9 +463,10 @@ mod test {
         });
     }
 
-    fn assert_does_not_have_value(gen: BoxGen<f32>, value: f32) {
+    fn assert_does_not_have_value(generator: BoxGen<f32>, value: f32) {
         let examples_count = 500;
-        gen.examples(crate::seed_to_use())
+        generator
+            .examples(crate::seed_to_use())
             .take(examples_count)
             .for_each(|e| {
                 let r = float_equals(e, value);
