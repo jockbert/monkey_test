@@ -67,7 +67,7 @@ impl Conf {
 
 /// The standard source to get randimization seed from.
 pub fn seed_to_use() -> u64 {
-    rand_chacha::ChaCha8Rng::from_entropy().next_u64()
+    rand_chacha::ChaCha8Rng::from_os_rng().next_u64()
 }
 
 impl Default for Conf {

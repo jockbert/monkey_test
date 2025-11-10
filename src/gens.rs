@@ -77,7 +77,9 @@ integer_module!(i16);
 integer_module!(i32);
 integer_module!(i64);
 integer_module!(i128);
-integer_module!(isize);
+// Macro is not used for type isize, since not supported in underlying lib rand.
+// For details, see https://rust-random.github.io/book/update-0.9.html
+
 integer_module!(u8);
 integer_module!(u16);
 integer_module!(u32);

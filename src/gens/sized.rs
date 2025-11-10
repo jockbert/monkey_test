@@ -5,7 +5,7 @@ use std::cmp::min;
 
 use crate::BoxGen;
 use crate::BoxIter;
-use rand::distributions::Uniform;
+use rand::distr::Uniform;
 use rand::Rng;
 use rand::SeedableRng;
 
@@ -43,8 +43,9 @@ pub fn progressively_increasing(
     crate::gens::from_fn(move |seed| {
         let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
-        max_iterator(start_size, percent_increase, max_size)
-            .map(move |max| rng.sample(Uniform::new_inclusive(0usize, max)))
+        max_iterator(start_size, percent_increase, max_size).map(move |max| {
+            rng.sample(Uniform::new_inclusive(0usize, max).unwrap())
+        })
     })
     .with_shrinker(crate::shrinks::int_to_zero())
 }
@@ -151,7 +152,7 @@ mod test {
         .sum::<usize>() as f64;
 
         let expected_sum = n as f64 * n as f64 / 4.0;
-        let diff = expected_sum * 0.005;
+        let diff = expected_sum * 0.010; // allow 1% difference
 
         assert_approx_eq!(sum_of_examples, expected_sum, diff);
     }

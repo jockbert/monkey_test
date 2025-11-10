@@ -7,7 +7,7 @@ use crate::gens;
 use crate::BoxGen;
 use crate::MapWithGen;
 use num_traits::Float;
-use rand::distributions::uniform::SampleUniform;
+use rand::distr::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
 use std::fmt::Debug;
@@ -146,10 +146,8 @@ where
     // Generate two's complement bits signed integer representation of finite
     // floats
     gens::from_fn(move |seed| {
-        //let distr = rand::distributions::Uniform::new_inclusive(min, max);
         let mut x = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
-
-        std::iter::from_fn(move || Some(x.gen_range(min..=max)))
+        std::iter::from_fn(move || Some(x.random_range(min..=max)))
     })
     // Map to actual floats from two's complement bits
     .map(

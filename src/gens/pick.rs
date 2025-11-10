@@ -37,7 +37,7 @@ where
 {
     crate::gens::from_fn(move |seed| {
         let high = sample_target.sample_domain_max();
-        let distr = rand::distributions::Uniform::new_inclusive(1usize, high);
+        let distr = rand::distr::Uniform::new_inclusive(1usize, high).unwrap();
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
         let sample_target = sample_target.clone();
 

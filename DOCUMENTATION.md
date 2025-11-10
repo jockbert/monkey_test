@@ -185,7 +185,7 @@ struct DiceGen {
 impl Gen<u32> for DiceGen {
     fn examples(&self, seed: u64) -> BoxIter<u32> {
         let distr =
-            rand::distributions::Uniform::new_inclusive(1, self.side_count);
+            rand::distr::Uniform::new_inclusive(1, self.side_count).unwrap();
         let iter =
             rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr);
         Box::new(iter)
@@ -212,7 +212,7 @@ use rand::SeedableRng;
 
 fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
     gens::from_fn(move |seed| {
-        let distr = rand::distributions::Uniform::new_inclusive(1, side_count);
+        let distr = rand::distr::Uniform::new_inclusive(1, side_count).unwrap();
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
     .with_shrinker(shrinks::int())
