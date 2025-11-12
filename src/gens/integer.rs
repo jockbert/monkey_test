@@ -5,8 +5,9 @@ use num_traits::PrimInt;
 use rand::distr::uniform::SampleUniform;
 use rand::Rng;
 use rand::SeedableRng;
-use std::ops::Bound;
 use std::ops::RangeBounds;
+
+use super::int_bounds;
 
 /// Roughly uniformly distributed range of values, with some overwheight to
 /// extremes of given bounds. That is, bounds min and max and additionally the
@@ -16,8 +17,8 @@ where
     E: PrimInt + SampleUniform + std::fmt::Debug + 'static,
     B: RangeBounds<E>,
 {
-    let min = start(&bounds);
-    let max = end(&bounds);
+    let min = int_bounds::start(&bounds);
+    let max = int_bounds::end(&bounds);
     let mut extreme_values = vec![min, max];
 
     if min < E::zero() && E::zero() < max {
@@ -37,8 +38,8 @@ where
     E: PrimInt + SampleUniform + std::fmt::Debug + 'static,
     B: RangeBounds<E>,
 {
-    let min = start(&bounds);
-    let max = end(&bounds);
+    let min = int_bounds::start(&bounds);
+    let max = int_bounds::end(&bounds);
 
     crate::gens::from_fn(move |seed| {
         let distr = rand::distr::Uniform::new_inclusive(min, max)
@@ -46,30 +47,6 @@ where
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
     .with_shrinker(crate::shrinks::int_in_range(min, max))
-}
-
-fn start<E, B>(bounds: &B) -> E
-where
-    E: PrimInt,
-    B: RangeBounds<E>,
-{
-    match bounds.start_bound() {
-        Bound::Included(x) => *x,
-        Bound::Excluded(x) => *x + E::one(),
-        Bound::Unbounded => E::min_value(),
-    }
-}
-
-fn end<E, B>(bounds: &B) -> E
-where
-    E: PrimInt,
-    B: RangeBounds<E>,
-{
-    match bounds.end_bound() {
-        Bound::Included(x) => *x,
-        Bound::Excluded(x) => *x - E::one(),
-        Bound::Unbounded => E::max_value(),
-    }
 }
 
 #[cfg(test)]

@@ -7,6 +7,7 @@ pub mod fixed;
 mod float;
 mod float_parts;
 mod from_fn;
+mod int_bounds;
 mod integer;
 mod map;
 mod mix;
