@@ -9,6 +9,7 @@ mod float_parts;
 mod from_fn;
 mod int_bounds;
 mod integer;
+pub mod isize;
 mod map;
 mod mix;
 mod other_shrink;
