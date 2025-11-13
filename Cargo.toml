@@ -1,6 +1,6 @@
 [package]
 name = "monkey_test"
-version = "0.7.5"
+version = "0.8.0"
 rust-version = "1.73"
 edition = "2021"
 license = "MIT"

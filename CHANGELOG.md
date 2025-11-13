@@ -1,7 +1,42 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.7.5...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.8.0...main).
+
+## Release 0.8.0 (2025-11-13) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.5...v0.8.0)
+
+This release renames modules `monkey_test::gen` and `monkey_test::shrink` to `monkey_test::gens` and `monkey_test::shrinks`.
+Since these modules are collections of genereators and shrinkers, the
+plural 's' is a good fit and does not change the API nor nomenclature too much.
+
+The Monkey Test library it self is still kept at Rust edition
+2021, just to be able to stay at the current MSRV 1.73 and be usable
+to as many users as possible.
+
+By renaming module to `monkey_test::gens`, 2024 Rust edition users of library
+do not need to refer to the module with 'r#gen' but instead
+just `gens`. For more details, see
+<https://doc.rust-lang.org/edition-guide/rust-2024/gen-keyword.html>
+
+### New features
+
+* Improved support for Rust edition 2024, by not using the in 2024 edition
+  reserved word `gen` as module name `monkey_test::gen` in Monkey Test.
+  The module is renamed from `monkey_test::gen` to `monkey_test::gens`.
+
+### Other changes
+
+* Rename module `monkey_test::shrink` to `monkey_test::shrinks`.
+  For consitency, renaming to having plural suffix 's', just as
+  the rename of module `monkey_test::gen` to `monkey_test::gens`.
+
+* Updating dependencies `rand` and `rand_chacha` to the latest versions 0.9
+  and 0.9.2 respectively.
+
+* Reimplement built in generators for type `isize`.
+  Built in support for type `isize` is removed in underlying lib `rand`, so
+  replaing with other implementation piggy-backing in generators for type `i64`.
+  For details on lost support in `rand`, see <https://rust-random.github.io/book/update-0.9.html>
 
 ## Release 0.7.5 (2025-11-05) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.4...v0.7.5)
 
