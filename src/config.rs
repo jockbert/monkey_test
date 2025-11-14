@@ -255,6 +255,11 @@ where
     E: std::fmt::Debug + std::panic::UnwindSafe + Clone + 'static,
     P: std::panic::RefUnwindSafe + Fn(E) -> Result<(), String>,
 {
+    // Please Note! Since `std::panic::set_hook` is global, we might have a race
+    // condition here if multiple threads are running tests in parallel. In that
+    // case, panics from other threads might be caught here and hooks might
+    // interfere with each other. Leaving as-is for now.
+
     move |example: E| {
         let original_panic_hook = std::panic::take_hook();
         let (tx, rx) = mpsc::channel();
@@ -266,7 +271,10 @@ where
             if let Some(loc) = info.location() {
                 let location_text =
                     format! {"in file '{}' at line {}", loc.file(), loc.line()};
-                tx.send(location_text).unwrap();
+
+                // Ignoring send errors, since there is nothing to do if
+                // receiver has hung up. We are then out of test scope anyway.
+                let _ = tx.send(location_text);
             }
         }));
 

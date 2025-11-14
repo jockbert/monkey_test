@@ -72,6 +72,13 @@ Other known limitations:
   only try candidates within the given range `10.0..100.0`, but can also try other
   values like -10.0 and will ultimately try to shrink toward zero.
 
+* Monkey test uses the global panic hook to catch panics in code under test and
+  this can interfere with other code that also modifies the panic hook during
+  testing.
+  Since the panic hook is a global resource, it migth also have unintended
+  effects in multithreaded testing due to limitations in the current panic hook
+  handling in Monkey Test.
+
 For details on recent changes, see the [CHANGELOG](CHANGELOG.md).
 
 ## Key design principles
