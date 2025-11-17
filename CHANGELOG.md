@@ -3,7 +3,7 @@
 
 [Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.8.1...main).
 
-## Release 0.8.0 (2025-11-17) [diff](https://github.com/jockbert/monkey_test/compare/v0.7.5...v0.8.0)
+## Release 0.8.1 (2025-11-17) [diff](https://github.com/jockbert/monkey_test/compare/v0.8.0...v0.8.1)
 
 This release alleviates a problem with panicing panic-handling code.
 
