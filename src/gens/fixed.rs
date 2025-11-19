@@ -8,20 +8,20 @@ use crate::BoxGen;
 /// ```
 /// let generator = monkey_test::gens::fixed::sequence(&[1, 20, 300]);
 ///
-/// assert_eq!(generator.examples(1337).collect::<Vec<_>>(), vec![1, 20, 300]);
-/// assert_eq!(generator.examples(42).collect::<Vec<_>>(), vec![1, 20, 300]);
+/// assert_eq!(generator.examples(1337, 0..=10).collect::<Vec<_>>(), vec![1, 20, 300]);
+/// assert_eq!(generator.examples(42, 0..=10).collect::<Vec<_>>(), vec![1, 20, 300]);
 /// ```
 pub fn sequence<E>(examples: &[E]) -> BoxGen<E>
 where
     E: Clone + std::fmt::Debug + 'static,
 {
     let example_vec = examples.to_vec();
-    crate::gens::from_fn(move |_seed| example_vec.clone().into_iter())
+    crate::gens::from_fn(move |_seed, _size| example_vec.clone().into_iter())
 }
 
 /// Infinite generator always returning given constant
 pub fn constant<E: Clone + 'static>(example: E) -> BoxGen<E> {
-    crate::gens::from_fn(move |_seed| std::iter::repeat(example.clone()))
+    crate::gens::from_fn(move |_seed, _size| std::iter::repeat(example.clone()))
 }
 
 /// Generates a fixed loop of examples. This generator is convenient when you,
@@ -31,11 +31,11 @@ pub fn constant<E: Clone + 'static>(example: E) -> BoxGen<E> {
 /// ```
 /// let looper = monkey_test::gens::fixed::in_loop(&[1, 20, 300]);
 ///
-/// let examples = looper.examples(42).take(10).collect::<Vec<_>>();
+/// let examples = looper.examples(42, 0..=10).take(10).collect::<Vec<_>>();
 /// assert_eq!(examples, vec![1, 20, 300, 1, 20, 300, 1, 20, 300, 1]);
 ///
 /// // Returns the same examples when using other seed
-/// let other_seed = looper.examples(1337).take(10).collect::<Vec<_>>();
+/// let other_seed = looper.examples(1337, 0..=10).take(10).collect::<Vec<_>>();
 /// assert_eq!(examples, other_seed);
 /// ```
 pub fn in_loop<E>(examples: &[E]) -> BoxGen<E>
@@ -43,7 +43,7 @@ where
     E: Clone + 'static,
 {
     let examples_vec = examples.to_vec().clone();
-    crate::gens::from_fn(move |_seed| {
+    crate::gens::from_fn(move |_seed, _size| {
         let x = examples_vec.clone();
         LoopIter { data: x, index: 0 }
     })

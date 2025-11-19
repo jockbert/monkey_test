@@ -82,7 +82,7 @@ where
     E: Clone + 'static,
     P: Fn(E) -> Result<(), String>,
 {
-    let mut it = cg.generator.examples(cg.conf.seed);
+    let mut it = cg.generator.examples(cg.conf.seed, cg.conf.size.clone());
 
     for i in 0..cg.conf.example_count {
         let example = it.next();

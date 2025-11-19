@@ -7,7 +7,7 @@ pub mod fixed;
 mod float;
 mod float_parts;
 mod from_fn;
-mod int_bounds;
+pub(crate) mod int_bounds;
 mod integer;
 pub mod isize;
 mod map;

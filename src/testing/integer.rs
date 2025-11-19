@@ -38,7 +38,7 @@ pub fn assert_even_distr<E>(
     let mut occurrences = vec![0usize; occurrences_size];
 
     let seed = crate::seed_to_use();
-    let it = generator_to_test.examples(seed);
+    let it = generator_to_test.examples(seed, 0..=10);
     for value in it.take(total_count) {
         // Do a bounds check
         if value < expected_min || value > expected_max {

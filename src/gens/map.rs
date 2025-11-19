@@ -41,8 +41,10 @@ where
 {
     let shrinker = gen0.shrinker();
 
-    crate::gens::from_fn(move |seed| gen0.examples(seed).map(map_fn))
-        .with_shrinker(crate::shrinks::map(shrinker, map_fn, unmap_fn))
+    crate::gens::from_fn(move |seed, size| {
+        gen0.examples(seed, size).map(map_fn)
+    })
+    .with_shrinker(crate::shrinks::map(shrinker, map_fn, unmap_fn))
 }
 
 #[cfg(test)]

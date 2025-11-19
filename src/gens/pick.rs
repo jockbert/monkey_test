@@ -35,7 +35,7 @@ fn pick_with_sample_target<E>(sample_target: SampleTarget<E>) -> BoxGen<E>
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    crate::gens::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed, _size| {
         let high = sample_target.sample_domain_max();
         let distr = rand::distr::Uniform::new_inclusive(1usize, high).unwrap();
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);

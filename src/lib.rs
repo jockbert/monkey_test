@@ -19,6 +19,8 @@ pub mod shrinks;
 #[cfg(test)]
 mod testing;
 
+use std::ops::RangeInclusive;
+
 // Re-export details from some modules for easier access.
 pub use config::*;
 pub use convenience_traits::*;
@@ -50,6 +52,10 @@ pub type BoxGen<E> = Box<dyn Gen<E>>;
 /// A property is something that should hold, for all given examples.
 pub type Property<E> = fn(E) -> bool;
 
+/// Type alias for size range used when generating examples. It is an inclusive
+/// range so it can encompass all values including usize::MAX.
+pub type ExampleSize = RangeInclusive<usize>;
+
 impl<E> core::fmt::Debug for dyn Gen<E> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(std::any::type_name::<Self>())
@@ -59,8 +65,8 @@ impl<E> core::fmt::Debug for dyn Gen<E> {
 /// The generator trait, for producing example values to test in a property.
 pub trait Gen<E: Clone + 'static>: CloneGen<E> {
     /// Produce a example iterator from the generator, given a randomization
-    /// seed.
-    fn examples(&self, seed: u64) -> BoxIter<E>;
+    /// seed and (if applicable) size of examples to produce.
+    fn examples(&self, seed: u64, size: ExampleSize) -> BoxIter<E>;
 
     /// Returns a predefined shrinker, or a empty shrinker if no suitable
     /// exists.
@@ -100,3 +106,8 @@ where
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]
 pub struct ReadmeDoctests;
+
+/// Returns the default example size range used when no other size is specified.
+fn default_example_size() -> ExampleSize {
+    0..=1000
+}

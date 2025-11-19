@@ -1,6 +1,7 @@
 pub use crate::runner::MonkeyResult;
 use crate::BoxGen;
 use crate::BoxShrink;
+use crate::ExampleSize;
 use crate::Property;
 use rand::RngCore;
 use rand::SeedableRng;
@@ -10,10 +11,12 @@ use std::sync::mpsc;
 /// Configuration for executing monkey tests.
 #[derive(Clone)]
 pub struct Conf {
-    /// See [Conf::with_seed].
+    /// See [Conf::with_example_count].
     pub example_count: u32,
     /// See [Conf::with_seed].
     pub seed: u64,
+    /// See [Conf::with_example_size].
+    pub size: ExampleSize,
 }
 
 /// Configuration for executing monkey tests, including the generator.
@@ -50,6 +53,26 @@ impl Conf {
         Self {
             example_count,
             seed: self.seed,
+            size: self.size.clone(),
+        }
+    }
+
+    /// Specify the size range to use for generated examples. If not specified,
+    /// the default size range 0..=1000 is used. The size
+    /// parameter do not apply to all generators, only those that supports
+    /// generating variable size examples, like vectors.
+    pub fn with_example_size<Size>(&self, size: Size) -> Conf
+    where
+        Size: std::ops::RangeBounds<usize>,
+    {
+        // Converting RangeBounds trait to ExampleSize (RangeInclusive struct).
+        let start = crate::gens::int_bounds::start(&size);
+        let end = crate::gens::int_bounds::end(&size);
+
+        Self {
+            example_count: self.example_count,
+            seed: self.seed,
+            size: start..=end,
         }
     }
 
@@ -61,6 +84,7 @@ impl Conf {
         Self {
             example_count: self.example_count,
             seed,
+            size: self.size.clone(),
         }
     }
 }
@@ -76,6 +100,7 @@ impl Default for Conf {
         Self {
             example_count: 100,
             seed: seed_to_use(),
+            size: 0..=1000,
         }
     }
 }
