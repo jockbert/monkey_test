@@ -44,7 +44,8 @@ impl<E: Clone> Clone for BoxShrink<E> {
     }
 }
 
-/// Non-object-safe trait for providing generator zipping.
+/// Not dyn compatible (a.k.a. object safe) trait for providing generator
+/// zipping.
 ///
 /// The [ZipWithGen::zip] extension method cannot be implemented directly on
 /// [Gen] object trait, since generic method in respect to other type `E1`, does
@@ -191,7 +192,8 @@ impl<E0: Clone + 'static> ZipWithGen<E0> for dyn Gen<E0> {
     }
 }
 
-/// Non-object-safe trait for providing generator mapping.
+/// Not dyn compatible (a.k.a. object safe) trait for providing generator
+/// mapping.
 pub trait MapWithGen<E0>
 where
     E0: Clone + 'static,
@@ -219,7 +221,8 @@ impl<E0: Clone + 'static> MapWithGen<E0> for dyn Gen<E0> {
     }
 }
 
-/// Non-object-safe trait for providing example filtering in generator.
+/// Not dyn compatible (a.k.a. object safe) trait for providing example
+/// filtering in generator.
 pub trait FilterWithGen<E>
 where
     E: Clone + 'static,
@@ -239,7 +242,8 @@ impl<E: Clone + 'static> FilterWithGen<E> for dyn Gen<E> {
     }
 }
 
-/// Non-object-safe trait for providing shrinker zipping.
+/// Not dyn compatible (a.k.a. object safe) trait for providing shrinker
+/// zipping.
 pub trait ZipWithShrink<E0>
 where
     E0: Clone + 'static,
@@ -259,7 +263,8 @@ impl<E0: Clone + 'static> ZipWithShrink<E0> for dyn Shrink<E0> {
     }
 }
 
-/// Non-object-safe trait for providing shrinker mapping.
+/// Not dyn compatible (a.k.a. object safe) trait for providing shrinker
+/// mapping.
 pub trait MapWithShrink<E0>
 where
     E0: Clone + 'static,
@@ -287,7 +292,8 @@ impl<E0: Clone + 'static> MapWithShrink<E0> for dyn Shrink<E0> {
     }
 }
 
-/// Non-object-safe trait for providing shrinker filtering.
+/// Not dyn compatible (a.k.a. object safe) trait for providing shrinker
+/// filtering.
 pub trait FilterWithShrink<E>
 where
     E: Clone + 'static,
