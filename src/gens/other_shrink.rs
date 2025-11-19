@@ -1,4 +1,4 @@
-use crate::{BoxGen, BoxIter, BoxShrink, ExampleSize, Gen};
+use crate::{BoxGen, BoxIter, BoxShrink, ExampleSize, Gen, Seed};
 
 /// Create new generator with other shrinker
 ///
@@ -34,7 +34,7 @@ struct OtherShrinkGen<E> {
 }
 
 impl<E: Clone + 'static> Gen<E> for OtherShrinkGen<E> {
-    fn examples(&self, seed: u64, size: ExampleSize) -> BoxIter<E> {
+    fn examples(&self, seed: Seed, size: ExampleSize) -> BoxIter<E> {
         self.generator.examples(seed, size)
     }
 

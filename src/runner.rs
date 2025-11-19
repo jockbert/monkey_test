@@ -1,5 +1,6 @@
 use crate::BoxShrink;
 use crate::ConfAndGen;
+use crate::Seed;
 use std::fmt::Debug;
 
 /// Result summary from evaluation of a property tested.
@@ -35,7 +36,7 @@ pub enum MonkeyResult<E> {
 
         /// The seed used for generating the examples. Can be useful for
         /// reproducing the failed test run.
-        seed: u64,
+        seed: Seed,
 
         /// Optional title of the failed property.
         title: Option<String>,

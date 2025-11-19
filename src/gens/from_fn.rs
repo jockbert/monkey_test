@@ -2,9 +2,10 @@ use crate::BoxGen;
 use crate::BoxIter;
 use crate::ExampleSize;
 use crate::Gen;
+use crate::Seed;
 
 /// Create a new generator where each request for examples-iterator calls the
-/// provided closure `F: Fn(u64, ExampleSize) -> Iterator<Item=E> + Clone + 'static`.
+/// provided closure `F: Fn(Seed, ExampleSize) -> Iterator<Item=E> + Clone + 'static`.
 ///
 /// The argument to the closure is the randomisation seed provided by
 /// Monkey Test.
@@ -42,7 +43,7 @@ pub fn from_fn<E, I, F>(f: F) -> BoxGen<E>
 where
     E: Clone + 'static,
     I: Iterator<Item = E> + 'static,
-    F: Fn(u64, ExampleSize) -> I + Clone + 'static,
+    F: Fn(Seed, ExampleSize) -> I + Clone + 'static,
 {
     Box::new(FromFnGen {
         f: move |seed, size| Box::new((f)(seed, size)),
@@ -50,7 +51,7 @@ where
 }
 
 /// Create a new generator where each request for examples-iterator calls the
-/// provided closure `F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static`.
+/// provided closure `F: Fn(Seed, ExampleSize) -> BoxIter<E> + Clone + 'static`.
 ///
 /// This function does the same thing as [from_fn], but with the exception that
 /// the returned iterator must be boxed, as in being a trait object. This can
@@ -70,7 +71,7 @@ where
 pub fn from_fn_boxed<E, F>(f: F) -> BoxGen<E>
 where
     E: Clone + 'static,
-    F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static,
+    F: Fn(Seed, ExampleSize) -> BoxIter<E> + Clone + 'static,
 {
     Box::new(FromFnGen { f })
 }
@@ -79,7 +80,7 @@ where
 struct FromFnGen<E, F>
 where
     E: Clone + 'static,
-    F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static,
+    F: Fn(Seed, ExampleSize) -> BoxIter<E> + Clone + 'static,
 {
     f: F,
 }
@@ -87,9 +88,9 @@ where
 impl<E, F> Gen<E> for FromFnGen<E, F>
 where
     E: Clone + 'static,
-    F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static,
+    F: Fn(Seed, ExampleSize) -> BoxIter<E> + Clone + 'static,
 {
-    fn examples(&self, seed: u64, size: ExampleSize) -> BoxIter<E> {
+    fn examples(&self, seed: Seed, size: ExampleSize) -> BoxIter<E> {
         (self.f)(seed, size)
     }
 

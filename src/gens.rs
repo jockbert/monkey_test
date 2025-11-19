@@ -20,6 +20,7 @@ pub mod vec;
 mod zip;
 
 use crate::BoxGen;
+use crate::Seed;
 pub use chain::chain;
 pub use filter::filter;
 pub use from_fn::from_fn;
@@ -35,7 +36,7 @@ use sample_target::SampleTarget;
 pub use zip::zip;
 
 /// Standard way to generate seeds for random source.
-pub fn seeds() -> BoxGen<u64> {
+pub fn seeds() -> BoxGen<Seed> {
     crate::gens::u64::completely_random(..)
 }
 
