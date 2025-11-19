@@ -80,6 +80,7 @@ impl Default for Conf {
     }
 }
 
+/// Configuration for executing monkey tests, including the choosen generator.
 impl<E> ConfAndGen<E>
 where
     E: std::fmt::Debug + std::panic::UnwindSafe + Clone + 'static,
