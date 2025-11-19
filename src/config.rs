@@ -3,6 +3,7 @@ use crate::BoxGen;
 use crate::BoxShrink;
 use crate::ExampleSize;
 use crate::Property;
+use crate::Seed;
 use rand::RngCore;
 use rand::SeedableRng;
 use std::fmt::Write;
@@ -14,7 +15,7 @@ pub struct Conf {
     /// See [Conf::with_example_count].
     pub example_count: u32,
     /// See [Conf::with_seed].
-    pub seed: u64,
+    pub seed: Seed,
     /// See [Conf::with_example_size].
     pub size: ExampleSize,
 }
@@ -80,7 +81,7 @@ impl Conf {
     /// useful for reproducing a failing test run. Use this with caution, since
     /// using a seed hinders new test runs to use other examples than already
     /// used in earlier test runs.
-    pub fn with_seed(&self, seed: u64) -> Conf {
+    pub fn with_seed(&self, seed: Seed) -> Conf {
         Self {
             example_count: self.example_count,
             seed,
@@ -90,7 +91,7 @@ impl Conf {
 }
 
 /// The standard source to get randimization seed from.
-pub fn seed_to_use() -> u64 {
+pub fn seed_to_use() -> Seed {
     rand_chacha::ChaCha8Rng::from_os_rng().next_u64()
 }
 

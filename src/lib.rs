@@ -56,6 +56,10 @@ pub type Property<E> = fn(E) -> bool;
 /// range so it can encompass all values including usize::MAX.
 pub type ExampleSize = RangeInclusive<usize>;
 
+/// Type alias for a randomization seed used when generating random examples in
+/// a generator.
+pub type Seed = u64;
+
 impl<E> core::fmt::Debug for dyn Gen<E> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(std::any::type_name::<Self>())
@@ -66,7 +70,7 @@ impl<E> core::fmt::Debug for dyn Gen<E> {
 pub trait Gen<E: Clone + 'static>: CloneGen<E> {
     /// Produce a example iterator from the generator, given a randomization
     /// seed and (if applicable) size of examples to produce.
-    fn examples(&self, seed: u64, size: ExampleSize) -> BoxIter<E>;
+    fn examples(&self, seed: Seed, size: ExampleSize) -> BoxIter<E>;
 
     /// Returns a predefined shrinker, or a empty shrinker if no suitable
     /// exists.

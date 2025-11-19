@@ -183,7 +183,7 @@ struct DiceGen {
 }
 
 impl Gen<u32> for DiceGen {
-    fn examples(&self, seed: u64, _size: ExampleSize) -> BoxIter<u32> {
+    fn examples(&self, seed: Seed, _size: ExampleSize) -> BoxIter<u32> {
         let distr =
             rand::distr::Uniform::new_inclusive(1, self.side_count).unwrap();
         let iter =
