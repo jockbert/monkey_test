@@ -1,4 +1,4 @@
-use crate::{BoxGen, BoxIter, BoxShrink, ExampleSize, Gen};
+use crate::{BoxGen, BoxIter, BoxShrink, ExampleSize, Gen, Seed};
 
 /// Create new generator with other shrinker
 ///

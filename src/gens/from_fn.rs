@@ -5,7 +5,7 @@ use crate::Gen;
 use crate::Seed;
 
 /// Create a new generator where each request for examples-iterator calls the
-/// provided closure `F: Fn(u64, ExampleSize) -> Iterator<Item=E> + Clone + 'static`.
+/// provided closure `F: Fn(Seed, ExampleSize) -> Iterator<Item=E> + Clone + 'static`.
 ///
 /// The argument to the closure is the randomisation seed provided by
 /// Monkey Test.
@@ -51,7 +51,7 @@ where
 }
 
 /// Create a new generator where each request for examples-iterator calls the
-/// provided closure `F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static`.
+/// provided closure `F: Fn(Seed, ExampleSize) -> BoxIter<E> + Clone + 'static`.
 ///
 /// This function does the same thing as [from_fn], but with the exception that
 /// the returned iterator must be boxed, as in being a trait object. This can
