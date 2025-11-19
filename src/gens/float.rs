@@ -145,7 +145,7 @@ where
 
     // Generate two's complement bits signed integer representation of finite
     // floats
-    gens::from_fn(move |seed| {
+    gens::from_fn(move |seed, _size| {
         let mut x = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
         std::iter::from_fn(move || Some(x.random_range(min..=max)))
     })
@@ -436,7 +436,7 @@ mod test {
         B: RangeBounds<f32> + std::fmt::Debug,
     {
         generator
-            .examples(crate::seed_to_use())
+            .examples(crate::seed_to_use(), crate::global_example_size())
             .take(1000)
             .for_each(|v| {
                 assert!(
@@ -450,7 +450,10 @@ mod test {
         values.iter().for_each(|v| {
             let examples_count = 1000;
             let has_value =
-                generator.examples(crate::seed_to_use()).take(examples_count).any(|e| {
+                generator
+                .examples(crate::seed_to_use(), crate::global_example_size())
+                .take(examples_count)
+                .any(|e| {
                   float_equals(e, *v)
                 });
 
@@ -464,7 +467,7 @@ mod test {
     fn assert_does_not_have_value(generator: BoxGen<f32>, value: f32) {
         let examples_count = 500;
         generator
-            .examples(crate::seed_to_use())
+            .examples(crate::seed_to_use(), crate::global_example_size())
             .take(examples_count)
             .for_each(|e| {
                 let r = float_equals(e, value);

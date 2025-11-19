@@ -24,10 +24,14 @@ where
     let s0 = g0.shrinker();
     let s1 = g1.shrinker();
 
-    crate::gens::from_fn(move |seed| {
-        let mut seeds = crate::gens::seeds().examples(seed);
-        let it1 = g0.clone().examples(seeds.next().expect("should have seed"));
-        let it2 = g1.clone().examples(seeds.next().expect("should have seed"));
+    crate::gens::from_fn(move |seed, size| {
+        let mut seeds = crate::gens::seeds().examples(seed, size.clone());
+        let it1 = g0
+            .clone()
+            .examples(seeds.next().expect("should have seed"), size.clone());
+        let it2 = g1
+            .clone()
+            .examples(seeds.next().expect("should have seed"), size.clone());
         it1.zip(it2)
     })
     .with_shrinker(crate::shrinks::zip(s0, s1))
@@ -106,6 +110,6 @@ mod test {
     fn use_different_seeds_for_the_different_parts_of_tuple() {
         let same_gen = crate::gens::u8::any();
         let tuples = super::zip(same_gen.clone(), same_gen);
-        assert! {tuples.examples(1234).take(100).any(|(a,b)| a!= b)}
+        assert! {tuples.examples(1234,0..=1000).take(100).any(|(a,b)| a!= b)}
     }
 }

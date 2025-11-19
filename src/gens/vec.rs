@@ -8,10 +8,11 @@
 //! use monkey_test::*;
 //!
 //! let some_seed = 1337;
+//! let some_size = 0..=1000;
 //! let vectors_of_nine = gens::vec::any(gens::fixed::constant(9));
 //!
 //! let actual_examples = vectors_of_nine
-//!     .examples(some_seed)
+//!     .examples(some_seed, some_size)
 //!     .take(20)
 //!     .collect::<Vec<Vec<i32>>>();
 //!
@@ -66,13 +67,16 @@ use crate::BoxGen;
 pub fn any<E: Clone + 'static>(element_gen: BoxGen<E>) -> BoxGen<Vec<E>> {
     let element_shrinker = element_gen.shrinker();
 
-    crate::gens::from_fn(move |seed| {
-        let sizes = crate::gens::sized::default().examples(seed);
-        let seeds = crate::gens::seeds().examples(seed);
+    crate::gens::from_fn(move |seed, size| {
+        let sizes = crate::gens::sized::default().examples(seed, size.clone());
+        let seeds = crate::gens::seeds().examples(seed, size.clone());
         let element_gen = element_gen.clone();
 
-        sizes.zip(seeds).map(move |(size, seed)| {
-            element_gen.examples(seed).take(size).collect::<Vec<_>>()
+        sizes.zip(seeds).map(move |(sz, seed)| {
+            element_gen
+                .examples(seed, size.clone())
+                .take(sz)
+                .collect::<Vec<_>>()
         })
     })
     .with_shrinker(crate::shrinks::vec::default(element_shrinker))

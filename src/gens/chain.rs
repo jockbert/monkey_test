@@ -12,7 +12,7 @@ use crate::BoxGen;
 /// let a = sequence::<u32>(&[1, 2]);
 /// let b = sequence::<u32>(&[3, 4]);
 /// let c = a.chain(b);
-/// let mut it = c.examples(77);
+/// let mut it = c.examples(77, 0..=1000);
 ///
 /// assert_eq!(it.collect::<Vec<_>>(), vec![1, 2, 3, 4]);
 /// ```
@@ -22,8 +22,10 @@ where
 {
     let shrinker = first_gen.shrinker();
 
-    crate::gens::from_fn(move |seed| {
-        first_gen.examples(seed).chain(second_gen.examples(seed))
+    crate::gens::from_fn(move |seed, size| {
+        first_gen
+            .examples(seed, size.clone())
+            .chain(second_gen.examples(seed, size.clone()))
     })
     .with_shrinker(shrinker)
 }
@@ -40,7 +42,7 @@ mod test {
         );
 
         assert_iter_eq(
-            generator.examples(1234),
+            generator.examples(1234, 0..=1000),
             vec![],
             "empty generators has no examples to concatenate",
         );
@@ -54,7 +56,7 @@ mod test {
         );
 
         assert_iter_eq(
-            generator.examples(1234),
+            generator.examples(1234, 0..=1000),
             vec![1, 2, 3, 4],
             "given generators' examples are concatenated",
         );

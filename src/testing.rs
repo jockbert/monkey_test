@@ -11,7 +11,7 @@ pub fn assert_generator_is_empty<E>(gen_to_check: BoxGen<E>)
 where
     E: Clone + 'static,
 {
-    assert_eq!(gen_to_check.examples(1234).count(), 0);
+    assert_eq!(gen_to_check.examples(1234, 0..=1000).count(), 0);
 }
 
 /// Compares two iterators and makes sur elements are equal

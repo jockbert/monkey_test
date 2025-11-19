@@ -40,7 +40,7 @@ pub fn progressively_increasing(
     percent_increase: usize,
     max_size: usize,
 ) -> BoxGen<usize> {
-    crate::gens::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed, _size| {
         let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
         max_iterator(start_size, percent_increase, max_size).map(move |max| {
@@ -125,7 +125,7 @@ mod test {
 
         let max_value_generated =
             super::progressively_increasing(extra_large, extra_large, max_size)
-                .examples(1337)
+                .examples(1337, 0..=1000)
                 .take(1_000)
                 .max();
 
@@ -147,7 +147,7 @@ mod test {
             always_increase_with_one,
             usize::MAX,
         )
-        .examples(1337)
+        .examples(1337, 0..=1000)
         .take(n)
         .sum::<usize>() as f64;
 

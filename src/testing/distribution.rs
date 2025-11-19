@@ -35,7 +35,7 @@ where
     E: Clone + Ord + 'static,
 {
     let mut result = Distribution::<E>::new();
-    for example in gen_to_check.examples(1234).take(10_000) {
+    for example in gen_to_check.examples(1234, 0..=1000).take(10_000) {
         let count = result.get(&example).map_or(1, |n| n + 1);
         result.insert(example, count);
     }

@@ -41,7 +41,7 @@ where
     let min = int_bounds::start(&bounds);
     let max = int_bounds::end(&bounds);
 
-    crate::gens::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed, _size| {
         let distr = rand::distr::Uniform::new_inclusive(min, max)
             .expect("distribution from bounds");
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)

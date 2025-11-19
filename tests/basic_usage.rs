@@ -104,9 +104,11 @@ fn can_assert_ne() {
 fn use_all_settings_available() {
     monkey_test()
         .with_example_count(1_000)
+        .with_example_size(..50)
         .with_seed(1234567890)
         .with_generator(gens::u8::any())
         .with_shrinker(shrinks::none())
+        .title("square of x is equal or greater than x")
         .assert_true(|x| x as u16 * x as u16 >= x as u16);
 }
 

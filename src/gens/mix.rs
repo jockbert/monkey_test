@@ -64,13 +64,14 @@ fn mix_with_sample_target<E>(
 where
     E: Clone + 'static + core::fmt::Debug,
 {
-    crate::gens::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed, size| {
         let high = sample_target.sample_domain_max();
         let distr = rand::distr::Uniform::new_inclusive(1usize, high).unwrap();
         let rng = rand_chacha::ChaCha8Rng::seed_from_u64(seed);
 
-        let mut sample_iterators =
-            sample_target.clone().map(|g| g.examples(seed));
+        let mut sample_iterators = sample_target
+            .clone()
+            .map(|g| g.examples(seed, size.clone()));
 
         rng.sample_iter(distr)
             .map(move |sample| {
@@ -106,7 +107,7 @@ mod test {
         )]);
 
         assert_iter_eq(
-            mixer.examples(1337),
+            mixer.examples(1337,0..=1000),
             vec![1, 2, 3, 4, 5, 6],
             "Mixing with a single generator should use values from that generator \
         every time",
@@ -121,20 +122,20 @@ mod test {
         )]);
 
         assert_iter_eq(
-            mixer.examples(1337),
+            mixer.examples(1337, 0..=1000),
             vec!['a', 'b', 'c'],
             "should choose from singel given generator disgregarding of ratio",
         );
 
         assert_iter_eq(
-            mixer.examples(1337),
+            mixer.examples(1337, 0..=1000),
             vec!['a', 'b', 'c'],
             "should get the same result even the second time around",
         );
 
-        assert!(mixer.examples(1337).next() == Some('a'));
-        assert!(mixer.examples(1337).next() == Some('a'));
-        assert!(mixer.examples(1337).next() == Some('a'));
+        assert!(mixer.examples(1337, 0..=1000).next() == Some('a'));
+        assert!(mixer.examples(1337, 0..=1000).next() == Some('a'));
+        assert!(mixer.examples(1337, 0..=1000).next() == Some('a'));
     }
 
     /// A and B will be 4 times more frequent than 1, 2, 3, and 4, both because

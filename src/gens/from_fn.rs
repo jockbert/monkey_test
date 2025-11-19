@@ -1,9 +1,10 @@
 use crate::BoxGen;
 use crate::BoxIter;
+use crate::ExampleSize;
 use crate::Gen;
 
 /// Create a new generator where each request for examples-iterator calls the
-/// provided closure `F: Fn(u64) -> Iterator<Item=E> + Clone + 'static`.
+/// provided closure `F: Fn(u64, ExampleSize) -> Iterator<Item=E> + Clone + 'static`.
 ///
 /// The argument to the closure is the randomisation seed provided by
 /// Monkey Test.
@@ -19,7 +20,7 @@ use crate::Gen;
 /// use monkey_test::*;
 ///
 /// // Creating a generator by providing closure returning an iterator.
-/// let my_gen = gens::from_fn(|seed| std::iter::repeat(42));
+/// let my_gen = gens::from_fn(|seed, _size| std::iter::repeat(42));
 ///
 /// // First alternative for providing a shrinker - attaching it to the generator.
 /// let my_shrinking_gen = my_gen.with_shrinker(shrinks::int());
@@ -41,15 +42,15 @@ pub fn from_fn<E, I, F>(f: F) -> BoxGen<E>
 where
     E: Clone + 'static,
     I: Iterator<Item = E> + 'static,
-    F: Fn(u64) -> I + Clone + 'static,
+    F: Fn(u64, ExampleSize) -> I + Clone + 'static,
 {
     Box::new(FromFnGen {
-        f: move |seed| Box::new((f)(seed)),
+        f: move |seed, size| Box::new((f)(seed, size)),
     })
 }
 
 /// Create a new generator where each request for examples-iterator calls the
-/// provided closure `F: Fn(u64) -> BoxIter<E> + Clone + 'static`.
+/// provided closure `F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static`.
 ///
 /// This function does the same thing as [from_fn], but with the exception that
 /// the returned iterator must be boxed, as in being a trait object. This can
@@ -63,13 +64,13 @@ where
 ///
 /// // Creating a generator by providing closure returning a boxed iterator.
 /// let my_gen: BoxGen<i64> =
-///     gens::from_fn_boxed(|seed| Box::new(std::iter::repeat(42)));
+///     gens::from_fn_boxed(|seed, _size| Box::new(std::iter::repeat(42)));
 /// ```
 ///
 pub fn from_fn_boxed<E, F>(f: F) -> BoxGen<E>
 where
     E: Clone + 'static,
-    F: Fn(u64) -> BoxIter<E> + Clone + 'static,
+    F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static,
 {
     Box::new(FromFnGen { f })
 }
@@ -78,7 +79,7 @@ where
 struct FromFnGen<E, F>
 where
     E: Clone + 'static,
-    F: Fn(u64) -> BoxIter<E> + Clone + 'static,
+    F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static,
 {
     f: F,
 }
@@ -86,10 +87,10 @@ where
 impl<E, F> Gen<E> for FromFnGen<E, F>
 where
     E: Clone + 'static,
-    F: Fn(u64) -> BoxIter<E> + Clone + 'static,
+    F: Fn(u64, ExampleSize) -> BoxIter<E> + Clone + 'static,
 {
-    fn examples(&self, seed: u64) -> BoxIter<E> {
-        (self.f)(seed)
+    fn examples(&self, seed: u64, size: ExampleSize) -> BoxIter<E> {
+        (self.f)(seed, size)
     }
 
     fn shrinker(&self) -> crate::BoxShrink<E> {

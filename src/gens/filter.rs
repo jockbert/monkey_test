@@ -10,11 +10,11 @@ where
     let original_shrinker = original_gen.shrinker();
     let filtered_shrinker = original_shrinker.filter(predicate.clone());
 
-    crate::gens::from_fn(move |seed| {
+    crate::gens::from_fn(move |seed, size| {
         let pred = predicate.clone();
         let mut filter_streak = 0;
 
-        original_gen.examples(seed).filter(move |example| {
+        original_gen.examples(seed, size).filter(move |example| {
             let verdict = pred(example);
 
             filter_streak = if verdict { 0 } else { filter_streak + 1 };
@@ -44,7 +44,7 @@ mod test {
         assert_iter_eq(
             gens::fixed::sequence(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13])
                 .filter(|e| e % 2 == 0)
-                .examples(1337),
+                .examples(1337, 0..=1000),
             vec![2, 4, 6, 8, 10, 12],
             "only even numbers should be kept in the filtering",
         );
@@ -59,7 +59,7 @@ mod test {
 
         // Trying to get an example should throw, since all examples are
         // filtered out.
-        filtererd_generator.examples(1337).next();
+        filtererd_generator.examples(1337, 0..=1000).next();
     }
 
     #[test]
