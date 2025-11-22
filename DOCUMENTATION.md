@@ -11,6 +11,10 @@ tool like QuickCheck
 * [Property based testing core concepts](#property-based-testing-core-concepts)
 * [Nomenclature](#nomenclature)
 * [Features](#features)
+  * [Configurability](#configurability)
+    * [Example count](#example-count)
+    * [Example size](#example-size)
+    * [Seed](#seed)
   * [Generators and shrinkers for basic types](#generators-and-shrinkers-for-basic-types)
   * [Generators and shrinkers for collections](#generators-and-shrinkers-for-collections)
   * [Pick values and mix generators](#pick-values-and-mix-generators)
@@ -85,6 +89,78 @@ For a complete guide of all features in the Monkey Test library, refer to the
 Additional usage examples can be found in
 [code repository test folder (github.com)](https://tests).
 A summary is given below.
+
+### Configurability
+
+All configuration options in Monkey Test have default values that are aimed
+to be reasonable defaults, but sometimes you want to change these.
+
+#### Example count
+
+Example count controls the number of example values that should be used when
+verifying a property. The value can be set directly
+using [Conf::with_example_count].
+
+```rust
+use monkey_test::*;
+
+monkey_test()
+    // Setting the number of examples used unreasonably low.
+    .with_example_count(5)
+    // All assertions below will use the new example count.
+    .with_generator(gens::vec::any(gens::u8::any()))
+    .assert_true(|v| v.len() >= 0);
+```
+
+#### Example size
+
+Some, but not all, generators generate examples that have some sort of
+size dimension.
+The example size can be controlled using [Conf::with_example_size].
+
+```rust,ignore
+use monkey_test::*;
+
+monkey_test()
+    // Setting example size.
+    .with_example_size(45..50)
+    // The given size range will be propagated to all downstream generators.
+    // The vec generator takes the size into account, but the u8 one does not.
+    .with_generator(gens::vec::any(gens::u8::any()))
+    .title("vectors should have length >= 45")
+    .assert_true(|v| v.len() >= 45)
+    .title("vectors should have length < 50")
+    .assert_true(|v| v.len() < 50);
+```
+
+#### Seed
+
+The randomization seed is by default random,
+just to have a greater probability of finding a falsifying example,
+when aggregating over several test runs.
+However, the seed can be set using [Conf::with_seed].
+This can be useful when you need repeatability,
+like when reproducing a failing example and in that case, use the reproduction
+seed printed out in the failed test.
+
+```rust
+use monkey_test::*;
+
+monkey_test()
+    // Setting a fixed seed used for generating the randomized example vectors.
+    .with_seed(1234567890)
+    .with_generator(gens::vec::any(gens::u8::any()))
+    .assert_true(|v| v.len() >= 0);
+```
+
+> **☝️ Note 1!** It is also a good idea to convert a found failing monkey test
+> example into a specific example-based test and keep it in the test suite,
+> to guard against future regressions in code under test.
+
+> **☝️ Note 2!** It is not a good idea to just have a Monkey Test property
+> with fixed seed as a regression test,
+> since a fixed seed is likely to not generate the same examples,
+> if implementation details are changed between versions of Monkey Test.
 
 ### Generators and shrinkers for basic types
 
