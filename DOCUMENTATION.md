@@ -47,9 +47,9 @@ assert_eq!(16_f64.sqrt(), 4_f64);
 
 With PBT a property of your code is validated against an arbitrary number of
 generated examples.
-A property can loose some specificity, but can usually say something more general
+A property can lose some specificity, but can usually say something more general
 about the code under test compared to a specific test example and outcome.
-Further, using random examples in test can find aspects you missed when
+Further, using random examples in tests can find aspects you missed when
 manually choosing examples to test.
 
 ```rust
@@ -69,11 +69,11 @@ tested above? Is there any value in testing these properties?
 
 The answer is that usually when code goes wrong or has a bug, the
 return value is not just a little bit off, but many times it is way off and
-fail spectacularly, like returning a negative value or panicing.
+fail spectacularly, like returning a negative value or panicking.
 
-In short, combining general property based tests with some specific
-unit tests is a powerful testing technique to both specify the precise behaviour
-and finding bugs you did not foresee yourself.
+In short, combining general property-based tests with specific unit tests is a
+powerful technique.
+It helps specify precise behavior and find bugs you might not have foreseen.
 
 ## Nomenclature
 
@@ -86,8 +86,8 @@ and finding bugs you did not foresee yourself.
 
 For a complete guide of all features in the Monkey Test library, refer to the
 [generated API documentation (docs.rs)](https://docs.rs/monkey_test).
-Additional usage examples can be found in
-[code repository test folder (github.com)](https://tests).
+Additional usage examples can be found in crate
+[code repository test folder (github.com)](https://github.com/jockbert/monkey_test/tree/main/tests).
 A summary is given below.
 
 ### Configurability
@@ -166,7 +166,7 @@ monkey_test()
 
 Generators for `bool`, `f32`, `f64` and for all integer types
 `i8`, `i16`, `i32`, `i64`, `i128`, `isize`,
-`u8`, `u16` `u32`, `u64` , `u128` and `usize`.
+`u8`, `u16`, `u32`, `u64`, `u128` and `usize`.
 
 ```rust
 use monkey_test::*;
@@ -175,11 +175,11 @@ let some_longs = gens::i64::ranged(10..=20);
 let mostly_true = gens::bool::with_ratio(1,20);
 ```
 
-There are some more specialized generators. In module
-`gens::sized` there are generators that return progressively larger and larger
-values, suitable for controlling the size of generated collections. In module
-`gens::fixed` there are generators that do not use randomness, which can be
-useful sometimes.
+There are also specialized generators:
+
+* In `gens::sized`, generators that produce progressively larger values, useful
+  for controlling the size of generated collections.
+* In `gens::fixed`, generators that produce fixed values without randomness.
 
 ```rust
 use monkey_test::*;
@@ -302,13 +302,13 @@ trait directly, or just make use of [shrinks::from_fn].
 
 How do you write a useful property that is testable and valid for all generated
 examples?
-One baby-step is to try parameterize an already existing example based test.
+One baby step is to try to parameterize an already existing example-based test.
 As an inspiration, here follow some common classes of properties to test.
 
 ### No explosion
 
-Just shoot examples at code under test and make sure there are no errors and
-no panics.
+Feed random examples to the code under test and ensure there are no errors
+or panics.
 
 ```rust,should_panic
 // Testing that there are no panics, but will panic on division by zero for
@@ -332,7 +332,7 @@ monkey_test()
 
 ### Simplification
 
-Since the examples used are random, i.e. unknown, it can be hard to be specific
+Since the examples are random (and thus unknown), it can be hard to be specific
 about what result to expect. However, using the "loose boundaries" principle,
 you can usually at least specify some relaxed model - a simplified property
 to verify.
@@ -350,10 +350,10 @@ monkey_test()
 ### Symmetry
 
 Apply a function and its inverse and make sure you get back the same initial
-value. Some examples of this is write and read back something, like save to
+value. Some examples of this are write and read back something, like save to
 file system and load it again.
 Another example is to generate some ground truth data, transform it to an
-input format and make sure your business logic calculate an answer that
+input format and make sure your business logic calculates an answer that
 corresponds to the ground truth data.
 
 ```rust
@@ -367,7 +367,7 @@ monkey_test()
 
 ### Idempotence
 
-Applying the same function many times generate the same result.
+Applying the same function many times generates the same result.
 This can be useful for showing that there is no hidden state
 affecting the result of the code under test.
 
