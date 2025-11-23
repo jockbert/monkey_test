@@ -17,8 +17,7 @@ where
     E: PrimInt + SampleUniform + std::fmt::Debug + 'static,
     B: RangeBounds<E>,
 {
-    let min = int_bounds::start(&bounds);
-    let max = int_bounds::end(&bounds);
+    let (min, max) = int_bounds::to_inclusive_range_tuple(&bounds);
     let mut extreme_values = vec![min, max];
 
     if min < E::zero() && E::zero() < max {
@@ -38,8 +37,7 @@ where
     E: PrimInt + SampleUniform + std::fmt::Debug + 'static,
     B: RangeBounds<E>,
 {
-    let min = int_bounds::start(&bounds);
-    let max = int_bounds::end(&bounds);
+    let (min, max) = int_bounds::to_inclusive_range_tuple(&bounds);
 
     crate::gens::from_fn(move |seed, _size| {
         let distr = rand::distr::Uniform::new_inclusive(min, max)

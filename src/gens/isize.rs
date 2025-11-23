@@ -47,8 +47,7 @@ fn map_to_i64_bounds<B>(i_bounds: &B) -> RangeInclusive<i64>
 where
     B: RangeBounds<isize>,
 {
-    let start: isize = int_bounds::start(i_bounds);
-    let end: isize = int_bounds::end(i_bounds);
+    let (start, end) = int_bounds::to_inclusive_range_tuple(i_bounds);
     (start as i64)..=(end as i64)
 }
 
