@@ -13,6 +13,7 @@
 mod config;
 mod convenience_traits;
 pub mod gens;
+mod internal;
 mod runner;
 pub mod shrinks;
 

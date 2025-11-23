@@ -8,7 +8,7 @@
 // is piggybacking on the generators for type `i64` and just maps to type
 // `isize`.
 
-use super::int_bounds;
+use crate::internal::int_bounds;
 use crate::BoxGen;
 use crate::*;
 use core::panic;

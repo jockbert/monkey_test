@@ -67,8 +67,8 @@ impl Conf {
         Size: std::ops::RangeBounds<usize>,
     {
         // Converting RangeBounds trait to ExampleSize (RangeInclusive struct).
-        let start = crate::gens::int_bounds::start(&size);
-        let end = crate::gens::int_bounds::end(&size);
+        let start = crate::internal::int_bounds::start(&size);
+        let end = crate::internal::int_bounds::end(&size);
 
         Self {
             example_count: self.example_count,

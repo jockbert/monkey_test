@@ -7,7 +7,7 @@ use rand::Rng;
 use rand::SeedableRng;
 use std::ops::RangeBounds;
 
-use super::int_bounds;
+use crate::internal::int_bounds;
 
 /// Roughly uniformly distributed range of values, with some overwheight to
 /// extremes of given bounds. That is, bounds min and max and additionally the
