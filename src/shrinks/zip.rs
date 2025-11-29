@@ -5,12 +5,11 @@ use crate::BoxShrink;
 /// ```rust
 /// use monkey_test::*;
 ///
-/// let alfa1: BoxShrink<u8> = shrinks::int::<u8>();
-/// let beta1: BoxShrink<i64> = shrinks::int::<i64>();
+/// let alfa1: BoxShrink<u8> = shrinks::int_to_zero::<u8>();
+/// let beta1: BoxShrink<i64> = shrinks::int_to_zero::<i64>();
 ///
-/// let alfa2: BoxShrink<u8> = shrinks::int::<u8>();
-/// let beta2: BoxShrink<i64> = shrinks::int::<i64>();
-///
+/// let alfa2: BoxShrink<u8> = shrinks::int_to_zero::<u8>();
+/// let beta2: BoxShrink<i64> = shrinks::int_to_zero::<i64>();
 ///
 /// // Zip two shrinkers to a tuple shrinker.
 /// let tuples1: BoxShrink<(u8, i64)> = shrinks::zip(alfa1, beta1);

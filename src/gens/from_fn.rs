@@ -24,7 +24,7 @@ use crate::Seed;
 /// let my_gen = gens::from_fn(|seed, _size| std::iter::repeat(42));
 ///
 /// // First alternative for providing a shrinker - attaching it to the generator.
-/// let my_shrinking_gen = my_gen.with_shrinker(shrinks::int());
+/// let my_shrinking_gen = my_gen.with_shrinker(shrinks::int_to_zero());
 /// monkey_test()
 ///     .with_generator(my_shrinking_gen)
 ///     .test_property(|n| n <= 10)
@@ -34,7 +34,7 @@ use crate::Seed;
 /// // point of property testing.
 /// monkey_test()
 ///     .with_generator(my_gen)
-///     .with_shrinker(shrinks::int())
+///     .with_shrinker(shrinks::int_to_zero())
 ///     .test_property(|n| n <= 10)
 ///     .assert_minimum_failure(11);
 /// ```

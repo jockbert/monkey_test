@@ -268,7 +268,7 @@ impl Gen<u32> for DiceGen {
     }
 
     fn shrinker(&self) -> BoxShrink<u32> {
-        shrinks::int()
+        shrinks::int_in_range(1, self.side_count)
         // Use shrinks::none() for not providing any shrinking.
     }
 }
@@ -291,7 +291,7 @@ fn dice_throw_generator_from_fn(side_count: u32) -> BoxGen<u32> {
         let distr = rand::distr::Uniform::new_inclusive(1, side_count).unwrap();
         rand_chacha::ChaCha8Rng::seed_from_u64(seed).sample_iter(distr)
     })
-    .with_shrinker(shrinks::int())
+    .with_shrinker(shrinks::int_in_range(1, side_count))
 }
 ```
 

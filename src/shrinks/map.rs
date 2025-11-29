@@ -12,23 +12,21 @@ use crate::BoxShrink;
 /// use monkey_test::*;
 ///
 /// let number_string_shrinker: BoxShrink<String> = shrinks::map(
-///     shrinks::int::<i64>(),
+///     shrinks::int_to_zero::<i64>(),
 ///     |i: i64| i.to_string(),
 ///     |s: String| s.parse().unwrap(),
 /// );
 ///
 /// let even_numbers_only_shrinker: BoxShrink<i64> = shrinks::map(
-///     shrinks::int::<i64>(),
+///     shrinks::int_to_zero::<i64>(),
 ///     |i:i64| i * 2,
 ///     |even: i64| even / 2,
 /// );
 ///
 /// // Shorthand way to do the same thing
-/// let even_numbers_only_shrinker_2: BoxShrink<i64> = shrinks::int::<i64>()
-///     .map(
-///        |i:i64| i * 2,
-///        |even: i64| even / 2,
-///     );
+/// let even_numbers_only_shrinker_2: BoxShrink<i64> =
+///     shrinks::int_to_zero::<i64>()
+///         .map(|i: i64| i * 2, |even: i64| even / 2);
 /// ```
 pub fn map<E0, E1>(
     shrink0: BoxShrink<E0>,

@@ -13,7 +13,7 @@ use crate::{BoxGen, BoxIter, BoxShrink, ExampleSize, Gen, Seed};
 /// assert!(gen2.shrinker().candidates(123).next().is_none());
 ///
 /// // let generator have other shrinker again (alternative way)
-/// let gen3 = gen2.with_shrinker(shrinks::int());
+/// let gen3 = gen2.with_shrinker(shrinks::int_to_zero());
 /// assert!(gen3.shrinker().candidates(123).next().is_some());
 /// ```
 pub fn other_shrinker<E: Clone + 'static>(

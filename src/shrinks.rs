@@ -18,8 +18,6 @@ pub use float::float;
 pub use from_fn::from_fn;
 pub use from_fn::from_fn_boxed;
 
-#[allow(deprecated)]
-pub use integer::int;
 pub use integer::int_in_range;
 pub use integer::int_to_zero;
 

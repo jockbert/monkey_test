@@ -4,16 +4,6 @@ use crate::BoxShrink;
 use num_traits::PrimInt;
 
 /// Shrink integer types towards the value zero.
-#[deprecated = "use int_in_range for better shrink behaviour, \
-or int_to_zero for the old behaviour."]
-pub fn int<E>() -> BoxShrink<E>
-where
-    E: PrimInt + std::fmt::Debug + 'static,
-{
-    int_in_range(E::min_value(), E::max_value())
-}
-
-/// Shrink integer types towards the value zero.
 pub fn int_to_zero<E>() -> BoxShrink<E>
 where
     E: PrimInt + std::fmt::Debug + 'static,
