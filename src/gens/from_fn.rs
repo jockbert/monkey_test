@@ -27,7 +27,7 @@ use crate::Seed;
 /// let my_shrinking_gen = my_gen.with_shrinker(shrinks::int_to_zero());
 /// monkey_test()
 ///     .with_generator(my_shrinking_gen)
-///     .test_property(|n| n <= 10)
+///     .test_true(|n| n <= 10)
 ///     .assert_minimum_failure(11);
 ///
 /// // Second alternative for providing a shrinker - explicitly providing it at
@@ -35,7 +35,7 @@ use crate::Seed;
 /// monkey_test()
 ///     .with_generator(my_gen)
 ///     .with_shrinker(shrinks::int_to_zero())
-///     .test_property(|n| n <= 10)
+///     .test_true(|n| n <= 10)
 ///     .assert_minimum_failure(11);
 /// ```
 ///

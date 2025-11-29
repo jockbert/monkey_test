@@ -139,13 +139,6 @@ where
         )
     }
 
-    /// This function is deprecated, due to name change, aligning names of
-    /// different asserts and tests. Use [ConfAndGen::test_true] instead.
-    #[deprecated = "Use ConfAndGen.test_true instead"]
-    pub fn test_property(&self, prop: Property<E>) -> MonkeyResult<E> {
-        self.test_true(prop)
-    }
-
     /// Check that the property holds for all generated example values.
     /// It panics on failure.
     #[track_caller]
