@@ -9,13 +9,6 @@ pub fn with_ratio(ratio_false: u8, ratio_true: u8) -> BoxGen<bool> {
         .with_shrinker(crate::shrinks::bool())
 }
 
-/// Uniformly distributed generator of `true` and `false`. Please use [any]
-/// instead.
-#[deprecated = "Use any() insted, conforming to monkey_test general naming scheme."]
-pub fn evenly() -> BoxGen<bool> {
-    with_ratio(1, 1)
-}
-
 /// Uniformly distributed generator of `true` and `false`.
 pub fn any() -> BoxGen<bool> {
     with_ratio(1, 1)
