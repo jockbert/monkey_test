@@ -15,6 +15,8 @@ use rand::SeedableRng;
 /// For now, the max size example value generated starts at really low size, its
 /// max size increases with roughly 30% for each example and is limited to max
 /// size 100_000.
+#[deprecated = "To be removed without replacement due to high complexity and lack of obvious use case"]
+#[allow(deprecated)]
 pub fn default() -> BoxGen<usize> {
     progressively_increasing(0, 30, 100_000)
 }
@@ -35,6 +37,7 @@ pub fn default() -> BoxGen<usize> {
 /// All in all, this should hopefully ensure a good test coverage, first testing
 /// with small sizes and later on with possibly larger ones too, hitting a good
 /// balance between test coverage and performance.
+#[deprecated = "To be removed without replacement due to high complexity and lack of obvious use case"]
 pub fn progressively_increasing(
     start_size: usize,
     percent_increase: usize,
@@ -119,6 +122,7 @@ mod test {
     }
 
     #[test]
+    #[allow(deprecated)]
     pub fn generator_should_never_exceed_max_size() {
         let max_size = 7;
         let extra_large = 7_000;
@@ -133,6 +137,7 @@ mod test {
     }
 
     #[test]
+    #[allow(deprecated)]
     pub fn generator_should_behave_reasonably() {
         // If max increments linearly with one each example taken, from start
         // value 0, the aggregated sum of all generated values should end up

@@ -177,8 +177,6 @@ let mostly_true = gens::bool::with_ratio(1,20);
 
 There are also specialized generators:
 
-* In `gens::sized`, generators that produce progressively larger values, useful
-  for controlling the size of generated collections.
 * In `gens::fixed`, generators that produce fixed values without randomness.
 
 ```rust
