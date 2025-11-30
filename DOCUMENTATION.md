@@ -118,7 +118,7 @@ Some, but not all, generators generate examples that have some sort of
 size dimension.
 The example size can be controlled using [Conf::with_example_size].
 
-```rust,ignore
+```rust
 use monkey_test::*;
 
 monkey_test()

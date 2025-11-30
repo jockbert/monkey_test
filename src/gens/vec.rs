@@ -1,14 +1,10 @@
 //! Generators for vectors.
 //!
-//! One design choice of the vector generator implementation is that example
-//! vectors are expected to over time be potentially longer and longer,
-//! when iterating over the example iterator.
-//!
 //! ```rust
 //! use monkey_test::*;
 //!
 //! let some_seed = 1337;
-//! let some_size = 0..=1000;
+//! let some_size = 0..=3;
 //! let vectors_of_nine = gens::vec::any(gens::fixed::constant(9));
 //!
 //! let actual_examples = vectors_of_nine
@@ -19,44 +15,26 @@
 //! assert_eq!{
 //!     actual_examples,
 //!     vec![
-//!         vec![],
-//!         vec![9],
-//!         vec![9],
-//!         vec![9, 9],
-//!         vec![9, 9],
-//!         vec![9, 9, 9, 9, 9],
-//!         vec![9, 9],
-//!         vec![9, 9, 9, 9, 9, 9],
-//!         vec![9, 9, 9, 9],
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
-//!         vec![9, 9, 9],
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
-//!
-//!         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-//!              9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+//!       vec![9, 9, 9],
+//!       vec![9, 9, 9],
+//!       vec![9, 9],
+//!       vec![9],
+//!       vec![9, 9],
+//!       vec![9, 9, 9],
+//!       vec![9],
+//!       vec![9, 9, 9],
+//!       vec![9],
+//!       vec![9, 9, 9],
+//!       vec![9],
+//!       vec![9, 9, 9],
+//!       vec![],
+//!       vec![9, 9],
+//!       vec![9, 9, 9],
+//!       vec![9, 9, 9],
+//!       vec![9, 9],
+//!       vec![9, 9],
+//!       vec![9, 9],
+//!       vec![9, 9]
 //!     ]
 //! };
 //! ```
@@ -68,7 +46,8 @@ pub fn any<E: Clone + 'static>(element_gen: BoxGen<E>) -> BoxGen<Vec<E>> {
     let element_shrinker = element_gen.shrinker();
 
     crate::gens::from_fn(move |seed, size| {
-        let sizes = crate::gens::sized::default().examples(seed, size.clone());
+        let sizes = crate::gens::usize::ranged(size.clone())
+            .examples(seed, size.clone());
         let seeds = crate::gens::seeds().examples(seed, size.clone());
         let element_gen = element_gen.clone();
 
