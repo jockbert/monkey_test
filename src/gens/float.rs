@@ -436,7 +436,7 @@ mod test {
         B: RangeBounds<f32> + std::fmt::Debug,
     {
         generator
-            .examples(crate::seed_to_use(), crate::global_example_size())
+            .examples(crate::global_seed(), crate::global_example_size())
             .take(1000)
             .for_each(|v| {
                 assert!(
@@ -451,7 +451,7 @@ mod test {
             let examples_count = 1000;
             let has_value =
                 generator
-                .examples(crate::seed_to_use(), crate::global_example_size())
+                .examples(crate::global_seed(), crate::global_example_size())
                 .take(examples_count)
                 .any(|e| {
                   float_equals(e, *v)
@@ -467,7 +467,7 @@ mod test {
     fn assert_does_not_have_value(generator: BoxGen<f32>, value: f32) {
         let examples_count = 500;
         generator
-            .examples(crate::seed_to_use(), crate::global_example_size())
+            .examples(crate::global_seed(), crate::global_example_size())
             .take(examples_count)
             .for_each(|e| {
                 let r = float_equals(e, value);

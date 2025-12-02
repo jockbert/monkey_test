@@ -37,7 +37,7 @@ pub fn assert_even_distr<E>(
     let occurrences_size: usize = cmp::min(expected_range, max_occurrence_size);
     let mut occurrences = vec![0usize; occurrences_size];
 
-    let seed = crate::seed_to_use();
+    let seed = crate::global_seed();
     let it = generator_to_test.examples(seed, 0..=10);
     for value in it.take(total_count) {
         // Do a bounds check

@@ -90,8 +90,14 @@ impl Conf {
     }
 }
 
-/// The standard source to get randimization seed from.
+/// The global source for getting randomization seed from.
+#[deprecated = "Please use `global_seed()` function instead."]
 pub fn seed_to_use() -> Seed {
+    global_seed()
+}
+
+/// The global source for getting randomization seed from.
+pub fn global_seed() -> Seed {
     rand_chacha::ChaCha8Rng::from_os_rng().next_u64()
 }
 
@@ -109,7 +115,7 @@ impl Default for Conf {
     fn default() -> Self {
         Self {
             example_count: 100,
-            seed: seed_to_use(),
+            seed: global_seed(),
             size: global_example_size(),
         }
     }
