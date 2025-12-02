@@ -1,7 +1,37 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.8.1...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.9.0...main).
+
+## Release 0.9.0 (2025-12-03) [diff](https://github.com/jockbert/monkey_test/compare/v0.8.1...v0.9.0)
+
+This release adds the possibility to set size range on generators that generates
+examples that has some kind of size-dimension. An example is a generator for
+vectors. Now you can configure the generator to only return vectors with length
+within the specified range.
+
+### New features
+
+* Adding new function `Config::with_example_size`, enabling user to configure
+  the range of sizes used when generating examples, on generators where a size
+  is applicable.
+* Let vector generator use configured size range argument, controlling the length
+  of generated example vectors.
+
+### Breaking changes
+
+* Make trait function `Gen::examples` take a new argument
+  called `size` of type (alias) `ExampleSize`.
+* Remove earlier deprecated `shrinks::int`, `ConfigAndGen::test_property` and
+  `gens::bool::evenly`.
+
+### Other changes
+
+* Deprecating module `gens::sized` since no longer useful internally, and
+  probably not useful publicly.
+* Renaming function `seed_to_use` to `global_seed` in order to align naming
+  with newly added `global_example_count` and `global_example_size`, keeping but
+  deprecating the old name for now.
 
 ## Release 0.8.1 (2025-11-17) [diff](https://github.com/jockbert/monkey_test/compare/v0.8.0...v0.8.1)
 
