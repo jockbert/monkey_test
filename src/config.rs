@@ -110,11 +110,20 @@ pub fn global_example_size() -> ExampleSize {
     DEFAULT_EXAMPLE_SIZE.clone()
 }
 
+/// The default example count 100.
+pub const DEFAULT_EXAMPLE_COUNT: u32 = 100;
+
+/// The globally used example count. If nothing else is
+/// specified, [DEFAULT_EXAMPLE_COUNT] is used.
+pub fn global_example_count() -> u32 {
+    DEFAULT_EXAMPLE_COUNT
+}
+
 impl Default for Conf {
     /// Create new configuration with default values
     fn default() -> Self {
         Self {
-            example_count: 100,
+            example_count: global_example_count(),
             seed: global_seed(),
             size: global_example_size(),
         }
