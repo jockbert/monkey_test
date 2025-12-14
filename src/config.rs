@@ -11,6 +11,9 @@ use std::fmt::Write;
 use std::sync::mpsc;
 
 /// Configuration for executing monkey tests.
+///
+/// This struct contains the early parts of the configuration that can be made
+/// before adding a generator to the configuration.
 #[derive(Clone)]
 pub struct Conf {
     /// See [Conf::with_example_count].
