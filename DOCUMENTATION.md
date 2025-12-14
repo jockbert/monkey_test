@@ -122,11 +122,31 @@ The example size can be controlled using [Conf::with_example_size].
 use monkey_test::*;
 
 monkey_test()
-    // Setting example size.
+    // Setting example size for all generators in test
     .with_example_size(45..50)
     // The given size range will be propagated to all downstream generators.
     // The vec generator takes the size into account, but the u8 one does not.
     .with_generator(gens::vec::any(gens::u8::any()))
+    .title("vectors should have length >= 45")
+    .assert_true(|v| v.len() >= 45)
+    .title("vectors should have length < 50")
+    .assert_true(|v| v.len() < 50);
+```
+
+The example size can also be controlled per individual generator using
+either the generator decorator [gens::of_size]
+or the convenience method [SizedGen::of_size],
+which is available on all generators.
+Setting the size per generator overrides all other example size settings.
+
+```rust
+use monkey_test::*;
+
+monkey_test()
+    .with_generator(
+      // Setting example size for a specific generator, overriding
+      // all other example size settings.
+      gens::vec::any(gens::u8::any()).of_size(45..50))
     .title("vectors should have length >= 45")
     .assert_true(|v| v.len() >= 45)
     .title("vectors should have length < 50")

@@ -3,10 +3,12 @@ use crate::{BoxGen, BoxShrink, Gen, Shrink};
 
 mod filter;
 mod map;
+mod of_size;
 mod zip;
 
 pub use filter::*;
 pub use map::*;
+pub use of_size::*;
 pub use zip::*;
 
 /// Trait that enables cloning a boxed generator.
