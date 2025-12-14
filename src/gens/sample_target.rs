@@ -5,7 +5,7 @@ pub type Ratio = u8;
 ///
 /// Let say we want to toss a coin with wanted distribution 75% heads
 /// and 25% tails. Then we can specify the sample domain as \[1, 4\], where
-/// first thre samples (1, 2 and 3) returns a head and one sample (4)
+/// first three samples (1, 2 and 3) returns a head and one sample (4)
 /// returns a tail.
 /// ```text
 /// SampleTarget::new_from_ratios(&[(3, "head"),((1, "tail"))]);
