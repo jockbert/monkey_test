@@ -67,13 +67,10 @@ impl Conf {
     where
         Size: std::ops::RangeBounds<usize>,
     {
-        // Converting RangeBounds trait to ExampleSize (RangeInclusive struct).
-        let (start, end) = int_bounds::to_inclusive_range_tuple(&size);
-
         Self {
             example_count: self.example_count,
             seed: self.seed,
-            size: start..=end,
+            size: int_bounds::to_inclusive_range(&size),
         }
     }
 
