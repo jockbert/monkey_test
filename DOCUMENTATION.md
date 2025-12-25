@@ -12,9 +12,9 @@ tool like QuickCheck
 * [Nomenclature](#nomenclature)
 * [Features](#features)
   * [Configurability](#configurability)
-    * [Example count](#example-count)
-    * [Example size](#example-size)
-    * [Seed](#seed)
+    * [Configure example count](#configure-example-count)
+    * [Configure example size](#configure-example-size)
+    * [Configure randomization seed](#configure-randomization-seed)
   * [Generators and shrinkers for basic types](#generators-and-shrinkers-for-basic-types)
   * [Generators and shrinkers for collections](#generators-and-shrinkers-for-collections)
   * [Pick values and mix generators](#pick-values-and-mix-generators)
@@ -95,11 +95,15 @@ A summary is given below.
 All configuration options in Monkey Test have default values that are aimed
 to be reasonable defaults, but sometimes you want to change these.
 
-#### Example count
+#### Configure example count
 
 Example count controls the number of example values that should be used when
-verifying a property. The value can be set directly
-using [Conf::with_example_count].
+verifying a property.
+
+If no example count is set, the [DEFAULT_EXAMPLE_COUNT] will be used
+for all properties in a test.
+
+The value can be set per test using [Conf::with_example_count].
 
 ```rust
 use monkey_test::*;
@@ -112,11 +116,15 @@ monkey_test()
     .assert_true(|v| v.len() >= 0);
 ```
 
-#### Example size
+#### Configure example size
 
-Some, but not all, generators generate examples that have some sort of
-size dimension.
-The example size can be controlled using [Conf::with_example_size].
+Some generators produce examples with a size dimension, while others do not.
+
+If no example size is set, the [DEFAULT_EXAMPLE_SIZE] will be used for all
+generators in the test.
+
+The example size can be controlled for all generators in a test
+using [Conf::with_example_size].
 
 ```rust
 use monkey_test::*;
@@ -153,7 +161,7 @@ monkey_test()
     .assert_true(|v| v.len() < 50);
 ```
 
-#### Seed
+#### Configure randomization seed
 
 The randomization seed is by default random,
 just to have a greater probability of finding a falsifying example,
