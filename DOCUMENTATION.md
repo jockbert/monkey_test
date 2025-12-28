@@ -11,6 +11,7 @@ tool like QuickCheck
 * [Property based testing core concepts](#property-based-testing-core-concepts)
 * [Nomenclature](#nomenclature)
 * [Features](#features)
+  * [Conventions](#conventions)
   * [Configurability](#configurability)
     * [Configure example count](#configure-example-count)
     * [Configure example size](#configure-example-size)
@@ -89,6 +90,16 @@ For a complete guide of all features in the Monkey Test library, refer to the
 Additional usage examples can be found in crate
 [code repository test folder (github.com)](https://github.com/jockbert/monkey_test/tree/main/tests).
 A summary is given below.
+
+### Conventions
+
+* Ready-made generators are located in module [gens].
+* Ready-made shrinkers are located in module [shrinks].
+* The most general generator for each type is named *any*,
+  as in for example [gens::f64::any] compared to more specialized generators
+  like [gens::f64::finite].
+  Make it a habit to use the *any* generator where possible,
+  for applying the widest range of examples when validating a property.
 
 ### Configurability
 
