@@ -245,9 +245,14 @@ generators
 
 ```rust
 use monkey_test::*;
+
+// Pick from list of example values
 let fruits = gens::pick_evenly(&["banana", "apple", "orange"]);
-let nuts = gens::pick_evenly(&["peanut", "almond", "pecan"]);
-let snacks = gens::mix_with_ratio(&[(3, nuts), (1, fruits)]);
+let nuts = gens::pick_with_ratio(&[(3,"peanut"), (2,"almond"), (1,"pecan")]);
+
+// Mix values from different generators
+let snacks_assorted = gens::mix_evenly(&[nuts.clone(), fruits.clone()]);
+let snacks_mostly_nuts = gens::mix_with_ratio(&[(3, nuts), (1, fruits)]);
 ```
 
 ### Compose generators and shrinkers for more complex types
