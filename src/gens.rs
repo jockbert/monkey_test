@@ -50,13 +50,13 @@ macro_rules! integer_module {
             use std::ops::RangeBounds;
 
             /// Roughly uniformly distributed unbound range of values, with
-            /// some overwheight to extremes (min and max).
+            /// some overweight to extremes (min and max).
             pub fn any() -> BoxGen<$name> {
                 ranged(..)
             }
 
             /// Roughly uniformly distributed range of values, with some
-            /// overwheight to extremes (min and max) of given bounds.
+            /// overweight to extremes (min and max) of given bounds.
             pub fn ranged<B>(bounds: B) -> BoxGen<$name>
             where
                 B: RangeBounds<$name>,
@@ -114,7 +114,7 @@ macro_rules! float_module {
             //! [zero_to_one]|  |                  |        ✓         |      |
             //!
             //!
-            //! All generators but [completely_random] has some overwheight
+            //! All generators but [completely_random] has some overweight
             //! towards special values, like for example extreme values of given
             //! range, ±0, ±1, `±Inf` and `NaN`.
 
@@ -124,8 +124,7 @@ macro_rules! float_module {
             /// Generator that return any floating point value, including any
             /// finite number, NaN, Inf and -Inf.
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             pub fn any() -> BoxGen<$name> {
                 super::float::any()
             }
@@ -133,8 +132,7 @@ macro_rules! float_module {
             /// Generator that only return finite numbers, `-Inf` and
             /// `Inf`. In other words any float value besides `NaN`.
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             pub fn number() -> BoxGen<$name> {
                 super::float::number()
             }
@@ -142,8 +140,7 @@ macro_rules! float_module {
             /// Generator that only return numbers between 0 and
             /// `+Inf`.
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             pub fn positive() -> BoxGen<$name> {
                 super::float::positive()
             }
@@ -151,8 +148,7 @@ macro_rules! float_module {
             /// Generator that only return numbers between `-Inf`
             /// and -0.
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             pub fn negative() -> BoxGen<$name> {
                 super::float::negative()
             }
@@ -160,8 +156,7 @@ macro_rules! float_module {
             /// Generator that only return finite numbers between minimum
             /// and maximum finite number.
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             pub fn finite() -> BoxGen<$name> {
                 super::float::finite()
             }
@@ -169,16 +164,14 @@ macro_rules! float_module {
             /// Generator that only return finite numbers in the range from 0
             /// (inclusive) to 1 (exclusive).
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             pub fn zero_to_one() -> BoxGen<$name> {
                 super::float::zero_to_one()
             }
 
             /// Generator that only return finite numbers in the given range.
             ///
-            /// This generator has some overwheight to special border case
-            /// values.
+            /// This generator has some overweight to special edge case values.
             ///
             /// It will throw if any of `±Inf` or `NaN` is part of the given
             /// range.
