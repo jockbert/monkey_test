@@ -14,7 +14,6 @@ mod mix;
 mod of_size;
 mod other_shrink;
 mod pick;
-mod sample_target;
 pub mod sized;
 pub mod vec;
 mod zip;
@@ -32,8 +31,6 @@ pub use of_size::of_size;
 pub use other_shrink::other_shrinker;
 pub use pick::pick_evenly;
 pub use pick::pick_with_ratio;
-pub use sample_target::Ratio;
-use sample_target::SampleTarget;
 pub use zip::zip;
 
 /// Standard way to generate seeds for random source.

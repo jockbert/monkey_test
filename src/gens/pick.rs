@@ -1,5 +1,5 @@
-use crate::gens::Ratio;
-use crate::gens::SampleTarget;
+use crate::internal::sample_target::Ratio;
+use crate::internal::sample_target::SampleTarget;
 use crate::BoxGen;
 use rand::Rng;
 use rand::SeedableRng;
