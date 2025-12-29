@@ -1,12 +1,30 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.9.0...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.9.1...main).
+
+## Release 0.9.1 (2025-12-29) [diff](https://github.com/jockbert/monkey_test/compare/v0.9.0...v0.9.1)
+
+This release adds the possibility to set example size per generator, and not
+just for all generators used in a test, as in release 0.9.0.
+
+### New features
+
+* Allow setting example size per generator. See documentation for details.
+
+### Other changes
+
+* General improvements of documentation. The configurability section is
+  improved. New section about conventions is added. Example on how to use pick-
+  and mix-generators is improved.
+
+* Flaky test is made stable. All test should now be stable.
 
 ## Release 0.9.0 (2025-12-03) [diff](https://github.com/jockbert/monkey_test/compare/v0.8.1...v0.9.0)
 
-This release adds the possibility to set size range on generators that generates
-examples that has some kind of size-dimension. An example is a generator for
+This release adds the possibility to set example size range used on all
+generators used in a test. This affects generators that produce examples that
+has some kind of size-dimension. An example is a generator for
 vectors. Now you can configure the generator to only return vectors with length
 within the specified range.
 
