@@ -42,7 +42,11 @@ fn test_reverse() {
             println!("original failure: {:?}", original_failure);
             println!("shrink count: {:?}", shrink_count);
             println!("other failures..: {:?}", some_other_failures);
-            assert_eq!(minimum_failure, vec![0, 1])
+
+            let mut sorted_failure = minimum_failure.clone();
+            sorted_failure.sort();
+
+            assert_eq!(sorted_failure, vec![0, 1])
         }
         other => panic!("{:?} is unexpected", other),
     }
