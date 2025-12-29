@@ -1,7 +1,16 @@
 
 # Changelog
 
-[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.9.1...main).
+[Show diff of unreleased changes on GitHub](https://github.com/jockbert/monkey_test/compare/v0.9.2...main).
+
+## Release 0.9.2 (2025-12-30) [diff](https://github.com/jockbert/monkey_test/compare/v0.9.1...v0.9.2)
+
+This release adds generators for char and String types.
+
+### New features
+
+* Adds various generators for char type in module `gens::char::*`.
+* Adds various generators for String type in module `gens::string::*`.
 
 ## Release 0.9.1 (2025-12-29) [diff](https://github.com/jockbert/monkey_test/compare/v0.9.0...v0.9.1)
 
